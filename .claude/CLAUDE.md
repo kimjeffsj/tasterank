@@ -4,7 +4,7 @@
 
 ## Stack
 
-Next.js 16 (App Router) · React 19 · TypeScript 5 · Tailwind 4.1 (CSS-first, no config.js) · shadcn/ui · Supabase (Auth, DB, Storage, RLS) · Zustand · Claude API (claude-sonnet-4-20250514) · @serwist/next (PWA) · Vercel
+Next.js 16 (App Router) · React 19 · TypeScript 5 · Tailwind 4.1 (CSS-first, no config.js) · shadcn/ui (selective: Dialog, Sheet, Slider, Form) · Supabase (Auth, DB, Storage, RLS) · Zustand · Claude API (claude-sonnet-4-20250514) · @serwist/next (PWA) · Vercel · Plus Jakarta Sans · Material Icons Round
 
 ## Commands
 
@@ -47,7 +47,11 @@ supabase/migrations/   SQL 마이그레이션 파일
 - **Lazy Auth**: 수정 액션 시도 시에만 `LoginPrompt` 모달로 Google OAuth 유도. 앱 진입 시 로그인 강제하지 않음.
 - **Google OAuth만 사용**. Kakao 등 다른 provider 없음.
 - **TDD**: 테스트 먼저 작성 → 구현 → 리팩토링. 커버리지 80%+. 테스트 파일은 대상과 같은 디렉토리에 `.test.tsx` 배치.
-- **Tailwind 4.1**: `tailwind.config.js` 사용 금지. `globals.css` 내 `@theme` 블록으로 커스텀. `oklch()` 컬러.
+- **Tailwind 4.1**: `tailwind.config.js` 사용 금지. `globals.css` 내 `@theme` 블록으로 커스텀. hex 컬러.
+- **Font**: Plus Jakarta Sans (Google Fonts). 한국어 폴백 없음.
+- **Icons**: Material Icons Round (Google Fonts). `<span className="material-icons-round">icon_name</span>`.
+- **UI Language**: English first. i18n/multi-language support planned for later.
+- **shadcn/ui 선택적 사용**: Dialog, Sheet, Slider, Form만 사용. Card, Button, Badge 등 비주얼 컴포넌트는 레퍼런스 디자인 Tailwind 패턴 사용.
 - **서버 키 보호**: `ANTHROPIC_API_KEY`, `SUPABASE_SERVICE_ROLE_KEY`는 서버 전용. 절대 클라이언트/브라우저 노출 금지.
 - **Server Components 기본**: `"use client"` 필요한 경우에만 사용.
 - **Supabase 타입 변경 후 반드시 `npx supabase gen types` 실행**.
@@ -59,18 +63,20 @@ supabase/migrations/   SQL 마이그레이션 파일
 3. **구현 후** 체크리스트 업데이트 + 구현 노트 작성 (`.claude/docs/implementation/`)
 4. **구현 노트 규칙**: `{YYYY-MM-DD}_{name}.md`, 템플릿은 `_TEMPLATE.md` 참고
 5. **트레이드오프 기록**: 각 구현 결정의 이유, 대안, 장단점을 구현 노트에 기록
-6. **커밋 메시지 추천**: 각 구현 이후 커밋 메시지 추천 한줄 혹은 불렛포인트로 간단하게.
+6. **커밋 메시지 추천**: 각 작업 이후 커밋 메시지 추천 한줄 혹은 불렛포인트로 간단하게
 
 ## Docs — 필요 시에만 로드
 
-| 문서          | 경로                               | 로딩 시점                          |
-| ------------- | ---------------------------------- | ---------------------------------- |
-| 체크리스트    | `.claude/CHECKLIST.md`             | 세션 시작 시                       |
-| 제품 요구사항 | `.claude/docs/PRD.md`              | 요구사항/기능 스펙 확인 시         |
-| DB 스키마/RLS | `.claude/docs/ERD.md`              | DB/스키마/RLS/마이그레이션 작업 시 |
-| 기술 명세     | `.claude/docs/TECH_SPEC.md`        | 설정/인증/API/서버 구조 작업 시    |
-| 디자인/UI     | `.claude/docs/DESIGN.md`           | UI 컴포넌트/스타일 작업 시         |
-| 구현 노트     | `.claude/docs/implementation/*.md` | 이전 구현 컨텍스트 필요 시         |
+| 문서            | 경로                               | 로딩 시점                             |
+| --------------- | ---------------------------------- | ------------------------------------- |
+| 체크리스트      | `.claude/CHECKLIST.md`             | 세션 시작 시                          |
+| 제품 요구사항   | `.claude/docs/PRD.md`              | 요구사항/기능 스펙 확인 시            |
+| DB 스키마/RLS   | `.claude/docs/ERD.md`              | DB/스키마/RLS/마이그레이션 작업 시    |
+| 기술 명세       | `.claude/docs/TECH_SPEC.md`        | 설정/인증/API/서버 구조 작업 시       |
+| 디자인/UI       | `.claude/docs/DESIGN.md`           | UI 컴포넌트/스타일 작업 시            |
+| 디자인 스킬     | `.claude/skills/designer/SKILL.md` | 컴포넌트/페이지 디자인 시 (quick ref) |
+| 레퍼런스 디자인 | `.claude/docs/reference_design.md` | 디자인 세부 HTML 확인 시              |
+| 구현 노트       | `.claude/docs/implementation/*.md` | 이전 구현 컨텍스트 필요 시            |
 
 ## Quick Reference
 

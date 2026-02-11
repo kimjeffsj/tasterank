@@ -1,37 +1,37 @@
-# 컴포넌트 개발 패턴
+# Component Development Patterns
 
-TasteRank 프로젝트의 React 컴포넌트 작성 규칙.
+TasteRank React component rules.
 
-## 기본 원칙
+> **Visual design reference**: `.claude/skills/designer/SKILL.md` — use for all styling decisions
 
-1. **Server Components 기본** — `"use client"`는 필요한 경우에만 (이벤트 핸들러, hooks, 브라우저 API)
-2. **TDD** — 테스트 먼저 작성 → 구현 → 리팩토링
-3. **테스트 파일 위치** — 대상과 같은 디렉토리에 `.test.tsx` 배치
-4. **shadcn/ui 기반** — 기본 UI는 shadcn/ui 컴포넌트 활용
-5. **Tailwind 4.1** — `@theme` 변수 기반 스타일링, oklch 컬러
+## Core Principles
 
-## 디렉토리 구조
+1. **Server Components default** — `"use client"` only when needed (event handlers, hooks, browser APIs)
+2. **TDD** — Write test first → implement → refactor
+3. **Test file location** — Same directory as target: `Component.test.tsx`
+4. **Tailwind-first styling** — Reference design patterns from Designer Skill
+5. **shadcn/ui selective** — Only for Dialog, Sheet, Slider, Form (accessibility needs)
+
+## Directory Structure
 
 ```
 src/components/
-├── ui/           # shadcn/ui (자동 생성, 수정 지양)
-├── trip/         # 컬렉션 관련: TripCard, TripForm
-├── entry/        # 음식 관련: EntryCard, EntryForm, PhotoUploader, RatingSlider
-├── ranking/      # 랭킹: RankingList, RankingCard
-├── tournament/   # 월드컵: MatchCard, TournamentBracket
-├── ai/           # AI UI: TagSuggestions, FollowUpQuestions
-├── auth/         # 인증: AuthGuard, LoginPrompt, GoogleLoginButton
-└── layout/       # 레이아웃: BottomNav, Header
+├── ui/           # shadcn/ui (auto-generated, selective: dialog, sheet, slider, form)
+├── trip/         # Collection: TripCard, TripForm, TripHero
+├── entry/        # Food: EntryCard, EntryForm, PhotoUploader, RatingSlider
+├── ranking/      # Ranking: RankingList, RankingCard, PodiumCard
+├── tournament/   # World Cup: MatchCard, TournamentBracket, WinnerModal
+├── ai/           # AI UI: TagSuggestions, AIAnalysisCard, FollowUpQuestions
+├── auth/         # Auth: AuthGuard, LoginPrompt, GoogleLoginButton
+└── layout/       # Layout: BottomNav, Header, PillTabs
 ```
 
-## 컴포넌트 작성 템플릿
+## Component Templates
 
-### Server Component (기본)
+### Server Component (default)
 
 ```tsx
 // src/components/trip/TripCard.tsx
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -39,53 +39,75 @@ interface TripCardProps {
   id: string;
   name: string;
   coverImageUrl: string | null;
-  entryCount: number;
-  memberCount: number;
-  topScore: number | null;
+  status: "ongoing" | "completed";
+  memberAvatars: string[];
+  topRatedName: string | null;
+  topRatedScore: number | null;
 }
 
 export function TripCard({
-  id,
-  name,
-  coverImageUrl,
-  entryCount,
-  memberCount,
-  topScore,
+  id, name, coverImageUrl, status, memberAvatars, topRatedName, topRatedScore,
 }: TripCardProps) {
   return (
     <Link href={`/trips/${id}`}>
-      <Card className="overflow-hidden transition-transform active:scale-[0.97]">
+      <article className="group relative w-full aspect-[4/5] rounded-lg overflow-hidden shadow-lg cursor-pointer transform transition hover:scale-[1.01]">
         {coverImageUrl && (
-          <div className="relative aspect-video">
-            <Image
-              src={coverImageUrl}
-              alt={name}
-              fill
-              className="object-cover"
-            />
-          </div>
+          <Image
+            src={coverImageUrl}
+            alt={name}
+            fill
+            className="absolute inset-0 w-full h-full object-cover transition duration-700 group-hover:scale-110"
+          />
         )}
-        <CardContent className="p-4">
-          <h3 className="text-lg font-semibold">{name}</h3>
-          <p className="text-sm text-muted">
-            {entryCount}개 음식 · {memberCount}명 참여
-          </p>
-          {topScore && <Badge variant="secondary">⭐ 최고점 {topScore}</Badge>}
-        </CardContent>
-      </Card>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+        <div className="absolute bottom-0 left-0 w-full p-6 flex flex-col gap-3">
+          <div className="flex justify-between items-start">
+            <div>
+              <span className={`${status === "ongoing" ? "bg-primary/90" : "bg-gray-800/80"} backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full mb-2 inline-block uppercase`}>
+                {status}
+              </span>
+              <h4 className="text-white font-bold text-2xl">{name}</h4>
+            </div>
+            <div className="flex -space-x-2">
+              {memberAvatars.slice(0, 3).map((url, i) => (
+                <Image key={i} src={url} alt="Member" width={32} height={32}
+                  className="w-8 h-8 rounded-full border-2 border-gray-800 object-cover" />
+              ))}
+              {memberAvatars.length > 3 && (
+                <div className="w-8 h-8 rounded-full border-2 border-gray-800 bg-gray-700 flex items-center justify-center text-xs text-white font-medium">
+                  +{memberAvatars.length - 3}
+                </div>
+              )}
+            </div>
+          </div>
+          {topRatedName && (
+            <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/10">
+              <p className="text-gray-300 text-xs font-medium uppercase tracking-wider mb-1">Top Rated</p>
+              <div className="flex justify-between items-center">
+                <span className="text-white font-semibold text-sm">{topRatedName}</span>
+                {topRatedScore && (
+                  <div className="flex items-center gap-1 text-primary">
+                    <span className="material-icons-round text-sm">star</span>
+                    <span className="text-sm font-bold text-white">{topRatedScore}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </article>
     </Link>
   );
 }
 ```
 
-### Client Component
+### Client Component (interactive)
 
 ```tsx
 // src/components/entry/RatingSlider.tsx
 "use client";
 
 import { useState } from "react";
-import { Slider } from "@/components/ui/slider";
 
 interface RatingSliderProps {
   value: number;
@@ -94,61 +116,74 @@ interface RatingSliderProps {
 
 export function RatingSlider({ value, onChange }: RatingSliderProps) {
   return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <span className="text-sm text-muted">내 점수</span>
-        <span className="text-3xl font-bold">{value}</span>
+    <div className="space-y-4">
+      <div className="flex justify-between items-end px-1">
+        <h3 className="font-bold text-lg text-gray-800 dark:text-white">Taste Score</h3>
+        <span className="text-3xl font-extrabold text-primary">{value.toFixed(1)}</span>
       </div>
-      <Slider
-        value={[value]}
-        onValueChange={([v]) => onChange(v)}
-        min={1}
-        max={10}
-        step={0.5}
-        className="h-12"
-      />
+      <div className="relative py-2">
+        <div className="absolute top-1/2 left-0 right-0 h-2 -mt-1 rounded-full bg-gradient-to-r from-red-400 via-yellow-400 to-green-500 opacity-20 dark:opacity-30" />
+        <input
+          type="range"
+          min={1}
+          max={10}
+          step={0.5}
+          value={value}
+          onChange={(e) => onChange(parseFloat(e.target.value))}
+          className="w-full relative z-10 bg-transparent appearance-none h-2 cursor-pointer"
+        />
+        <div className="flex justify-between text-xs font-medium text-gray-400 mt-2 px-1">
+          <span>Meh 😕</span>
+          <span>Okay 😐</span>
+          <span>Amazing 🤩</span>
+        </div>
+      </div>
     </div>
   );
 }
 ```
 
-## 디자인 스펙 주요 사항
+## shadcn/ui — Selective Usage
 
-### 레이아웃
-
-- 모바일 우선: 375px 기준, max-w-lg 중앙 정렬
-- 하단 네비게이션: 3탭 (홈/내 여행/프로필)
-- Safe area padding (노치 대응): `pb-safe`
-
-### 카드 스타일
-
-- **TripCard**: `aspect-video` 커버 + 하단 정보
-- **EntryCard**: `aspect-square` 정사각 사진 + 음식명/점수
-- **RankingCard**: 1위는 크게 강조, 2~3위 중간, 4위 이후 컴팩트
-
-### 색상 사용
-
-- Primary (오렌지): CTA, 활성 탭, 선택된 태그
-- Gold/Silver/Bronze: 1위/2위/3위 랭킹
-- Muted: 보조 텍스트, 비활성 요소
-
-### 인터랙션
-
-- 카드 탭: `active:scale-[0.97]`
-- 랭킹 진입: 순차 `fade-in` + `slide-up`
-- 월드컵 선택: 선택 카드 확대 + 비선택 fade-out
-
-## Props 네이밍 규칙
-
-- 이벤트: `on` + 동사 (`onSubmit`, `onChange`, `onSelect`)
-- 불리언: `is` / `has` 접두사 (`isPublic`, `hasRating`)
-- 데이터: DB 컬럼명의 camelCase 변환 (`coverImageUrl` ← `cover_image_url`)
-
-## shadcn/ui 컴포넌트 추가
-
+**Install only these:**
 ```bash
-npx shadcn@latest add button card input slider badge dialog sheet tabs
+npx shadcn@latest add dialog sheet slider form
 ```
 
-필요한 컴포넌트가 없으면 `npx shadcn@latest add <name>` 으로 추가.
-shadcn/ui 컴포넌트는 `src/components/ui/`에 자동 생성됨.
+**Use for:**
+- `Dialog` — confirmation modals
+- `Sheet` — LoginPrompt bottom sheet, filters
+- `Slider` — alternative to custom range input if needed
+- `Form` — react-hook-form integration
+
+**Do NOT use for:**
+- Card, Button, Badge, Tabs, Navigation — use reference design Tailwind patterns
+
+## Props Naming
+
+- Events: `on` + verb (`onSubmit`, `onChange`, `onSelect`)
+- Booleans: `is` / `has` prefix (`isPublic`, `hasRating`)
+- Data: camelCase from DB columns (`coverImageUrl` ← `cover_image_url`)
+
+## Key Patterns
+
+### Image with Gradient Overlay
+```tsx
+<div className="relative">
+  <Image src={url} alt={name} fill className="object-cover" />
+  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+  <div className="absolute bottom-0 p-6">{/* Content */}</div>
+</div>
+```
+
+### Glassmorphism Card
+```tsx
+<div className="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/10">
+```
+
+### Horizontal Scroll Container
+```tsx
+<div className="flex overflow-x-auto gap-3 no-scrollbar pb-2">
+  {/* Chips, tags, thumbnails */}
+</div>
+```

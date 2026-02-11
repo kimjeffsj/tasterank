@@ -11,8 +11,11 @@
 - [x] `src/` 디렉토리 구조 이동 (`app/` → `src/app/`)
 - [x] tsconfig.json paths 업데이트 (`@/*` → `./src/*`)
 - [ ] `.env.local` 환경변수 설정
-- [ ] Tailwind 4.1 커스텀 테마 (`globals.css` `@theme` 블록, `oklch()` 컬러)
-- [ ] shadcn/ui 초기화 및 기본 컴포넌트 설치
+- [ ] Plus Jakarta Sans 웹폰트 설정 (Google Fonts)
+- [ ] Material Icons Round 설정 (Google Fonts)
+- [ ] Tailwind 4.1 커스텀 테마 (`globals.css` `@theme` 블록, 레퍼런스 색상 체계)
+- [ ] 다크모드 기초 설정 (class strategy)
+- [ ] shadcn/ui 선택적 설치 (`dialog`, `sheet`, `slider`, `form`만)
 
 ### 개발 도구
 - [x] `.claude/` 구조 정리 (CLAUDE.md, CHECKLIST.md, docs, skills)
