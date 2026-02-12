@@ -42,36 +42,36 @@
 
 ### DB 스키마 & 마이그레이션
 
-- [ ] `profiles` 테이블 (Google OAuth 연동)
-- [ ] `trips` 테이블 (컬렉션)
-- [ ] `trip_members` 테이블 (역할: owner/editor)
-- [ ] `entries` 테이블 (음식 항목)
-- [ ] `ratings` 테이블 (멤버별 점수)
-- [ ] `tags` + `entry_tags` 테이블
-- [ ] RLS 정책 설정 (공개 열람 + 역할 기반 수정)
-- [ ] 타입 생성 (`npx supabase gen types`)
+- [x] `profiles` 테이블 (Google OAuth 연동)
+- [x] `trips` 테이블 (컬렉션)
+- [x] `trip_members` 테이블 (역할: owner/editor)
+- [x] `entries` 테이블 (음식 항목)
+- [x] `ratings` 테이블 (멤버별 점수)
+- [x] `tags` + `entry_tags` 테이블
+- [x] RLS 정책 설정 (공개 열람 + 역할 기반 수정)
+- [x] 타입 생성 (`supabase gen types`)
 
 ### 인증
 
-- [ ] Supabase Auth 설정 (Google OAuth)
-- [ ] `src/lib/supabase/client.ts` — 브라우저 클라이언트
-- [ ] `src/lib/supabase/server.ts` — 서버 클라이언트
-- [ ] `src/lib/supabase/anon.ts` — 비로그인 클라이언트
-- [ ] Auth middleware (`src/middleware.ts`)
-- [ ] `useAuth` 훅
-- [ ] `LoginPrompt` 모달 컴포넌트 (lazy auth)
+- [ ] Supabase Auth 설정 (Google OAuth — Dashboard에서 설정 필요)
+- [x] `src/lib/supabase/client.ts` — 브라우저 클라이언트
+- [x] `src/lib/supabase/server.ts` — 서버 클라이언트
+- [x] `src/lib/supabase/anon.ts` — 비로그인 클라이언트
+- [x] Auth middleware (`src/middleware.ts`)
+- [x] `useAuth` 훅
+- [x] `LoginPrompt` 모달 컴포넌트 (lazy auth)
 
 ### 공개 라우팅
 
-- [ ] `(public)` 레이아웃 — 비로그인 접근 가능
-- [ ] `(protected)` 레이아웃 — 로그인 리다이렉트
-- [ ] `(auth)` 라우트 — 로그인/콜백 페이지
-- [ ] 공개 컬렉션 목록 페이지 (`/`)
-- [ ] 공개 컬렉션 상세 페이지 (`/trips/[id]`)
+- [x] `(public)` 레이아웃 — 비로그인 접근 가능
+- [x] `(protected)` 레이아웃 — 로그인 리다이렉트
+- [x] `(auth)` 라우트 — 로그인/콜백 페이지
+- [x] 공개 컬렉션 목록 페이지 (`/`)
+- [x] 공개 컬렉션 상세 페이지 (`/trips/[id]`)
 
 ### TDD 환경
 
-- [ ] 첫 번째 테스트 작성 및 통과 확인
+- [x] 첫 번째 테스트 작성 및 통과 확인
 - [ ] Supabase 모킹 패턴 확립
 - [ ] CI에서 테스트 실행 설정 (선택)
 
@@ -213,3 +213,4 @@
 | ---------- | --------------------------------- | ------------------------------------------------- |
 | 2026-02-10 | `2026-02-10_project-structure.md` | 프로젝트 구조 개선 (src/ 이동, .claude/ 정리)     |
 | 2026-02-11 | `2026-02-11_phase0-setup.md`      | Phase 0 셋업 (폰트, 테마, shadcn, Jest, 환경변수) |
+| 2026-02-12 | `2026-02-12_phase1-foundation.md` | Phase 1 파운데이션 (DB 스키마, Auth, 라우팅) |
