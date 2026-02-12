@@ -1,4 +1,5 @@
 import { anonClient } from "@/lib/supabase/anon";
+import { CreateTripButton } from "@/components/trip/CreateTripButton";
 
 export default async function HomePage() {
   const { data: trips } = await anonClient
@@ -32,6 +33,9 @@ export default async function HomePage() {
         <p className="mt-3 text-lg text-gray-500">
           Rate and rank your travel food experiences together.
         </p>
+        <div className="mt-6">
+          <CreateTripButton />
+        </div>
       </section>
 
       {/* Collections */}

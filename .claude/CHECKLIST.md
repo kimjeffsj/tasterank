@@ -1,6 +1,6 @@
 # TasteRank Development Checklist
 
-> 진행 상태: Phase 0 완료 → Phase 1 시작
+> 진행 상태: Phase 1 완료 → Phase 2 진행 중
 
 ---
 
@@ -72,7 +72,7 @@
 ### TDD 환경
 
 - [x] 첫 번째 테스트 작성 및 통과 확인
-- [ ] Supabase 모킹 패턴 확립
+- [x] Supabase 모킹 패턴 확립
 - [ ] CI에서 테스트 실행 설정 (선택)
 
 ---
@@ -81,18 +81,21 @@
 
 ### 컬렉션 (Trip) CRUD
 
-- [ ] 컬렉션 생성 폼 (여행명, 기간, 설명, 공개/비공개)
-- [ ] 컬렉션 수정 페이지
-- [ ] 컬렉션 삭제 (소프트 삭제 또는 하드 삭제)
-- [ ] `useTrips` 훅
-- [ ] Trip CRUD 테스트
+- [x] 컬렉션 생성 폼 (여행명, 기간, 설명, 공개/비공개)
+- [x] 컬렉션 수정 페이지
+- [x] 컬렉션 삭제 (소프트 삭제 또는 하드 삭제)
+- [x] `useTrips` 훅
+- [x] Trip CRUD 테스트
+- [x] `create_trip` RPC 함수 (trip + owner member 원자적 생성)
+- [x] 함수 search_path 보안 경고 수정
 
 ### 초대 시스템
 
-- [ ] 초대 코드/링크 생성
-- [ ] 초대 수락 → `trip_members`에 editor 역할 추가
-- [ ] 멤버 목록 표시
+- [x] 초대 코드/링크 생성
+- [x] 초대 수락 → `trip_members`에 editor 역할 추가
+- [x] 멤버 목록 표시
 - [ ] 초대 시스템 테스트
+- [x] `join_trip_by_invite` RPC 함수
 
 ### 음식 등록 (Entry)
 

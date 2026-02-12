@@ -1,5 +1,6 @@
 import { anonClient } from "@/lib/supabase/anon";
 import { notFound } from "next/navigation";
+import { TripActions } from "@/components/trip/TripActions";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -25,8 +26,13 @@ export default async function TripDetailPage({ params }: Props) {
     .eq("trip_id", id)
     .order("created_at", { ascending: false });
 
+  const { data: members } = await anonClient
+    .from("trip_members")
+    .select("user_id, role, profiles(display_name, avatar_url)")
+    .eq("trip_id", id);
+
   return (
-    <div className="mx-auto w-full max-w-md min-h-screen">
+    <div className="mx-auto w-full max-w-md min-h-screen pb-24">
       {/* Hero */}
       <div className="relative h-[420px]">
         {trip.cover_image_url ? (
@@ -50,11 +56,53 @@ export default async function TripDetailPage({ params }: Props) {
           </a>
         </div>
 
-        {/* Title */}
+        {/* Client-side actions (edit button, FAB) */}
+        <TripActions tripId={id} ownerId={trip.owner_id} inviteCode={trip.invite_code} />
+
+        {/* Title + meta */}
         <div className="absolute bottom-0 w-full p-6">
+          {/* Date badge */}
+          {trip.start_date && (
+            <span className="inline-flex items-center gap-1 bg-white/20 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full mb-3">
+              <span className="material-icons-round text-sm">
+                calendar_today
+              </span>
+              {trip.start_date}
+              {trip.end_date && ` — ${trip.end_date}`}
+            </span>
+          )}
           <h1 className="text-4xl font-extrabold text-white">{trip.name}</h1>
           {trip.description && (
             <p className="mt-2 text-white/70">{trip.description}</p>
+          )}
+
+          {/* Member avatars */}
+          {members && members.length > 0 && (
+            <div className="flex items-center gap-2 mt-3">
+              <div className="flex -space-x-2">
+                {members.slice(0, 4).map((m) => (
+                  <div
+                    key={m.user_id}
+                    className="w-8 h-8 rounded-full border-2 border-gray-800 bg-gray-600 flex items-center justify-center overflow-hidden"
+                  >
+                    {m.profiles?.avatar_url ? (
+                      <img
+                        src={m.profiles.avatar_url}
+                        alt={m.profiles.display_name ?? ""}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span className="material-icons-round text-sm text-white">
+                        person
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <span className="text-xs text-white/60">
+                {members.length} member{members.length !== 1 && "s"}
+              </span>
+            </div>
           )}
         </div>
       </div>
@@ -69,13 +117,16 @@ export default async function TripDetailPage({ params }: Props) {
               restaurant_menu
             </span>
             <p className="text-gray-500">No food entries yet</p>
+            <p className="text-sm text-gray-400 mt-1">
+              Add your first meal to get started
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-4">
             {entries.map((entry) => (
               <div
                 key={entry.id}
-                className="bg-white dark:bg-surface-dark rounded-3xl overflow-hidden shadow-sm"
+                className="group bg-white dark:bg-surface-dark rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-all"
               >
                 <div className="aspect-square bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
                   <span className="material-icons-round text-4xl text-gray-300">

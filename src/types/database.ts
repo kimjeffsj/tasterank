@@ -423,9 +423,59 @@ export type Database = {
       }
     }
     Functions: {
+      create_trip: {
+        Args: {
+          p_description?: string
+          p_end_date?: string
+          p_is_public?: boolean
+          p_name: string
+          p_start_date?: string
+        }
+        Returns: {
+          cover_image_url: string | null
+          created_at: string | null
+          description: string | null
+          end_date: string | null
+          id: string
+          invite_code: string | null
+          is_public: boolean | null
+          name: string
+          owner_id: string
+          start_date: string | null
+          updated_at: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "trips"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       is_trip_editor: { Args: { trip_uuid: string }; Returns: boolean }
       is_trip_member: { Args: { trip_uuid: string }; Returns: boolean }
       is_trip_owner: { Args: { trip_uuid: string }; Returns: boolean }
+      join_trip_by_invite: {
+        Args: { p_invite_code: string }
+        Returns: {
+          cover_image_url: string | null
+          created_at: string | null
+          description: string | null
+          end_date: string | null
+          id: string
+          invite_code: string | null
+          is_public: boolean | null
+          name: string
+          owner_id: string
+          start_date: string | null
+          updated_at: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "trips"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
     }
     Enums: {
       [_ in never]: never
