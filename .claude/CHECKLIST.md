@@ -10,16 +10,16 @@
 - [x] Next.js 16 프로젝트 생성
 - [x] `src/` 디렉토리 구조 이동 (`app/` → `src/app/`)
 - [x] tsconfig.json paths 업데이트 (`@/*` → `./src/*`)
-- [ ] `.env.local` 환경변수 설정
-- [ ] Plus Jakarta Sans 웹폰트 설정 (Google Fonts)
-- [ ] Material Icons Round 설정 (Google Fonts)
-- [ ] Tailwind 4.1 커스텀 테마 (`globals.css` `@theme` 블록, 레퍼런스 색상 체계)
-- [ ] 다크모드 기초 설정 (class strategy)
-- [ ] shadcn/ui 선택적 설치 (`dialog`, `sheet`, `slider`, `form`만)
+- [x] `.env.local` 환경변수 설정
+- [x] Plus Jakarta Sans 웹폰트 설정 (Google Fonts)
+- [x] Material Icons Round 설정 (Google Fonts)
+- [x] Tailwind 4.1 커스텀 테마 (`globals.css` `@theme` 블록, 레퍼런스 색상 체계)
+- [x] 다크모드 기초 설정 (class strategy)
+- [x] shadcn/ui 선택적 설치 (`dialog`, `sheet`, `slider`, `form`만)
 
 ### 개발 도구
 - [x] `.claude/` 구조 정리 (CLAUDE.md, CHECKLIST.md, docs, skills)
-- [ ] Jest + React Testing Library 설정
+- [x] Jest + React Testing Library 설정
 - [ ] ESLint + Prettier 설정
 - [ ] Husky + lint-staged (선택)
 
@@ -188,3 +188,4 @@
 | 날짜 | 파일 | 주제 |
 |------|------|------|
 | 2026-02-10 | `2026-02-10_project-structure.md` | 프로젝트 구조 개선 (src/ 이동, .claude/ 정리) |
+| 2026-02-11 | `2026-02-11_phase0-setup.md` | Phase 0 셋업 (폰트, 테마, shadcn, Jest, 환경변수) |
