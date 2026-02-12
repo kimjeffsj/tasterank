@@ -73,9 +73,7 @@ export default async function HomePage() {
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
                 <div className="absolute bottom-0 w-full p-6">
-                  <h4 className="text-2xl font-bold text-white">
-                    {trip.name}
-                  </h4>
+                  <h4 className="text-2xl font-bold text-white">{trip.name}</h4>
                   {trip.description && (
                     <p className="mt-1 text-sm text-white/70 line-clamp-2">
                       {trip.description}
