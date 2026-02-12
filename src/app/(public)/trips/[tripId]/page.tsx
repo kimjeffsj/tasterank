@@ -3,16 +3,16 @@ import { notFound } from "next/navigation";
 import { TripActions } from "@/components/trip/TripActions";
 
 interface Props {
-  params: Promise<{ id: string }>;
+  params: Promise<{ tripId: string }>;
 }
 
 export default async function TripDetailPage({ params }: Props) {
-  const { id } = await params;
+  const { tripId } = await params;
 
   const { data: trip } = await anonClient
     .from("trips")
     .select("*")
-    .eq("id", id)
+    .eq("id", tripId)
     .eq("is_public", true)
     .single();
 
@@ -23,13 +23,13 @@ export default async function TripDetailPage({ params }: Props) {
   const { data: entries } = await anonClient
     .from("food_entries")
     .select("id, title, restaurant_name, created_at")
-    .eq("trip_id", id)
+    .eq("trip_id", tripId)
     .order("created_at", { ascending: false });
 
   const { data: members } = await anonClient
     .from("trip_members")
     .select("user_id, role, profiles(display_name, avatar_url)")
-    .eq("trip_id", id);
+    .eq("trip_id", tripId);
 
   return (
     <div className="mx-auto w-full max-w-md min-h-screen pb-24">
@@ -57,7 +57,7 @@ export default async function TripDetailPage({ params }: Props) {
         </div>
 
         {/* Client-side actions (edit button, FAB) */}
-        <TripActions tripId={id} ownerId={trip.owner_id} inviteCode={trip.invite_code} />
+        <TripActions tripId={tripId} ownerId={trip.owner_id} inviteCode={trip.invite_code} />
 
         {/* Title + meta */}
         <div className="absolute bottom-0 w-full p-6">
