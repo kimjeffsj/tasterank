@@ -4,7 +4,7 @@
 
 ## Stack
 
-Next.js 16 (App Router) · React 19 · TypeScript 5 · Tailwind 4.1 (CSS-first, no config.js) · shadcn/ui (selective: Dialog, Sheet, Slider, Form) · Supabase (Auth, DB, Storage, RLS) · Zustand · Claude API (claude-sonnet-4-20250514) · @serwist/next (PWA) · Vercel · Plus Jakarta Sans · Material Icons Round
+Next.js 16 (App Router) · React 19 · TypeScript 5 · Tailwind 4.1 (CSS-first, no config.js) · shadcn/ui (selective: Dialog, Sheet, Slider, Form) · Supabase (Auth, DB, Storage, RLS) · Zustand · Google AI Studio (Gemini) · @serwist/next (PWA) · Vercel · Plus Jakarta Sans · Material Icons Round
 
 ## Commands
 
@@ -35,7 +35,7 @@ src/app/api/ai/        AI API Routes (서버 전용)
 src/components/        도메인별: trip/, entry/, ranking/, tournament/, auth/, layout/
 src/hooks/             커스텀 훅: useTrips, useEntries, useRatings, useAuth
 src/lib/supabase/      client.ts (브라우저), server.ts (SSR), anon.ts (비로그인)
-src/lib/ai/            Claude API 클라이언트, 프롬프트, 랭킹 엔진
+src/lib/ai/            Gemini API 클라이언트, 프롬프트, 랭킹 엔진
 src/stores/            Zustand 스토어
 src/types/             database.ts (자동생성), index.ts
 supabase/migrations/   SQL 마이그레이션 파일
@@ -52,7 +52,7 @@ supabase/migrations/   SQL 마이그레이션 파일
 - **Icons**: Material Icons Round (Google Fonts). `<span className="material-icons-round">icon_name</span>`.
 - **UI Language**: English first. i18n/multi-language support planned for later.
 - **shadcn/ui 선택적 사용**: Dialog, Sheet, Slider, Form만 사용. Card, Button, Badge 등 비주얼 컴포넌트는 레퍼런스 디자인 Tailwind 패턴 사용.
-- **서버 키 보호**: `ANTHROPIC_API_KEY`, `SUPABASE_SERVICE_ROLE_KEY`는 서버 전용. 절대 클라이언트/브라우저 노출 금지.
+- **서버 키 보호**: `GEMINI_API_KEY`는 서버 전용. 절대 클라이언트/브라우저 노출 금지.
 - **Server Components 기본**: `"use client"` 필요한 경우에만 사용.
 - **Supabase 타입 변경 후 반드시 `pnpm exec supabase gen types` 실행**.
 
@@ -96,9 +96,8 @@ supabase/migrations/   SQL 마이그레이션 파일
 ## Environment Variables
 
 ```
-NEXT_PUBLIC_SUPABASE_URL       Supabase 프로젝트 URL
-NEXT_PUBLIC_SUPABASE_ANON_KEY  Supabase anon key
-SUPABASE_SERVICE_ROLE_KEY      서버 전용
-ANTHROPIC_API_KEY              서버 전용
-NEXT_PUBLIC_APP_URL            앱 배포 URL
+NEXT_PUBLIC_SUPABASE_URL              Supabase 프로젝트 URL
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY  Supabase publishable key (구 anon key)
+GEMINI_API_KEY                        서버 전용 (Google AI Studio)
+NEXT_PUBLIC_APP_URL                   앱 배포 URL
 ```

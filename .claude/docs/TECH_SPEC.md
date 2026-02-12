@@ -19,7 +19,7 @@
 | **ORM / Client** | @supabase/supabase-js | 2.x | 타입 생성, RLS 연동 |
 | **State** | Zustand | 5.x | 경량 상태 관리 |
 | **Testing** | Jest + React Testing Library | 30.x / 16.x | TDD |
-| **AI** | Anthropic Claude API | claude-sonnet-4-20250514 | Vision + 텍스트 생성 |
+| **AI** | Google AI Studio (Gemini) | gemini-2.0-flash | Vision + 텍스트 생성 (무료 티어) |
 | **Image** | sharp + browser-image-compression | - | 서버/클라이언트 이미지 처리 |
 | **Deploy** | Vercel | - | Next.js 16 최적화, 엣지 배포 |
 | **PWA** | @serwist/next | 9.x | next-pwa 후속, SW 관리 |
@@ -219,7 +219,7 @@ import type { Database } from '@/types/database';
 export const createClient = () =>
     createBrowserClient<Database>(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
     );
 ```
 
@@ -231,7 +231,7 @@ import type { Database } from '@/types/database';
 
 export const anonClient = createClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
 );
 ```
 
@@ -280,7 +280,7 @@ export async function middleware(request: NextRequest) {
     const response = NextResponse.next();
     const supabase = createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
         { cookies: { /* cookie handling */ } }
     );
 
@@ -440,9 +440,9 @@ export default function manifest(): MetadataRoute.Manifest {
 ```bash
 # .env.local.example
 NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=eyJ...
 SUPABASE_SERVICE_ROLE_KEY=eyJ...
-ANTHROPIC_API_KEY=sk-ant-...
+GEMINI_API_KEY=AIza...
 NEXT_PUBLIC_APP_URL=https://tasterank.vercel.app
 ```
 
@@ -509,7 +509,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 |------|------|
 | 인증 | Google OAuth + Supabase Auth |
 | 권한 | RLS (공개 읽기 + 멤버 쓰기) |
-| API 키 | 서버 사이드만 (ANTHROPIC, SERVICE_ROLE) |
+| API 키 | 서버 사이드만 (GEMINI_API_KEY) |
 | 이미지 | 클라이언트 리사이즈 + Storage RLS |
 | 초대 코드 | 8자 hex, 재생성 가능 |
 | 공개 접근 | anon key로 RLS 통과, 쓰기 불가 |
