@@ -9,20 +9,20 @@ Next.js 16 (App Router) · React 19 · TypeScript 5 · Tailwind 4.1 (CSS-first, 
 ## Commands
 
 ```bash
-npm run dev              # 개발 서버 (Turbopack)
-npm run build            # 프로덕션 빌드
-npm test                 # Jest 전체 실행
-npm test -- --watch      # Jest 워치 모드
-npm test -- --coverage   # 커버리지 리포트
-npm test -- path/to/file # 단일 파일 테스트
+pnpm dev                 # 개발 서버 (Turbopack)
+pnpm build               # 프로덕션 빌드
+pnpm test                # Jest 전체 실행
+pnpm test --watch        # Jest 워치 모드
+pnpm test --coverage     # 커버리지 리포트
+pnpm test path/to/file   # 단일 파일 테스트
 
 # Supabase
-npx supabase db push                          # 마이그레이션 적용
-npx supabase gen types typescript > src/types/database.ts  # 타입 생성
-npx supabase migration new <name>             # 새 마이그레이션
+pnpm exec supabase db push                          # 마이그레이션 적용
+pnpm exec supabase gen types typescript > src/types/database.ts  # 타입 생성
+pnpm exec supabase migration new <name>             # 새 마이그레이션
 
 # shadcn/ui
-npx shadcn@latest add <component>
+pnpm dlx shadcn@latest add <component>
 ```
 
 ## Architecture
@@ -54,7 +54,7 @@ supabase/migrations/   SQL 마이그레이션 파일
 - **shadcn/ui 선택적 사용**: Dialog, Sheet, Slider, Form만 사용. Card, Button, Badge 등 비주얼 컴포넌트는 레퍼런스 디자인 Tailwind 패턴 사용.
 - **서버 키 보호**: `ANTHROPIC_API_KEY`, `SUPABASE_SERVICE_ROLE_KEY`는 서버 전용. 절대 클라이언트/브라우저 노출 금지.
 - **Server Components 기본**: `"use client"` 필요한 경우에만 사용.
-- **Supabase 타입 변경 후 반드시 `npx supabase gen types` 실행**.
+- **Supabase 타입 변경 후 반드시 `pnpm exec supabase gen types` 실행**.
 
 ## Development Workflow
 
