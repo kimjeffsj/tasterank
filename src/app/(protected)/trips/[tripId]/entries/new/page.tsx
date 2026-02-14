@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { EntryForm, type EntryFormData } from "@/components/entry/EntryForm";
 import { useEntries } from "@/hooks/useEntries";
 import { useAuth } from "@/hooks/useAuth";
+import { uploadEntryPhotos } from "@/lib/storage";
 
 export default function NewEntryPage() {
   const params = useParams<{ tripId: string }>();
@@ -14,7 +15,7 @@ export default function NewEntryPage() {
   const handleSubmit = async (data: EntryFormData) => {
     if (!user) throw new Error("You must be logged in");
 
-    await createEntry({
+    const entry = await createEntry({
       trip_id: params.tripId,
       created_by: user.id,
       title: data.title,
@@ -22,6 +23,10 @@ export default function NewEntryPage() {
       location_name: data.location_name || null,
       description: data.description || null,
     });
+
+    if (data.photos.length > 0) {
+      await uploadEntryPhotos(data.photos, params.tripId, entry.id, user.id);
+    }
 
     router.push(`/trips/${params.tripId}`);
   };

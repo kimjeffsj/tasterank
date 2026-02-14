@@ -2,6 +2,10 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { EntryForm, type EntryFormData } from "./EntryForm";
 
+// Mock URL.createObjectURL for PhotoUploader previews
+global.URL.createObjectURL = jest.fn(() => "blob:mock-url");
+global.URL.revokeObjectURL = jest.fn();
+
 describe("EntryForm", () => {
   const mockOnSubmit = jest.fn<Promise<void>, [EntryFormData]>();
   const mockOnCancel = jest.fn();
@@ -39,6 +43,7 @@ describe("EntryForm", () => {
         restaurant_name: "Ichiran",
         location_name: "Shibuya, Tokyo",
         description: "Best ramen ever!",
+        photos: [],
       });
     });
   });
@@ -74,6 +79,7 @@ describe("EntryForm", () => {
         restaurant_name: "",
         location_name: "",
         description: "",
+        photos: [],
       });
     });
   });

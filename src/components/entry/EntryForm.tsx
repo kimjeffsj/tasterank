@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { Tables } from "@/types/database";
+import { PhotoUploader } from "./PhotoUploader";
 
 type Entry = Tables<"food_entries">;
 
@@ -14,6 +15,8 @@ interface EntryFormProps {
   onCancel?: () => void;
   /** Submit button label */
   submitLabel?: string;
+  /** Show photo uploader */
+  showPhotos?: boolean;
 }
 
 export interface EntryFormData {
@@ -21,6 +24,7 @@ export interface EntryFormData {
   restaurant_name: string;
   location_name: string;
   description: string;
+  photos: File[];
 }
 
 export function EntryForm({
@@ -28,6 +32,7 @@ export function EntryForm({
   onSubmit,
   onCancel,
   submitLabel = "Save Record",
+  showPhotos = true,
 }: EntryFormProps) {
   const [title, setTitle] = useState(entry?.title ?? "");
   const [restaurantName, setRestaurantName] = useState(
@@ -37,6 +42,7 @@ export function EntryForm({
     entry?.location_name ?? "",
   );
   const [description, setDescription] = useState(entry?.description ?? "");
+  const [photos, setPhotos] = useState<File[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -57,6 +63,7 @@ export function EntryForm({
         restaurant_name: restaurantName.trim(),
         location_name: locationName.trim(),
         description: description.trim(),
+        photos,
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -67,6 +74,16 @@ export function EntryForm({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+      {/* Photos */}
+      {showPhotos && (
+        <div>
+          <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-2 px-1">
+            Photos
+          </p>
+          <PhotoUploader photos={photos} onChange={setPhotos} />
+        </div>
+      )}
+
       {/* Food Name */}
       <div className="bg-white dark:bg-surface-dark rounded-xl p-6 shadow-sm border border-orange-100 dark:border-white/5">
         <label

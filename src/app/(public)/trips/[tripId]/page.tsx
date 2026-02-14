@@ -22,7 +22,7 @@ export default async function TripDetailPage({ params }: Props) {
 
   const { data: entries } = await anonClient
     .from("food_entries")
-    .select("id, title, restaurant_name, created_at")
+    .select("id, title, restaurant_name, created_at, food_photos(photo_url, display_order)")
     .eq("trip_id", tripId)
     .order("created_at", { ascending: false });
 
@@ -128,10 +128,20 @@ export default async function TripDetailPage({ params }: Props) {
                 key={entry.id}
                 className="group bg-white dark:bg-surface-dark rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-all"
               >
-                <div className="aspect-square bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                  <span className="material-icons-round text-4xl text-gray-300">
-                    restaurant
-                  </span>
+                <div className="aspect-square bg-gray-100 dark:bg-gray-800 flex items-center justify-center overflow-hidden">
+                  {entry.food_photos && entry.food_photos.length > 0 ? (
+                    <img
+                      src={entry.food_photos.sort(
+                        (a, b) => (a.display_order ?? 0) - (b.display_order ?? 0),
+                      )[0].photo_url}
+                      alt={entry.title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="material-icons-round text-4xl text-gray-300">
+                      restaurant
+                    </span>
+                  )}
                 </div>
                 <div className="p-3">
                   <p className="font-bold text-sm leading-tight">

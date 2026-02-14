@@ -1,6 +1,6 @@
 # TasteRank Development Checklist
 
-> 진행 상태: Phase 2 진행 중 (Step 2-1~2-4 완료 → Step 2-5 다음)
+> 진행 상태: Phase 2 진행 중 (Step 2-1~2-5 완료 → Step 2-6 다음)
 
 ---
 
@@ -57,11 +57,12 @@
 - [x] `/trips/[tripId]/entries/new` 페이지
 - [x] EntryForm 테스트 (11개)
 
-### Step 2-5: 사진 업로드
+### Step 2-5: 사진 업로드 ✅
 
-- [ ] `PhotoUploader` 컴포넌트 (Supabase Storage)
-- [ ] EntryForm에 사진 통합
-- [ ] 트립 상세 엔트리 카드에 사진 표시
+- [x] `PhotoUploader` 컴포넌트 (Supabase Storage) + 테스트 8개
+- [x] `uploadEntryPhotos` 유틸리티 (`src/lib/storage.ts`)
+- [x] EntryForm에 사진 통합 (EntryFormData에 photos 필드 추가)
+- [x] 트립 상세 엔트리 카드에 사진 표시 (food_photos join)
 
 ### Step 2-6: useRatings 훅 + 평가 UI
 
@@ -163,3 +164,4 @@
 | 2026-02-12 | `2026-02-12_phase1-foundation.md` | Phase 1 파운데이션 (DB 스키마, Auth, 라우팅)      |
 | 2026-02-11 | `2026-02-11_step2-3-useEntries.md` | Step 2-3 useEntries 훅 (CRUD + 테스트 7개)       |
 | 2026-02-13 | `2026-02-13_step2-4-entry-form.md` | Step 2-4 EntryForm 컴포넌트 (테스트 11개)        |
+| 2026-02-13 | `2026-02-13_step2-5-photo-upload.md` | Step 2-5 사진 업로드 (PhotoUploader, Storage)   |
