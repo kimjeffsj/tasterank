@@ -1,6 +1,6 @@
 # TasteRank Development Checklist
 
-> 진행 상태: Phase 2 진행 중 (Step 2-1~2-6 완료 → Step 2-7 다음)
+> 진행 상태: Phase 2 완료 ✅ → Phase 3 다음
 
 ---
 
@@ -70,10 +70,10 @@
 - [x] `RatingSlider` 컴포넌트 (1~10점, 0.5 단위) + 테스트 6개
 - [x] EntryForm에 평가 통합 (score 필드 + 저장)
 
-### Step 2-7: 테스트 보강 + RLS 검증
+### Step 2-7: 테스트 보강 + RLS 검증 ✅
 
-- [ ] 초대 시스템 테스트
-- [ ] RLS 통합 테스트 (공개/비공개/권한)
+- [x] 초대 시스템 테스트 (InviteShare 5개)
+- [x] RLS 통합 테스트 (쿼리 패턴 검증 9개)
 
 ---
 
@@ -166,3 +166,4 @@
 | 2026-02-13 | `2026-02-13_step2-4-entry-form.md` | Step 2-4 EntryForm 컴포넌트 (테스트 11개)        |
 | 2026-02-13 | `2026-02-13_step2-5-photo-upload.md` | Step 2-5 사진 업로드 (PhotoUploader, Storage)   |
 | 2026-02-13 | `2026-02-13_step2-6-ratings.md`      | Step 2-6 평가 시스템 (useRatings, RatingSlider) |
+| 2026-02-13 | `2026-02-13_step2-7-tests.md`        | Step 2-7 테스트 보강 (InviteShare, RLS 검증)    |
