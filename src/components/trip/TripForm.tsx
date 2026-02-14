@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { Tables } from "@/types/database";
+import { DateInput } from "@/components/ui/DateInput";
 
 type Trip = Tables<"trips">;
 
@@ -112,12 +113,11 @@ export function TripForm({
           >
             Start Date
           </label>
-          <input
+          <DateInput
             id="trip-start-date"
-            type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className="w-full bg-white dark:bg-surface-dark rounded-xl border border-gray-100 dark:border-white/5 px-4 py-3 outline-none focus:border-primary transition-colors"
+            max={endDate || undefined}
           />
         </div>
         <div>
@@ -127,12 +127,11 @@ export function TripForm({
           >
             End Date
           </label>
-          <input
+          <DateInput
             id="trip-end-date"
-            type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
-            className="w-full bg-white dark:bg-surface-dark rounded-xl border border-gray-100 dark:border-white/5 px-4 py-3 outline-none focus:border-primary transition-colors"
+            min={startDate || undefined}
           />
         </div>
       </div>
