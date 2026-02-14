@@ -1,6 +1,6 @@
 # TasteRank Development Checklist
 
-> 진행 상태: Phase 3 Step 3-1, 3-2 완료 ✅ → Step 3-3 다음
+> 진행 상태: Phase 3 Step 3-1, 3-2, 3-3 완료 ✅ → Phase 4 다음
 
 ---
 
@@ -94,12 +94,13 @@
 - [x] `/api/ai/suggest-tags` Route Handler + 테스트 4개
 - [x] AI Suggest 버튼 + 로딩 상태 + AI 칩 UI (TagSelector 내장)
 
-### Step 3-3: 기본 랭킹 페이지
+### Step 3-3: 기본 랭킹 페이지 ✅
 
-- [ ] `/trips/[tripId]/ranking` 페이지 (평균 점수 기준)
-- [ ] 태그 필터 적용
-- [ ] 공개 접근 (비로그인)
-- [ ] 테스트
+- [x] `/trips/[tripId]/ranking` 페이지 (평균 점수 기준)
+- [x] 태그 필터 적용
+- [x] 공개 접근 (비로그인)
+- [x] 테스트 (8개)
+- [x] 트립 상세 페이지에 Ranking 탭 링크 추가
 
 ---
 
@@ -171,3 +172,4 @@
 | 2026-02-13 | `2026-02-13_step2-6-ratings.md`      | Step 2-6 평가 시스템 (useRatings, RatingSlider) |
 | 2026-02-13 | `2026-02-13_step2-7-tests.md`        | Step 2-7 테스트 보강 (InviteShare, RLS 검증)    |
 | 2026-02-13 | `2026-02-13_step3-1-3-2-tags-ai.md`  | Step 3-1/3-2 태그 CRUD + AI 태그 추천           |
+| 2026-02-14 | `2026-02-14_step3-3-ranking-page.md`  | Step 3-3 기본 랭킹 페이지                        |

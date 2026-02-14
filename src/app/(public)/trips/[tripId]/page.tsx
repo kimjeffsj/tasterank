@@ -107,6 +107,21 @@ export default async function TripDetailPage({ params }: Props) {
         </div>
       </div>
 
+      {/* Pill tabs */}
+      <div className="sticky top-0 z-10 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md px-6 py-3">
+        <div className="flex bg-gray-100 dark:bg-white/10 p-1.5 rounded-full">
+          <div className="flex-1 text-center py-2 rounded-full bg-primary text-white text-sm font-bold">
+            Food List
+          </div>
+          <a
+            href={`/trips/${tripId}/ranking`}
+            className="flex-1 text-center py-2 rounded-full text-sm font-bold text-gray-500 dark:text-gray-400 hover:text-gray-700 transition-colors"
+          >
+            Ranking
+          </a>
+        </div>
+      </div>
+
       {/* Food entries */}
       <section className="px-6 py-6">
         <h2 className="text-xl font-bold mb-4">Recent Eats</h2>
