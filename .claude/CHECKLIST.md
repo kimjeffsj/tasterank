@@ -1,6 +1,6 @@
 # TasteRank Development Checklist
 
-> 진행 상태: Phase 2 진행 중 (Step 2-1~2-3 완료 → Step 2-4 다음)
+> 진행 상태: Phase 2 진행 중 (Step 2-1~2-4 완료 → Step 2-5 다음)
 
 ---
 
@@ -51,11 +51,11 @@
 - [x] `useEntries` 훅 (list, create, update, delete)
 - [x] useEntries 테스트
 
-### Step 2-4: 음식 등록 폼 UI
+### Step 2-4: 음식 등록 폼 UI ✅
 
-- [ ] `EntryForm` 컴포넌트 (음식명, 식당명, 위치, 한줄평)
-- [ ] `/trips/[tripId]/entries/new` 페이지
-- [ ] EntryForm 테스트
+- [x] `EntryForm` 컴포넌트 (음식명, 식당명, 위치, 한줄평)
+- [x] `/trips/[tripId]/entries/new` 페이지
+- [x] EntryForm 테스트 (11개)
 
 ### Step 2-5: 사진 업로드
 
@@ -162,3 +162,4 @@
 | 2026-02-11 | `2026-02-11_phase0-setup.md`      | Phase 0 셋업 (폰트, 테마, shadcn, Jest, 환경변수) |
 | 2026-02-12 | `2026-02-12_phase1-foundation.md` | Phase 1 파운데이션 (DB 스키마, Auth, 라우팅)      |
 | 2026-02-11 | `2026-02-11_step2-3-useEntries.md` | Step 2-3 useEntries 훅 (CRUD + 테스트 7개)       |
+| 2026-02-13 | `2026-02-13_step2-4-entry-form.md` | Step 2-4 EntryForm 컴포넌트 (테스트 11개)        |
