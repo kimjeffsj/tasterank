@@ -5,6 +5,7 @@ import { EntryForm, type EntryFormData } from "@/components/entry/EntryForm";
 import { useEntries } from "@/hooks/useEntries";
 import { useAuth } from "@/hooks/useAuth";
 import { uploadEntryPhotos } from "@/lib/storage";
+import { createClient } from "@/lib/supabase/client";
 
 export default function NewEntryPage() {
   const params = useParams<{ tripId: string }>();
@@ -24,9 +25,25 @@ export default function NewEntryPage() {
       description: data.description || null,
     });
 
+    // Upload photos and save rating in parallel
+    const promises: Promise<unknown>[] = [];
+
     if (data.photos.length > 0) {
-      await uploadEntryPhotos(data.photos, params.tripId, entry.id, user.id);
+      promises.push(
+        uploadEntryPhotos(data.photos, params.tripId, entry.id, user.id),
+      );
     }
+
+    const supabase = createClient();
+    promises.push(
+      supabase.from("ratings").insert({
+        entry_id: entry.id,
+        user_id: user.id,
+        score: data.score,
+      }),
+    );
+
+    await Promise.all(promises);
 
     router.push(`/trips/${params.tripId}`);
   };

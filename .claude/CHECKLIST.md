@@ -1,6 +1,6 @@
 # TasteRank Development Checklist
 
-> 진행 상태: Phase 2 진행 중 (Step 2-1~2-5 완료 → Step 2-6 다음)
+> 진행 상태: Phase 2 진행 중 (Step 2-1~2-6 완료 → Step 2-7 다음)
 
 ---
 
@@ -64,11 +64,11 @@
 - [x] EntryForm에 사진 통합 (EntryFormData에 photos 필드 추가)
 - [x] 트립 상세 엔트리 카드에 사진 표시 (food_photos join)
 
-### Step 2-6: useRatings 훅 + 평가 UI
+### Step 2-6: useRatings 훅 + 평가 UI ✅
 
-- [ ] `useRatings` 훅 + 테스트
-- [ ] `RatingSlider` 컴포넌트 (1~10점)
-- [ ] EntryForm/상세에 평가 통합
+- [x] `useRatings` 훅 + 테스트 7개
+- [x] `RatingSlider` 컴포넌트 (1~10점, 0.5 단위) + 테스트 6개
+- [x] EntryForm에 평가 통합 (score 필드 + 저장)
 
 ### Step 2-7: 테스트 보강 + RLS 검증
 
@@ -165,3 +165,4 @@
 | 2026-02-11 | `2026-02-11_step2-3-useEntries.md` | Step 2-3 useEntries 훅 (CRUD + 테스트 7개)       |
 | 2026-02-13 | `2026-02-13_step2-4-entry-form.md` | Step 2-4 EntryForm 컴포넌트 (테스트 11개)        |
 | 2026-02-13 | `2026-02-13_step2-5-photo-upload.md` | Step 2-5 사진 업로드 (PhotoUploader, Storage)   |
+| 2026-02-13 | `2026-02-13_step2-6-ratings.md`      | Step 2-6 평가 시스템 (useRatings, RatingSlider) |

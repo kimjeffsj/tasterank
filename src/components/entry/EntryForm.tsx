@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Tables } from "@/types/database";
 import { PhotoUploader } from "./PhotoUploader";
+import { RatingSlider } from "./RatingSlider";
 
 type Entry = Tables<"food_entries">;
 
@@ -25,6 +26,7 @@ export interface EntryFormData {
   location_name: string;
   description: string;
   photos: File[];
+  score: number;
 }
 
 export function EntryForm({
@@ -43,6 +45,7 @@ export function EntryForm({
   );
   const [description, setDescription] = useState(entry?.description ?? "");
   const [photos, setPhotos] = useState<File[]>([]);
+  const [score, setScore] = useState(7);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -64,6 +67,7 @@ export function EntryForm({
         location_name: locationName.trim(),
         description: description.trim(),
         photos,
+        score,
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -147,6 +151,11 @@ export function EntryForm({
             />
           </div>
         </div>
+      </div>
+
+      {/* Rating */}
+      <div className="bg-white dark:bg-surface-dark rounded-xl p-6 shadow-sm border border-gray-100 dark:border-white/5">
+        <RatingSlider value={score} onChange={setScore} />
       </div>
 
       {/* Quick Review */}

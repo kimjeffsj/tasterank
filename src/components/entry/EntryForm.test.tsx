@@ -6,6 +6,19 @@ import { EntryForm, type EntryFormData } from "./EntryForm";
 global.URL.createObjectURL = jest.fn(() => "blob:mock-url");
 global.URL.revokeObjectURL = jest.fn();
 
+// Mock shadcn Slider (uses Radix internals)
+jest.mock("@/components/ui/slider", () => ({
+  Slider: ({ value, onValueChange, ...props }: any) => (
+    <input
+      type="range"
+      role="slider"
+      value={value?.[0] ?? 7}
+      onChange={(e: any) => onValueChange?.([parseFloat(e.target.value)])}
+      aria-label="Taste score"
+    />
+  ),
+}));
+
 describe("EntryForm", () => {
   const mockOnSubmit = jest.fn<Promise<void>, [EntryFormData]>();
   const mockOnCancel = jest.fn();
@@ -22,6 +35,7 @@ describe("EntryForm", () => {
     expect(screen.getByLabelText("Restaurant")).toBeInTheDocument();
     expect(screen.getByLabelText("Location")).toBeInTheDocument();
     expect(screen.getByLabelText("Quick Review")).toBeInTheDocument();
+    expect(screen.getByText("Taste Score")).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /save/i }),
     ).toBeInTheDocument();
@@ -44,6 +58,7 @@ describe("EntryForm", () => {
         location_name: "Shibuya, Tokyo",
         description: "Best ramen ever!",
         photos: [],
+        score: 7,
       });
     });
   });
@@ -80,6 +95,7 @@ describe("EntryForm", () => {
         location_name: "",
         description: "",
         photos: [],
+        score: 7,
       });
     });
   });
