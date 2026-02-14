@@ -36,9 +36,7 @@ export function TripActions({ tripId, ownerId, inviteCode }: TripActionsProps) {
             onClick={() => setShowInvite(!showInvite)}
             className="flex items-center justify-center w-10 h-10 rounded-full bg-white/20 backdrop-blur-md"
           >
-            <span className="material-icons-round text-white">
-              person_add
-            </span>
+            <span className="material-icons-round text-white">person_add</span>
           </button>
           <a
             href={`/trips/${tripId}/edit`}
@@ -51,7 +49,7 @@ export function TripActions({ tripId, ownerId, inviteCode }: TripActionsProps) {
 
       {/* Invite panel (slides in below hero) */}
       {showInvite && inviteCode && (
-        <div className="px-6 pt-4">
+        <div className="absolute top-24 right-6 z-30 w-72">
           <InviteShare inviteCode={inviteCode} />
         </div>
       )}
