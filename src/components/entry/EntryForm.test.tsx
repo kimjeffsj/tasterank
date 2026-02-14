@@ -59,6 +59,7 @@ describe("EntryForm", () => {
         description: "Best ramen ever!",
         photos: [],
         score: 7,
+        tags: [],
       });
     });
   });
@@ -96,6 +97,7 @@ describe("EntryForm", () => {
         description: "",
         photos: [],
         score: 7,
+        tags: [],
       });
     });
   });

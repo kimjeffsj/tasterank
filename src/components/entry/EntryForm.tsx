@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { Tables } from "@/types/database";
 import { PhotoUploader } from "./PhotoUploader";
 import { RatingSlider } from "./RatingSlider";
+import { TagSelector, type TagItem } from "./TagSelector";
 
 type Entry = Tables<"food_entries">;
 
@@ -27,6 +28,7 @@ export interface EntryFormData {
   description: string;
   photos: File[];
   score: number;
+  tags: TagItem[];
 }
 
 export function EntryForm({
@@ -46,8 +48,43 @@ export function EntryForm({
   const [description, setDescription] = useState(entry?.description ?? "");
   const [photos, setPhotos] = useState<File[]>([]);
   const [score, setScore] = useState(7);
+  const [tags, setTags] = useState<TagItem[]>([]);
+  const [aiLoading, setAiLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const handleAiSuggest = async () => {
+    if (!title.trim()) return;
+    setAiLoading(true);
+    try {
+      const res = await fetch("/api/ai/suggest-tags", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: title.trim(),
+          restaurantName: restaurantName.trim() || undefined,
+          description: description.trim() || undefined,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to get suggestions");
+      const data = await res.json();
+      const aiTags: TagItem[] = (data.tags ?? []).map(
+        (t: { name: string; category?: string }) => ({
+          name: t.name,
+          category: t.category,
+          isAiSuggested: true,
+        }),
+      );
+      // Merge without duplicates
+      const existing = new Set(tags.map((t) => t.name.toLowerCase()));
+      const newTags = aiTags.filter((t) => !existing.has(t.name.toLowerCase()));
+      setTags([...tags, ...newTags]);
+    } catch {
+      // Silently fail — AI suggestions are optional
+    } finally {
+      setAiLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,6 +105,7 @@ export function EntryForm({
         description: description.trim(),
         photos,
         score,
+        tags,
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -156,6 +194,19 @@ export function EntryForm({
       {/* Rating */}
       <div className="bg-white dark:bg-surface-dark rounded-xl p-6 shadow-sm border border-gray-100 dark:border-white/5">
         <RatingSlider value={score} onChange={setScore} />
+      </div>
+
+      {/* Tags */}
+      <div>
+        <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-2 px-1">
+          Tags
+        </p>
+        <TagSelector
+          selectedTags={tags}
+          onChange={setTags}
+          onAiSuggest={handleAiSuggest}
+          aiLoading={aiLoading}
+        />
       </div>
 
       {/* Quick Review */}

@@ -25,7 +25,7 @@ export default function NewEntryPage() {
       description: data.description || null,
     });
 
-    // Upload photos and save rating in parallel
+    // Upload photos, save rating, and save tags in parallel
     const promises: Promise<unknown>[] = [];
 
     if (data.photos.length > 0) {
@@ -36,12 +36,40 @@ export default function NewEntryPage() {
 
     const supabase = createClient();
     promises.push(
-      supabase.from("ratings").insert({
-        entry_id: entry.id,
-        user_id: user.id,
-        score: data.score,
-      }),
+      (async () => {
+        await supabase.from("ratings").insert({
+          entry_id: entry.id,
+          user_id: user.id,
+          score: data.score,
+        });
+      })(),
     );
+
+    // Save tags: upsert each tag then link to entry
+    if (data.tags.length > 0) {
+      promises.push(
+        (async () => {
+          for (const tag of data.tags) {
+            const { data: upserted } = await supabase
+              .from("tags")
+              .upsert(
+                { name: tag.name, category: tag.category ?? null },
+                { onConflict: "name" },
+              )
+              .select()
+              .single();
+
+            if (upserted) {
+              await supabase.from("food_entry_tags").insert({
+                entry_id: entry.id,
+                tag_id: upserted.id,
+                is_ai_suggested: tag.isAiSuggested ?? false,
+              });
+            }
+          }
+        })(),
+      );
+    }
 
     await Promise.all(promises);
 
