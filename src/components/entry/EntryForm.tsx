@@ -42,9 +42,7 @@ export function EntryForm({
   const [restaurantName, setRestaurantName] = useState(
     entry?.restaurant_name ?? "",
   );
-  const [locationName, setLocationName] = useState(
-    entry?.location_name ?? "",
-  );
+  const [locationName, setLocationName] = useState(entry?.location_name ?? "");
   const [description, setDescription] = useState(entry?.description ?? "");
   const [photos, setPhotos] = useState<File[]>([]);
   const [score, setScore] = useState(7);

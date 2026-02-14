@@ -54,7 +54,7 @@ export function InviteShare({ inviteCode }: InviteShareProps) {
       </div>
 
       <div className="flex gap-2">
-        <div className="flex-1 bg-gray-50 dark:bg-background-dark rounded-xl px-3 py-2.5 text-sm text-gray-500 truncate">
+        <div className="flex-1 min-w-0 bg-gray-50 dark:bg-background-dark rounded-xl px-3 py-2.5 text-sm text-gray-500 truncate">
           {inviteUrl}
         </div>
         <button

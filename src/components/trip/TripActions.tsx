@@ -31,7 +31,7 @@ export function TripActions({ tripId, ownerId, inviteCode }: TripActionsProps) {
     <>
       {/* Top-right buttons (owner only) */}
       {isOwner && (
-        <div className="absolute top-12 right-6 flex gap-2">
+        <div className="absolute top-12 right-6 flex gap-2 z-30">
           <button
             onClick={() => setShowInvite(!showInvite)}
             className="flex items-center justify-center w-10 h-10 rounded-full bg-white/20 backdrop-blur-md"
@@ -44,13 +44,13 @@ export function TripActions({ tripId, ownerId, inviteCode }: TripActionsProps) {
           >
             <span className="material-icons-round text-white">settings</span>
           </a>
-        </div>
-      )}
 
-      {/* Invite panel (slides in below hero) */}
-      {showInvite && inviteCode && (
-        <div className="absolute top-24 right-6 z-30 w-72">
-          <InviteShare inviteCode={inviteCode} />
+          {/* Invite panel */}
+          {showInvite && inviteCode && (
+            <div className="absolute top-full mt-2 right-0 w-72 max-w-[calc(100vw-3rem)]">
+              <InviteShare inviteCode={inviteCode} />
+            </div>
+          )}
         </div>
       )}
 

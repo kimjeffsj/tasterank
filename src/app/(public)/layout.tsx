@@ -1,7 +1,14 @@
+import { BottomNav } from "@/components/layout/BottomNav";
+
 export default function PublicLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      <BottomNav />
+    </>
+  );
 }
