@@ -45,14 +45,7 @@ export function InviteShare({ inviteCode }: InviteShareProps) {
   };
 
   return (
-    <div className="bg-white dark:bg-surface-dark rounded-2xl border border-gray-100 dark:border-white/5 p-4 shadow-lg">
-      <div className="flex items-center gap-3 mb-3">
-        <span className="material-icons-round text-xl text-primary">
-          person_add
-        </span>
-        <p className="font-bold text-sm">Invite Members</p>
-      </div>
-
+    <div className="px-4 pb-4">
       <div className="flex gap-2">
         <div className="flex-1 min-w-0 bg-gray-50 dark:bg-background-dark rounded-xl px-3 py-2.5 text-sm text-gray-500 truncate">
           {inviteUrl}

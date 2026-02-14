@@ -61,9 +61,11 @@ supabase/migrations/   SQL 마이그레이션 파일
 1. **세션 시작 시** `.claude/CHECKLIST.md`를 읽고 현재 단계 파악
 2. **구현 전** 해당 단계에 필요한 문서만 로드 (아래 참조)
 3. **구현 후** 체크리스트 업데이트 + 구현 노트 작성 (`.claude/docs/implementation/`)
-4. **구현 노트 규칙**: `{YYYY-MM-DD}_{name}.md`, 템플릿은 `_TEMPLATE.md` 참고
+4. **구현 노트 규칙**: `{YYYY-MM-DD}_{name}.md`, 템플릿은 폴더 내 `_TEMPLATE.md` 참고
 5. **트레이드오프 기록**: 각 구현 결정의 이유, 대안, 장단점을 구현 노트에 기록
 6. **커밋 메시지 추천**: 각 작업 이후 커밋 메시지 추천 한줄 혹은 불렛포인트로 간단하게
+7. **문제 해결 노트 구현 후**: (`.claude/docs/troubleshoots/`)에 작성
+8. **문제 해결 노트 규칙**: `{YYYY-MM-DD}_{name}.md`, 템플릿은 폴더 내 `_TEMPLATE.md` 참조
 
 ## Docs — 필요 시에만 로드
 
