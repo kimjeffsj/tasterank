@@ -2,7 +2,6 @@
 
 import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
-import { LoginPrompt } from "@/components/auth/LoginPrompt";
 import { InviteShare } from "@/components/trip/InviteShare";
 import {
   Sheet,
@@ -16,21 +15,18 @@ interface TripActionsProps {
   tripId: string;
   ownerId: string;
   inviteCode: string | null;
+  memberUserIds: string[];
 }
 
 /** FAB and action buttons shown on trip detail page */
-export function TripActions({ tripId, ownerId, inviteCode }: TripActionsProps) {
+export function TripActions({ tripId, ownerId, inviteCode, memberUserIds }: TripActionsProps) {
   const { user } = useAuth();
-  const [showLogin, setShowLogin] = useState(false);
   const [showInvite, setShowInvite] = useState(false);
 
   const isOwner = user?.id === ownerId;
+  const isMember = user ? memberUserIds.includes(user.id) : false;
 
   const handleAddEntry = () => {
-    if (!user) {
-      setShowLogin(true);
-      return;
-    }
     window.location.href = `/trips/${tripId}/entries/new`;
   };
 
@@ -86,17 +82,17 @@ export function TripActions({ tripId, ownerId, inviteCode }: TripActionsProps) {
         </SheetContent>
       </Sheet>
 
-      {/* FAB: Add Entry */}
-      <button
-        onClick={handleAddEntry}
-        className="fixed bottom-8 right-6 w-16 h-16 bg-primary rounded-full shadow-[0_8px_30px_rgb(236,127,19,0.4)] flex items-center justify-center z-20 active:scale-[0.95] transition-transform group"
-      >
-        <span className="material-icons-round text-2xl text-white group-hover:rotate-90 transition-transform duration-300">
-          add
-        </span>
-      </button>
-
-      <LoginPrompt open={showLogin} onOpenChange={setShowLogin} />
+      {/* FAB: Add Entry — only for logged-in members */}
+      {user && isMember && (
+        <button
+          onClick={handleAddEntry}
+          className="fixed bottom-8 right-6 w-16 h-16 bg-primary rounded-full shadow-[0_8px_30px_rgb(236,127,19,0.4)] flex items-center justify-center z-20 active:scale-[0.95] transition-transform group"
+        >
+          <span className="material-icons-round text-2xl text-white group-hover:rotate-90 transition-transform duration-300">
+            add
+          </span>
+        </button>
+      )}
     </>
   );
 }

@@ -83,7 +83,12 @@ export default async function TripDetailPage({ params }: Props) {
         </div>
 
         {/* Client-side actions (edit button, FAB) */}
-        <TripActions tripId={tripId} ownerId={trip.owner_id} inviteCode={trip.invite_code} />
+        <TripActions
+          tripId={tripId}
+          ownerId={trip.owner_id}
+          inviteCode={trip.invite_code}
+          memberUserIds={members?.map((m) => m.user_id) ?? []}
+        />
 
         {/* Title + meta */}
         <div className="absolute bottom-0 w-full p-6">
