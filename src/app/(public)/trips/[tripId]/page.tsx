@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { anonClient } from "@/lib/supabase/anon";
 import { notFound } from "next/navigation";
 import { TripActions } from "@/components/trip/TripActions";
+import { AiQuestionsBadge } from "@/components/entry/AiQuestionsBadge";
 
 interface Props {
   params: Promise<{ tripId: string }>;
@@ -47,7 +48,7 @@ export default async function TripDetailPage({ params }: Props) {
 
   const { data: entries } = await anonClient
     .from("food_entries")
-    .select("id, title, restaurant_name, created_at, food_photos(photo_url, display_order)")
+    .select("id, title, restaurant_name, created_by, created_at, food_photos(photo_url, display_order), profiles!created_by(display_name, avatar_url)")
     .eq("trip_id", tripId)
     .order("created_at", { ascending: false });
 
@@ -168,7 +169,7 @@ export default async function TripDetailPage({ params }: Props) {
                 key={entry.id}
                 className="group bg-white dark:bg-surface-dark rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-all"
               >
-                <div className="aspect-square bg-gray-100 dark:bg-gray-800 flex items-center justify-center overflow-hidden">
+                <div className="aspect-square bg-gray-100 dark:bg-gray-800 flex items-center justify-center overflow-hidden relative">
                   {entry.food_photos && entry.food_photos.length > 0 ? (
                     <img
                       src={entry.food_photos.sort(
@@ -182,6 +183,13 @@ export default async function TripDetailPage({ params }: Props) {
                       restaurant
                     </span>
                   )}
+                  <AiQuestionsBadge
+                    entryId={entry.id}
+                    entryTitle={entry.title}
+                    createdBy={entry.created_by}
+                    creatorName={(entry.profiles as { display_name: string | null; avatar_url: string | null } | null)?.display_name ?? "Someone"}
+                    creatorAvatar={(entry.profiles as { display_name: string | null; avatar_url: string | null } | null)?.avatar_url ?? undefined}
+                  />
                 </div>
                 <div className="p-3">
                   <p className="font-bold text-sm leading-tight dark:text-white">

@@ -7,11 +7,29 @@ global.fetch = mockFetch;
 
 // Mock Supabase client
 const mockUpsert = jest.fn();
+const mockSelect = jest.fn();
+const mockEq = jest.fn();
+const mockIn = jest.fn();
+const mockOrder = jest.fn();
+
+const createMockChain = () => {
+  const chain = {
+    select: mockSelect,
+    eq: mockEq,
+    in: mockIn,
+    order: mockOrder,
+    upsert: mockUpsert,
+  };
+  mockSelect.mockReturnValue(chain);
+  mockEq.mockReturnValue(chain);
+  mockIn.mockReturnValue(chain);
+  mockOrder.mockReturnValue(chain);
+  return chain;
+};
+
 jest.mock("@/lib/supabase/client", () => ({
   createClient: () => ({
-    from: () => ({
-      upsert: mockUpsert,
-    }),
+    from: () => createMockChain(),
   }),
 }));
 
@@ -128,5 +146,102 @@ describe("useAiQuestions", () => {
     });
 
     expect(result.current.loading).toBe(false);
+  });
+
+  it("fetches questions from DB by entryId", async () => {
+    const mockQuestions = [
+      { id: "q1", question_text: "How spicy?", question_type: "scale", options: null, question_order: 1 },
+    ];
+
+    mockOrder.mockReturnValueOnce({ data: mockQuestions, error: null });
+
+    const { result } = renderHook(() => useAiQuestions());
+
+    let fetched: unknown[];
+    await act(async () => {
+      fetched = await result.current.fetchQuestions("entry-1");
+    });
+
+    expect(fetched!).toEqual(mockQuestions);
+    expect(result.current.questions).toEqual(mockQuestions);
+    expect(result.current.loading).toBe(false);
+  });
+
+  it("returns empty array when fetchQuestions has DB error", async () => {
+    mockOrder.mockReturnValueOnce({ data: null, error: { message: "DB error" } });
+
+    const { result } = renderHook(() => useAiQuestions());
+
+    let fetched: unknown[];
+    await act(async () => {
+      fetched = await result.current.fetchQuestions("entry-1");
+    });
+
+    expect(fetched!).toEqual([]);
+    expect(result.current.questions).toEqual([]);
+  });
+
+  it("fetchUnansweredCount returns count map", async () => {
+    const mockData = [
+      { id: "q1", entry_id: "e1", ai_responses: [] },
+      { id: "q2", entry_id: "e1", ai_responses: [{ id: "r1" }] },
+      { id: "q3", entry_id: "e2", ai_responses: [] },
+    ];
+
+    mockEq.mockReturnValueOnce({ data: mockData, error: null });
+
+    const { result } = renderHook(() => useAiQuestions());
+
+    let countMap: Map<string, number>;
+    await act(async () => {
+      countMap = await result.current.fetchUnansweredCount(["e1", "e2"], "u1");
+    });
+
+    expect(countMap!.get("e1")).toBe(1);
+    expect(countMap!.get("e2")).toBe(1);
+  });
+
+  it("fetchUnansweredCount returns empty map on error", async () => {
+    mockEq.mockReturnValueOnce({ data: null, error: { message: "fail" } });
+
+    const { result } = renderHook(() => useAiQuestions());
+
+    let countMap: Map<string, number>;
+    await act(async () => {
+      countMap = await result.current.fetchUnansweredCount(["e1"], "u1");
+    });
+
+    expect(countMap!.size).toBe(0);
+  });
+
+  it("dismissQuestions inserts empty responses for all questions", async () => {
+    const mockQuestions = [{ id: "q1" }, { id: "q2" }];
+    mockEq.mockReturnValueOnce({ data: mockQuestions });
+
+    const { result } = renderHook(() => useAiQuestions());
+
+    await act(async () => {
+      await result.current.dismissQuestions("entry-1", "user-1");
+    });
+
+    expect(mockUpsert).toHaveBeenCalledWith(
+      [
+        { question_id: "q1", user_id: "user-1" },
+        { question_id: "q2", user_id: "user-1" },
+      ],
+      { onConflict: "question_id,user_id" },
+    );
+  });
+
+  it("dismissQuestions does nothing when no questions exist", async () => {
+    mockEq.mockReturnValueOnce({ data: [] });
+
+    const { result } = renderHook(() => useAiQuestions());
+
+    await act(async () => {
+      await result.current.dismissQuestions("entry-1", "user-1");
+    });
+
+    expect(mockUpsert).not.toHaveBeenCalled();
   });
 });

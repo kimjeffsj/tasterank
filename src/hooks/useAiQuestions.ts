@@ -50,6 +50,83 @@ export function useAiQuestions() {
     }
   }, []);
 
+  const fetchQuestions = useCallback(async (entryId: string) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const supabase = createClient();
+      const { data, error: dbError } = await supabase
+        .from("ai_questions")
+        .select("id, question_text, question_type, options, question_order")
+        .eq("entry_id", entryId)
+        .order("question_order");
+
+      if (dbError) {
+        setError(dbError.message);
+        setQuestions([]);
+        return [];
+      }
+
+      const fetched = (data ?? []) as AiQuestion[];
+      setQuestions(fetched);
+      return fetched;
+    } catch {
+      setQuestions([]);
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const fetchUnansweredCount = useCallback(
+    async (entryIds: string[], userId: string) => {
+      const supabase = createClient();
+
+      const { data, error: dbError } = await supabase
+        .from("ai_questions")
+        .select("id, entry_id, ai_responses!left(id)")
+        .in("entry_id", entryIds)
+        .eq("ai_responses.user_id", userId);
+
+      if (dbError || !data) return new Map<string, number>();
+
+      const countMap = new Map<string, number>();
+      for (const q of data) {
+        const responses = q.ai_responses as unknown as { id: string }[] | null;
+        const hasResponse = responses && responses.length > 0;
+        if (!hasResponse) {
+          countMap.set(q.entry_id, (countMap.get(q.entry_id) ?? 0) + 1);
+        }
+      }
+
+      return countMap;
+    },
+    [],
+  );
+
+  const dismissQuestions = useCallback(
+    async (entryId: string, userId: string) => {
+      const supabase = createClient();
+      const { data: questions } = await supabase
+        .from("ai_questions")
+        .select("id")
+        .eq("entry_id", entryId);
+
+      if (!questions || questions.length === 0) return;
+
+      const rows = questions.map((q) => ({
+        question_id: q.id,
+        user_id: userId,
+      }));
+
+      await supabase
+        .from("ai_responses")
+        .upsert(rows, { onConflict: "question_id,user_id" });
+    },
+    [],
+  );
+
   const saveResponses = useCallback(
     async (
       userId: string,
@@ -80,6 +157,9 @@ export function useAiQuestions() {
     loading,
     error,
     generateQuestions,
+    fetchQuestions,
+    fetchUnansweredCount,
+    dismissQuestions,
     saveResponses,
   };
 }

@@ -1,35 +1,17 @@
 "use client";
 
-import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { EntryForm, type EntryFormData } from "@/components/entry/EntryForm";
-import { FollowUpQuestions } from "@/components/entry/FollowUpQuestions";
 import { useEntries } from "@/hooks/useEntries";
 import { useAuth } from "@/hooks/useAuth";
 import { uploadEntryPhotos } from "@/lib/storage";
 import { createClient } from "@/lib/supabase/client";
-
-interface SavedEntryData {
-  entryId: string;
-  title: string;
-  restaurantName?: string;
-  tags?: string[];
-  score?: number;
-  description?: string;
-}
 
 export default function NewEntryPage() {
   const params = useParams<{ tripId: string }>();
   const router = useRouter();
   const { createEntry } = useEntries(params.tripId);
   const { user } = useAuth();
-
-  const [phase, setPhase] = useState<"form" | "followup">("form");
-  const [savedEntry, setSavedEntry] = useState<SavedEntryData | null>(null);
-
-  const navigateToTrip = () => {
-    router.push(`/trips/${params.tripId}`);
-  };
 
   const handleSubmit = async (data: EntryFormData) => {
     if (!user) throw new Error("You must be logged in");
@@ -91,39 +73,23 @@ export default function NewEntryPage() {
 
     await Promise.all(promises);
 
-    // Transition to follow-up questions phase
-    setSavedEntry({
-      entryId: entry.id,
-      title: data.title,
-      restaurantName: data.restaurant_name || undefined,
-      tags: data.tags.map((t) => t.name),
-      score: data.score,
-      description: data.description || undefined,
+    // Fire-and-forget AI question generation
+    fetch("/api/ai/follow-up-questions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        entryId: entry.id,
+        title: data.title,
+        restaurantName: data.restaurant_name || undefined,
+        tags: data.tags.map((t) => t.name),
+        score: data.score,
+        description: data.description || undefined,
+      }),
     });
-    setPhase("followup");
-  };
 
-  if (phase === "followup" && savedEntry) {
-    return (
-      <div className="mx-auto w-full max-w-md min-h-screen">
-        <header className="sticky top-0 z-10 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md px-6 pt-12 pb-4">
-          <h1 className="text-xl font-bold dark:text-white text-center">
-            One More Thing...
-          </h1>
-        </header>
-        <FollowUpQuestions
-          entryId={savedEntry.entryId}
-          title={savedEntry.title}
-          restaurantName={savedEntry.restaurantName}
-          tags={savedEntry.tags}
-          score={savedEntry.score}
-          description={savedEntry.description}
-          onComplete={navigateToTrip}
-          onSkip={navigateToTrip}
-        />
-      </div>
-    );
-  }
+    // Navigate immediately — no blocking interstitial
+    router.push(`/trips/${params.tripId}`);
+  };
 
   return (
     <div className="mx-auto w-full max-w-md min-h-screen">
