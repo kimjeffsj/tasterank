@@ -1,9 +1,34 @@
+import type { Metadata } from "next";
 import { anonClient } from "@/lib/supabase/anon";
 import { notFound } from "next/navigation";
 import { TripActions } from "@/components/trip/TripActions";
 
 interface Props {
   params: Promise<{ tripId: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { tripId } = await params;
+  const { data: trip } = await anonClient
+    .from("trips")
+    .select("name, description, cover_image_url")
+    .eq("id", tripId)
+    .eq("is_public", true)
+    .single();
+
+  if (!trip) return {};
+
+  return {
+    title: trip.name,
+    description: trip.description ?? `Food rankings from ${trip.name}`,
+    openGraph: {
+      title: trip.name,
+      description: trip.description ?? `Food rankings from ${trip.name}`,
+      images: trip.cover_image_url
+        ? [{ url: trip.cover_image_url }]
+        : [{ url: "/og-image.png" }],
+    },
+  };
 }
 
 export default async function TripDetailPage({ params }: Props) {

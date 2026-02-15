@@ -11,9 +11,26 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "TasteRank — Record the taste of your travels",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+  ),
+  title: {
+    default: "TasteRank — Record the taste of your travels",
+    template: "%s — TasteRank",
+  },
   description:
     "Rate and rank your travel food experiences together with friends.",
+  openGraph: {
+    type: "website",
+    siteName: "TasteRank",
+    title: "TasteRank — Record the taste of your travels",
+    description:
+      "Rate and rank your travel food experiences together with friends.",
+    images: [{ url: "/og-image.png", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
 };
 
 export const viewport: Viewport = {
@@ -43,9 +60,9 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/icon?family=Material+Icons+Round"
           rel="stylesheet"
         />
-        <meta name="mobile-web-apple-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
       </head>
       <body className="font-display antialiased">
         <ThemeProvider>{children}</ThemeProvider>

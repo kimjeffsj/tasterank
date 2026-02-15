@@ -1,6 +1,6 @@
 # TasteRank Development Checklist
 
-> 진행 상태: Phase 4 Step 4-2 완료 ✅ → Step 4-3 다음
+> 진행 상태: Phase 4 Step 4-3 완료 ✅ → Step 4-4 다음
 
 ---
 
@@ -120,11 +120,12 @@
 - [x] 다크 모드 지원 (ThemeProvider + ThemeToggle + 전체 페이지 dark: 클래스)
 - [x] 로딩/에러/빈 상태 UI (loading.tsx, error.tsx, not-found.tsx + EmptyState/Skeleton)
 
-### Step 4-3: SEO + 메타
+### Step 4-3: SEO + 메타 ✅
 
-- [ ] 공개 컬렉션 SSR 메타태그
-- [ ] OG 이미지
-- [ ] sitemap.xml + robots.txt
+- [x] 공개 컬렉션 SSR 메타태그 (root layout + trip detail + ranking generateMetadata)
+- [x] OG 이미지 (`public/og-image.png` 1200x630)
+- [x] sitemap.xml + robots.txt
+- [x] apple-touch-icon 경로 수정, meta name 오타 수정
 
 ### Step 4-4: 테스트 + 배포
 
@@ -178,3 +179,4 @@
 | 2026-02-14 | `2026-02-14_step3-3-ranking-page.md`  | Step 3-3 기본 랭킹 페이지                        |
 | 2026-02-14 | `2026-02-14_step4-1-pwa-setup.md`     | Step 4-1 PWA 기초 설정                            |
 | 2026-02-14 | `2026-02-14_step4-2-responsive-ui.md` | Step 4-2 반응형 UI (다크모드, 로딩/에러 상태)     |
+| 2026-02-14 | `2026-02-14_step4-3-seo-meta.md`      | Step 4-3 SEO + Meta (OG, sitemap, robots)         |
