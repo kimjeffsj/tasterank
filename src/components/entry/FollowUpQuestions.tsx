@@ -70,15 +70,14 @@ export function FollowUpQuestions({
       // Save rating (non-creator only)
       if (!isCreator) {
         const supabase = createClient();
-        promises.push(
-          supabase
-            .from("ratings")
-            .upsert(
-              { entry_id: entryId, user_id: user.id, score: ratingScore },
-              { onConflict: "entry_id,user_id" },
-            )
-            .then(),
-        );
+        const ratingPromise = supabase
+          .from("ratings")
+          .upsert(
+            { entry_id: entryId, user_id: user.id, score: ratingScore },
+            { onConflict: "entry_id,user_id" },
+          )
+          .then();
+        promises.push(ratingPromise as Promise<unknown>);
       }
 
       // Save AI responses
