@@ -13,11 +13,13 @@ export function ProfileContent() {
   // Loading state
   if (loading) {
     return (
-      <main className="min-h-screen px-6 pt-12 pb-24">
-        <h1 className="text-2xl font-extrabold tracking-tight mb-6">
-          Profile
-        </h1>
-        <div className="space-y-6">
+      <div className="mx-auto w-full max-w-md min-h-screen pb-24">
+        {/* Header */}
+        <header className="sticky top-0 z-10 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md px-6 pt-12 pb-4">
+          <h1 className="text-2xl font-extrabold tracking-tight">Profile</h1>
+        </header>
+
+        <div className="px-6 space-y-6">
           {/* User Info Skeleton */}
           <div className="glass-card rounded-[2.5rem] p-6 h-64 animate-pulse">
             <div className="flex flex-col items-center">
@@ -42,7 +44,7 @@ export function ProfileContent() {
             ))}
           </div>
         </div>
-      </main>
+      </div>
     );
   }
 
@@ -103,10 +105,13 @@ export function ProfileContent() {
     : "";
 
   return (
-    <main className="min-h-screen px-6 pt-12 pb-24">
-      <h1 className="text-2xl font-extrabold tracking-tight mb-6">Profile</h1>
+    <div className="mx-auto w-full max-w-md min-h-screen pb-24">
+      {/* Header */}
+      <header className="sticky top-0 z-10 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md px-6 pt-12 pb-4">
+        <h1 className="text-2xl font-extrabold tracking-tight">Profile</h1>
+      </header>
 
-      <div className="space-y-6">
+      <div className="px-6 space-y-6">
         {/* User Info Card */}
         <section className="glass-card rounded-[2.5rem] p-6">
           <div className="flex flex-col items-center text-center">
@@ -216,6 +221,6 @@ export function ProfileContent() {
           </button>
         </section>
       </div>
-    </main>
+    </div>
   );
 }
