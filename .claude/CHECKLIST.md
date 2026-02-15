@@ -1,6 +1,6 @@
 # TasteRank Development Checklist
 
-> 진행 상태: Phase 3 Step 3-1, 3-2, 3-3 완료 ✅ → Phase 4 다음
+> 진행 상태: Phase 4 Step 4-1 완료 ✅ → Step 4-2 다음
 
 ---
 
@@ -106,10 +106,13 @@
 
 ## Phase 4: 폴리시
 
-### Step 4-1: PWA 기초
+### Step 4-1: PWA 기초 ✅
 
-- [ ] `@serwist/next` 설치 + Service Worker
-- [ ] manifest.json + 아이콘
+- [x] `@serwist/next` 설치 + Service Worker
+- [x] manifest.ts + placeholder 아이콘 (192, 512, 512-maskable)
+- [x] offline fallback 페이지 (`/~offline`)
+- [x] Apple PWA meta tags
+- [x] Next.js 16 Turbopack 호환 (dev: disable, build: --webpack)
 
 ### Step 4-2: 반응형 UI
 
@@ -173,3 +176,4 @@
 | 2026-02-13 | `2026-02-13_step2-7-tests.md`        | Step 2-7 테스트 보강 (InviteShare, RLS 검증)    |
 | 2026-02-13 | `2026-02-13_step3-1-3-2-tags-ai.md`  | Step 3-1/3-2 태그 CRUD + AI 태그 추천           |
 | 2026-02-14 | `2026-02-14_step3-3-ranking-page.md`  | Step 3-3 기본 랭킹 페이지                        |
+| 2026-02-14 | `2026-02-14_step4-1-pwa-setup.md`     | Step 4-1 PWA 기초 설정                            |

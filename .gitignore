@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Serwist (PWA service worker build output)
+public/sw*
+public/swe-worker*
