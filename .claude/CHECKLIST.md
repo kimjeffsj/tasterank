@@ -1,6 +1,6 @@
 # TasteRank Development Checklist
 
-> 진행 상태: Phase 4 Step 4-1 완료 ✅ → Step 4-2 다음
+> 진행 상태: Phase 4 Step 4-2 완료 ✅ → Step 4-3 다음
 
 ---
 
@@ -114,11 +114,11 @@
 - [x] Apple PWA meta tags
 - [x] Next.js 16 Turbopack 호환 (dev: disable, build: --webpack)
 
-### Step 4-2: 반응형 UI
+### Step 4-2: 반응형 UI ✅
 
-- [ ] 모바일 레이아웃 점검
-- [ ] 다크 모드 지원
-- [ ] 로딩/에러/빈 상태 UI
+- [x] 모바일 레이아웃 점검 (모든 페이지 max-w-md 패턴 확인)
+- [x] 다크 모드 지원 (ThemeProvider + ThemeToggle + 전체 페이지 dark: 클래스)
+- [x] 로딩/에러/빈 상태 UI (loading.tsx, error.tsx, not-found.tsx + EmptyState/Skeleton)
 
 ### Step 4-3: SEO + 메타
 
@@ -177,3 +177,4 @@
 | 2026-02-13 | `2026-02-13_step3-1-3-2-tags-ai.md`  | Step 3-1/3-2 태그 CRUD + AI 태그 추천           |
 | 2026-02-14 | `2026-02-14_step3-3-ranking-page.md`  | Step 3-3 기본 랭킹 페이지                        |
 | 2026-02-14 | `2026-02-14_step4-1-pwa-setup.md`     | Step 4-1 PWA 기초 설정                            |
+| 2026-02-14 | `2026-02-14_step4-2-responsive-ui.md` | Step 4-2 반응형 UI (다크모드, 로딩/에러 상태)     |

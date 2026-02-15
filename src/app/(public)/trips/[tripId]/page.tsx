@@ -124,15 +124,15 @@ export default async function TripDetailPage({ params }: Props) {
 
       {/* Food entries */}
       <section className="px-6 py-6">
-        <h2 className="text-xl font-bold mb-4">Recent Eats</h2>
+        <h2 className="text-xl font-bold dark:text-white mb-4">Recent Eats</h2>
 
         {!entries || entries.length === 0 ? (
           <div className="flex flex-col items-center py-12 text-center">
-            <span className="material-icons-round text-5xl text-gray-300 mb-3">
+            <span className="material-icons-round text-5xl text-gray-300 dark:text-gray-600 mb-3">
               restaurant_menu
             </span>
-            <p className="text-gray-500">No food entries yet</p>
-            <p className="text-sm text-gray-400 mt-1">
+            <p className="text-gray-500 dark:text-gray-400">No food entries yet</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
               Add your first meal to get started
             </p>
           </div>
@@ -159,11 +159,11 @@ export default async function TripDetailPage({ params }: Props) {
                   )}
                 </div>
                 <div className="p-3">
-                  <p className="font-bold text-sm leading-tight">
+                  <p className="font-bold text-sm leading-tight dark:text-white">
                     {entry.title}
                   </p>
                   {entry.restaurant_name && (
-                    <p className="text-xs text-gray-500 truncate mt-0.5">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
                       {entry.restaurant_name}
                     </p>
                   )}

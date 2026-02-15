@@ -1,5 +1,7 @@
 import { anonClient } from "@/lib/supabase/anon";
 import { CreateTripButton } from "@/components/trip/CreateTripButton";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import { EmptyState } from "@/components/layout/EmptyState";
 
 export default async function HomePage() {
   const { data: trips } = await anonClient
@@ -12,25 +14,26 @@ export default async function HomePage() {
   return (
     <div className="mx-auto w-full max-w-md min-h-screen pb-24">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-background-light/90 backdrop-blur-md px-6 pt-12 pb-4">
+      <header className="sticky top-0 z-10 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md px-6 pt-12 pb-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="material-icons-round text-primary text-2xl">
               restaurant
             </span>
-            <h1 className="text-xl font-bold">TasteRank</h1>
+            <h1 className="text-xl font-bold dark:text-white">TasteRank</h1>
           </div>
+          <ThemeToggle />
         </div>
       </header>
 
       {/* Hero */}
       <section className="px-6 py-8">
-        <h2 className="text-4xl font-extrabold leading-[1.1]">
+        <h2 className="text-4xl font-extrabold leading-[1.1] dark:text-white">
           Record the taste
           <br />
           of your <span className="text-primary">travels</span>
         </h2>
-        <p className="mt-3 text-lg text-gray-500">
+        <p className="mt-3 text-lg text-gray-500 dark:text-gray-400">
           Rate and rank your travel food experiences together.
         </p>
         <div className="mt-6">
@@ -41,19 +44,15 @@ export default async function HomePage() {
       {/* Collections */}
       <section className="px-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-bold">Your Collections</h3>
+          <h3 className="text-xl font-bold dark:text-white">Your Collections</h3>
         </div>
 
         {!trips || trips.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <span className="material-icons-round text-6xl text-gray-300 mb-4">
-              restaurant_menu
-            </span>
-            <p className="text-gray-500 font-medium">No collections yet</p>
-            <p className="text-sm text-gray-400 mt-1">
-              Create your first trip to get started
-            </p>
-          </div>
+          <EmptyState
+            icon="restaurant_menu"
+            title="No collections yet"
+            description="Create your first trip to get started"
+          />
         ) : (
           <div className="flex flex-col gap-6">
             {trips.map((trip) => (

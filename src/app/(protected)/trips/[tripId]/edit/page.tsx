@@ -50,7 +50,7 @@ export default function EditTripPage() {
   if (loading) {
     return (
       <div className="mx-auto w-full max-w-md min-h-screen flex items-center justify-center">
-        <span className="material-icons-round text-4xl text-gray-300 animate-spin">
+        <span className="material-icons-round text-4xl text-gray-300 dark:text-gray-600 animate-spin">
           refresh
         </span>
       </div>
@@ -60,10 +60,10 @@ export default function EditTripPage() {
   if (!trip) {
     return (
       <div className="mx-auto w-full max-w-md min-h-screen flex flex-col items-center justify-center gap-3">
-        <span className="material-icons-round text-5xl text-gray-300">
+        <span className="material-icons-round text-5xl text-gray-300 dark:text-gray-600">
           error_outline
         </span>
-        <p className="text-gray-500 font-medium">Trip not found</p>
+        <p className="text-gray-500 dark:text-gray-400 font-medium">Trip not found</p>
       </div>
     );
   }
@@ -79,7 +79,7 @@ export default function EditTripPage() {
           >
             <span className="material-icons-round">arrow_back</span>
           </button>
-          <h1 className="text-xl font-bold">Edit Trip</h1>
+          <h1 className="text-xl font-bold dark:text-white">Edit Trip</h1>
         </div>
       </header>
 

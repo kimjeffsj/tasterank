@@ -30,7 +30,7 @@ export default function NewTripPage() {
           >
             <span className="material-icons-round">arrow_back</span>
           </button>
-          <h1 className="text-xl font-bold">New Trip</h1>
+          <h1 className="text-xl font-bold dark:text-white">New Trip</h1>
         </div>
       </header>
 

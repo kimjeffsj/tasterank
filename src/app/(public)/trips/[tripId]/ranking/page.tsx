@@ -90,8 +90,8 @@ export default async function RankingPage({ params }: Props) {
             <span className="material-icons-round">arrow_back</span>
           </a>
           <div className="flex-1 min-w-0">
-            <h1 className="text-lg font-bold truncate">{trip.name}</h1>
-            <p className="text-xs text-gray-500">Rankings</p>
+            <h1 className="text-lg font-bold truncate dark:text-white">{trip.name}</h1>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Rankings</p>
           </div>
           <span className="material-icons-round text-2xl text-primary">
             emoji_events

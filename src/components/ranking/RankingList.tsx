@@ -54,11 +54,11 @@ export function RankingList({ rankings, tripName }: RankingListProps) {
   if (rankings.length === 0) {
     return (
       <div className="flex flex-col items-center py-16 text-center">
-        <span className="material-icons-round text-6xl text-gray-300 mb-4">
+        <span className="material-icons-round text-6xl text-gray-300 dark:text-gray-600 mb-4">
           emoji_events
         </span>
-        <p className="text-lg font-bold text-gray-500">No rankings yet</p>
-        <p className="text-sm text-gray-400 mt-1">
+        <p className="text-lg font-bold text-gray-500 dark:text-gray-400">No rankings yet</p>
+        <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
           Add entries and rate them to see rankings
         </p>
       </div>
@@ -110,7 +110,7 @@ export function RankingList({ rankings, tripName }: RankingListProps) {
       {/* Runners-up */}
       {runnersUp.length > 0 && (
         <div>
-          <h3 className="text-lg font-bold mb-3">Runners Up</h3>
+          <h3 className="text-lg font-bold dark:text-white mb-3">Runners Up</h3>
           <div className="space-y-3">
             {runnersUp.map((entry) => (
               <RunnerUpItem key={entry.entry_id} entry={entry} />
@@ -198,9 +198,9 @@ function PodiumCard({ entry, medal }: { entry: RankedEntry; medal: "silver" | "b
         </div>
       </div>
       <div className="mt-2">
-        <p className="font-bold text-sm leading-tight">{entry.title}</p>
+        <p className="font-bold text-sm leading-tight dark:text-white">{entry.title}</p>
         {entry.restaurant_name && (
-          <p className="text-xs text-gray-500 truncate mt-0.5">{entry.restaurant_name}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">{entry.restaurant_name}</p>
         )}
         {entry.avg_score !== null && (
           <div className="flex items-center gap-1 mt-1">
@@ -242,9 +242,9 @@ function RunnerUpItem({ entry }: { entry: RankedEntry }) {
 
       {/* Info */}
       <div className="flex-1 min-w-0">
-        <p className="font-bold text-sm">{entry.title}</p>
+        <p className="font-bold text-sm dark:text-white">{entry.title}</p>
         {entry.restaurant_name && (
-          <p className="text-xs text-gray-500 truncate">{entry.restaurant_name}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{entry.restaurant_name}</p>
         )}
       </div>
 

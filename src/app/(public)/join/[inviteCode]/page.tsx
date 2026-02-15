@@ -59,7 +59,7 @@ export default function JoinTripPage() {
           <span className="material-icons-round text-5xl text-primary animate-spin">
             refresh
           </span>
-          <p className="text-gray-500">Loading...</p>
+          <p className="text-gray-500 dark:text-gray-400">Loading...</p>
         </div>
       )}
 
@@ -71,8 +71,8 @@ export default function JoinTripPage() {
             </span>
           </div>
           <div>
-            <h1 className="text-2xl font-bold">Join Trip</h1>
-            <p className="text-gray-500 mt-2">
+            <h1 className="text-2xl font-bold dark:text-white">Join Trip</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-2">
               Sign in with Google to join this trip as a member.
             </p>
           </div>
@@ -94,7 +94,7 @@ export default function JoinTripPage() {
           <span className="material-icons-round text-5xl text-primary animate-spin">
             refresh
           </span>
-          <p className="text-gray-500">Joining trip...</p>
+          <p className="text-gray-500 dark:text-gray-400">Joining trip...</p>
         </div>
       )}
 
@@ -105,11 +105,11 @@ export default function JoinTripPage() {
               check_circle
             </span>
           </div>
-          <h1 className="text-2xl font-bold">You&apos;re in!</h1>
-          <p className="text-gray-500">
+          <h1 className="text-2xl font-bold dark:text-white">You&apos;re in!</h1>
+          <p className="text-gray-500 dark:text-gray-400">
             Welcome to <span className="font-bold">{tripName}</span>
           </p>
-          <p className="text-sm text-gray-400">Redirecting...</p>
+          <p className="text-sm text-gray-400 dark:text-gray-500">Redirecting...</p>
         </div>
       )}
 
@@ -120,8 +120,8 @@ export default function JoinTripPage() {
               error
             </span>
           </div>
-          <h1 className="text-2xl font-bold">Oops!</h1>
-          <p className="text-gray-500">
+          <h1 className="text-2xl font-bold dark:text-white">Oops!</h1>
+          <p className="text-gray-500 dark:text-gray-400">
             {error ?? "Something went wrong. The invite link may be invalid."}
           </p>
           <a
