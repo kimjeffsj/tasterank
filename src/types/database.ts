@@ -14,6 +14,100 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_questions: {
+        Row: {
+          created_at: string | null
+          entry_id: string
+          id: string
+          options: Json | null
+          question_order: number | null
+          question_text: string
+          question_type: string
+        }
+        Insert: {
+          created_at?: string | null
+          entry_id: string
+          id?: string
+          options?: Json | null
+          question_order?: number | null
+          question_text: string
+          question_type: string
+        }
+        Update: {
+          created_at?: string | null
+          entry_id?: string
+          id?: string
+          options?: Json | null
+          question_order?: number | null
+          question_text?: string
+          question_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_questions_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "food_entries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_questions_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "v_entry_avg_scores"
+            referencedColumns: ["entry_id"]
+          },
+          {
+            foreignKeyName: "ai_questions_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "v_trip_rankings"
+            referencedColumns: ["entry_id"]
+          },
+        ]
+      }
+      ai_responses: {
+        Row: {
+          created_at: string | null
+          id: string
+          question_id: string
+          response_text: string | null
+          response_value: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          question_id: string
+          response_text?: string | null
+          response_value?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          question_id?: string
+          response_text?: string | null
+          response_value?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_responses_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "ai_questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_responses_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       food_entries: {
         Row: {
           created_at: string | null

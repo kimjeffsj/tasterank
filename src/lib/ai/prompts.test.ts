@@ -1,6 +1,8 @@
 import {
   buildTagSuggestionPrompt,
   parseTagSuggestions,
+  buildFollowUpPrompt,
+  parseFollowUpQuestions,
 } from "./prompts";
 
 describe("buildTagSuggestionPrompt", () => {
@@ -60,5 +62,95 @@ describe("parseTagSuggestions", () => {
     const text = `[{"name": "valid", "category": "cuisine", "confidence": 0.9}, {"invalid": true}]`;
     const tags = parseTagSuggestions(text);
     expect(tags).toHaveLength(1);
+  });
+});
+
+describe("buildFollowUpPrompt", () => {
+  it("includes food title", () => {
+    const prompt = buildFollowUpPrompt({ title: "Tonkotsu Ramen" });
+    expect(prompt).toContain("Tonkotsu Ramen");
+  });
+
+  it("includes optional fields when provided", () => {
+    const prompt = buildFollowUpPrompt({
+      title: "Ramen",
+      restaurantName: "Ichiran",
+      tags: ["japanese", "spicy"],
+      score: 8,
+      description: "Rich broth",
+    });
+    expect(prompt).toContain("Ichiran");
+    expect(prompt).toContain("japanese, spicy");
+    expect(prompt).toContain("8/10");
+    expect(prompt).toContain("Rich broth");
+  });
+
+  it("omits empty optional fields", () => {
+    const prompt = buildFollowUpPrompt({ title: "Ramen" });
+    expect(prompt).not.toContain("Restaurant:");
+    expect(prompt).not.toContain("Tags:");
+    expect(prompt).not.toContain("Score:");
+  });
+
+  it("requests JSON array output", () => {
+    const prompt = buildFollowUpPrompt({ title: "Ramen" });
+    expect(prompt).toContain("JSON");
+    expect(prompt).toContain("question_text");
+    expect(prompt).toContain("question_type");
+  });
+});
+
+describe("parseFollowUpQuestions", () => {
+  it("parses valid scale question", () => {
+    const text = `[{"question_text": "How spicy was it?", "question_type": "scale", "question_order": 1}]`;
+    const questions = parseFollowUpQuestions(text);
+    expect(questions).toEqual([
+      { question_text: "How spicy was it?", question_type: "scale", question_order: 1 },
+    ]);
+  });
+
+  it("parses choice question with options", () => {
+    const text = `[{"question_text": "Best part?", "question_type": "choice", "options": ["Broth", "Noodles", "Toppings"], "question_order": 1}]`;
+    const questions = parseFollowUpQuestions(text);
+    expect(questions).toHaveLength(1);
+    expect(questions[0].options).toEqual(["Broth", "Noodles", "Toppings"]);
+  });
+
+  it("parses text question", () => {
+    const text = `[{"question_text": "Any tips?", "question_type": "text", "question_order": 1}]`;
+    const questions = parseFollowUpQuestions(text);
+    expect(questions[0].question_type).toBe("text");
+  });
+
+  it("handles markdown-wrapped JSON", () => {
+    const text = '```json\n[{"question_text": "Rate?", "question_type": "scale", "question_order": 1}]\n```';
+    const questions = parseFollowUpQuestions(text);
+    expect(questions).toHaveLength(1);
+  });
+
+  it("returns empty array for invalid JSON", () => {
+    expect(parseFollowUpQuestions("not json")).toEqual([]);
+  });
+
+  it("limits to 3 questions", () => {
+    const items = Array.from({ length: 5 }, (_, i) => ({
+      question_text: `Question ${i}`,
+      question_type: "scale",
+      question_order: i,
+    }));
+    const questions = parseFollowUpQuestions(JSON.stringify(items));
+    expect(questions).toHaveLength(3);
+  });
+
+  it("filters out invalid question objects", () => {
+    const text = `[{"question_text": "Valid?", "question_type": "scale", "question_order": 1}, {"invalid": true}]`;
+    const questions = parseFollowUpQuestions(text);
+    expect(questions).toHaveLength(1);
+  });
+
+  it("filters out invalid question_type", () => {
+    const text = `[{"question_text": "Bad type?", "question_type": "multiple", "question_order": 1}]`;
+    const questions = parseFollowUpQuestions(text);
+    expect(questions).toHaveLength(0);
   });
 });

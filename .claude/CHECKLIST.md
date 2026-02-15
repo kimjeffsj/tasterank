@@ -1,6 +1,6 @@
 # TasteRank Development Checklist
 
-> 진행 상태: Phase 4 Step 4-3 완료 ✅ → Step 4-4 다음
+> 진행 상태: Phase 5 Step 5-1 완료 ✅ → Step 5-2 다음
 
 ---
 
@@ -127,7 +127,7 @@
 - [x] sitemap.xml + robots.txt
 - [x] apple-touch-icon 경로 수정, meta name 오타 수정
 
-### Step 4-4: 테스트 + 배포
+### Step 4-4: 테스트 + 배포(Skip for now)
 
 - [ ] 커버리지 80%+ 달성
 - [ ] Vercel 배포 설정
@@ -137,10 +137,14 @@
 
 ## Phase 5: 고급 기능 (향후)
 
-### Step 5-1: AI 후속 질문
+### Step 5-1: AI 후속 질문 ✅
 
-- [ ] AI 후속 질문 생성 (맛 특징, 재방문 의향, 가성비)
-- [ ] 응답 저장
+- [x] `ai_questions` + `ai_responses` DB 마이그레이션 + RLS + 타입 생성
+- [x] `buildFollowUpPrompt` + `parseFollowUpQuestions` 프롬프트 함수 (테스트 12개)
+- [x] `/api/ai/follow-up-questions` API Route (테스트 5개, graceful degradation)
+- [x] `useAiQuestions` 훅 (테스트 6개)
+- [x] `FollowUpQuestions` 컴포넌트 (테스트 9개, scale/text/choice 렌더링)
+- [x] New Entry 페이지 통합 (form → followup phase 전환)
 
 ### Step 5-2: 이상형 월드컵
 
@@ -165,18 +169,18 @@
 
 구현 완료된 단계의 노트는 `.claude/docs/implementation/`에 기록:
 
-| 날짜       | 파일                              | 주제                                              |
-| ---------- | --------------------------------- | ------------------------------------------------- |
-| 2026-02-10 | `2026-02-10_project-structure.md` | 프로젝트 구조 개선 (src/ 이동, .claude/ 정리)     |
-| 2026-02-11 | `2026-02-11_phase0-setup.md`      | Phase 0 셋업 (폰트, 테마, shadcn, Jest, 환경변수) |
-| 2026-02-12 | `2026-02-12_phase1-foundation.md` | Phase 1 파운데이션 (DB 스키마, Auth, 라우팅)      |
-| 2026-02-11 | `2026-02-11_step2-3-useEntries.md` | Step 2-3 useEntries 훅 (CRUD + 테스트 7개)       |
-| 2026-02-13 | `2026-02-13_step2-4-entry-form.md` | Step 2-4 EntryForm 컴포넌트 (테스트 11개)        |
-| 2026-02-13 | `2026-02-13_step2-5-photo-upload.md` | Step 2-5 사진 업로드 (PhotoUploader, Storage)   |
-| 2026-02-13 | `2026-02-13_step2-6-ratings.md`      | Step 2-6 평가 시스템 (useRatings, RatingSlider) |
-| 2026-02-13 | `2026-02-13_step2-7-tests.md`        | Step 2-7 테스트 보강 (InviteShare, RLS 검증)    |
-| 2026-02-13 | `2026-02-13_step3-1-3-2-tags-ai.md`  | Step 3-1/3-2 태그 CRUD + AI 태그 추천           |
-| 2026-02-14 | `2026-02-14_step3-3-ranking-page.md`  | Step 3-3 기본 랭킹 페이지                        |
+| 날짜       | 파일                                  | 주제                                              |
+| ---------- | ------------------------------------- | ------------------------------------------------- |
+| 2026-02-10 | `2026-02-10_project-structure.md`     | 프로젝트 구조 개선 (src/ 이동, .claude/ 정리)     |
+| 2026-02-11 | `2026-02-11_phase0-setup.md`          | Phase 0 셋업 (폰트, 테마, shadcn, Jest, 환경변수) |
+| 2026-02-12 | `2026-02-12_phase1-foundation.md`     | Phase 1 파운데이션 (DB 스키마, Auth, 라우팅)      |
+| 2026-02-11 | `2026-02-11_step2-3-useEntries.md`    | Step 2-3 useEntries 훅 (CRUD + 테스트 7개)        |
+| 2026-02-13 | `2026-02-13_step2-4-entry-form.md`    | Step 2-4 EntryForm 컴포넌트 (테스트 11개)         |
+| 2026-02-13 | `2026-02-13_step2-5-photo-upload.md`  | Step 2-5 사진 업로드 (PhotoUploader, Storage)     |
+| 2026-02-13 | `2026-02-13_step2-6-ratings.md`       | Step 2-6 평가 시스템 (useRatings, RatingSlider)   |
+| 2026-02-13 | `2026-02-13_step2-7-tests.md`         | Step 2-7 테스트 보강 (InviteShare, RLS 검증)      |
+| 2026-02-13 | `2026-02-13_step3-1-3-2-tags-ai.md`   | Step 3-1/3-2 태그 CRUD + AI 태그 추천             |
+| 2026-02-14 | `2026-02-14_step3-3-ranking-page.md`  | Step 3-3 기본 랭킹 페이지                         |
 | 2026-02-14 | `2026-02-14_step4-1-pwa-setup.md`     | Step 4-1 PWA 기초 설정                            |
 | 2026-02-14 | `2026-02-14_step4-2-responsive-ui.md` | Step 4-2 반응형 UI (다크모드, 로딩/에러 상태)     |
 | 2026-02-14 | `2026-02-14_step4-3-seo-meta.md`      | Step 4-3 SEO + Meta (OG, sitemap, robots)         |
