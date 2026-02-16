@@ -36,19 +36,19 @@ export function TournamentHeader({
       <div className="flex items-center justify-between">
         <button
           onClick={onClose}
-          className="flex items-center justify-center w-9 h-9 rounded-full bg-gray-800/60 hover:bg-gray-700/80 transition-colors"
+          className="flex items-center justify-center w-9 h-9 rounded-full bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 transition-colors"
           aria-label="Close tournament"
         >
-          <span className="material-icons-round text-xl text-gray-300">
+          <span className="material-icons-round text-xl text-gray-600 dark:text-gray-300">
             close
           </span>
         </button>
 
-        <span className="text-xs font-bold tracking-widest text-gray-400 uppercase">
+        <span className="text-xs font-bold tracking-widest text-gray-500 dark:text-gray-400 uppercase">
           TasteRank World Cup
         </span>
 
-        <span className="bg-gray-800 text-gray-300 text-xs font-bold px-3 py-1 rounded-full">
+        <span className="bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 text-xs font-bold px-3 py-1 rounded-full">
           {matchesCompleted}/{totalMatches}
         </span>
       </div>
@@ -64,7 +64,7 @@ export function TournamentHeader({
           <div
             key={i}
             className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${
-              i < matchesCompleted ? "bg-primary" : "bg-gray-700"
+              i < matchesCompleted ? "bg-primary" : "bg-gray-200 dark:bg-gray-700"
             }`}
           />
         ))}

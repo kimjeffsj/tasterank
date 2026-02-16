@@ -216,16 +216,6 @@ export default async function TripDetailPage({ params }: Props) {
                         restaurant
                       </span>
                     )}
-                    {avgScore != null && (
-                      <div className="absolute top-3 right-3 bg-white/90 dark:bg-black/80 backdrop-blur-sm px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm">
-                        <span className="material-icons-round text-amber-300 text-xs">
-                          star
-                        </span>
-                        <span className="text-xs font-bold text-slate-900 dark:text-white">
-                          {avgScore.toFixed(1)}
-                        </span>
-                      </div>
-                    )}
                     <AiQuestionsBadge
                       entryId={entry.id}
                       entryTitle={entry.title}
@@ -249,9 +239,21 @@ export default async function TripDetailPage({ params }: Props) {
                     />
                   </div>
                   <div className="p-3">
-                    <p className="font-bold text-sm leading-tight text-slate-900 dark:text-white">
-                      {entry.title}
-                    </p>
+                    <div className="flex items-start justify-between gap-1">
+                      <p className="font-bold text-sm leading-tight text-slate-900 dark:text-white">
+                        {entry.title}
+                      </p>
+                      {avgScore != null && (
+                        <div className="flex items-center gap-0.5 shrink-0">
+                          <span className="material-icons-round text-amber-400 text-xs">
+                            star
+                          </span>
+                          <span className="text-xs font-bold text-slate-900 dark:text-white">
+                            {avgScore.toFixed(1)}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                     {entry.restaurant_name && (
                       <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
                         {entry.restaurant_name}
