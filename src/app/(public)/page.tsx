@@ -3,6 +3,8 @@ import { CreateTripButton } from "@/components/trip/CreateTripButton";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { EmptyState } from "@/components/layout/EmptyState";
 
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
   const { data: trips } = await anonClient
     .from("trips")
