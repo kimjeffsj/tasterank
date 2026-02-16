@@ -18,17 +18,12 @@ interface TripActionsProps {
   memberUserIds: string[];
 }
 
-/** FAB and action buttons shown on trip detail page */
+/** Owner action buttons shown on trip detail page */
 export function TripActions({ tripId, ownerId, inviteCode, memberUserIds }: TripActionsProps) {
   const { user } = useAuth();
   const [showInvite, setShowInvite] = useState(false);
 
   const isOwner = user?.id === ownerId;
-  const isMember = user ? memberUserIds.includes(user.id) : false;
-
-  const handleAddEntry = () => {
-    window.location.href = `/trips/${tripId}/entries/new`;
-  };
 
   const handleInvite = async () => {
     if (!inviteCode) return;
@@ -82,17 +77,6 @@ export function TripActions({ tripId, ownerId, inviteCode, memberUserIds }: Trip
         </SheetContent>
       </Sheet>
 
-      {/* FAB: Add Entry — only for logged-in members */}
-      {user && isMember && (
-        <button
-          onClick={handleAddEntry}
-          className="fixed bottom-8 right-6 w-16 h-16 bg-primary rounded-full shadow-[0_8px_30px_rgb(236,127,19,0.4)] flex items-center justify-center z-20 active:scale-[0.95] transition-transform group"
-        >
-          <span className="material-icons-round text-2xl text-white group-hover:rotate-90 transition-transform duration-300">
-            add
-          </span>
-        </button>
-      )}
     </>
   );
 }
