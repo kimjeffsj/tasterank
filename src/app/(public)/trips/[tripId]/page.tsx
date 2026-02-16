@@ -48,9 +48,24 @@ export default async function TripDetailPage({ params }: Props) {
 
   const { data: entries } = await anonClient
     .from("food_entries")
-    .select("id, title, restaurant_name, created_by, created_at, food_photos(photo_url, display_order), profiles!created_by(display_name, avatar_url)")
+    .select(
+      "id, title, restaurant_name, created_by, created_at, food_photos(photo_url, display_order), profiles!created_by(display_name, avatar_url)",
+    )
     .eq("trip_id", tripId)
     .order("created_at", { ascending: false });
+
+  // Fetch avg scores for rating badges
+  const { data: avgScores } = await anonClient
+    .from("v_entry_avg_scores")
+    .select("entry_id, avg_score")
+    .eq("trip_id", tripId);
+
+  const scoreMap = new Map<string, number>();
+  avgScores?.forEach((s) => {
+    if (s.entry_id && s.avg_score != null) {
+      scoreMap.set(s.entry_id, s.avg_score);
+    }
+  });
 
   const { data: members } = await anonClient
     .from("trip_members")
@@ -162,52 +177,84 @@ export default async function TripDetailPage({ params }: Props) {
             <span className="material-icons-round text-5xl text-gray-300 dark:text-gray-600 mb-3">
               restaurant_menu
             </span>
-            <p className="text-gray-500 dark:text-gray-400">No food entries yet</p>
+            <p className="text-gray-500 dark:text-gray-400">
+              No food entries yet
+            </p>
             <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
               Add your first meal to get started
             </p>
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-4">
-            {entries.map((entry) => (
-              <div
-                key={entry.id}
-                className="group bg-white dark:bg-surface-dark rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-all"
-              >
-                <div className="aspect-square bg-gray-100 dark:bg-gray-800 flex items-center justify-center overflow-hidden relative">
-                  {entry.food_photos && entry.food_photos.length > 0 ? (
-                    <img
-                      src={entry.food_photos.sort(
-                        (a, b) => (a.display_order ?? 0) - (b.display_order ?? 0),
-                      )[0].photo_url}
-                      alt={entry.title}
-                      className="w-full h-full object-cover"
+            {entries.map((entry) => {
+              const avgScore = scoreMap.get(entry.id);
+              return (
+                <div
+                  key={entry.id}
+                  className="group relative bg-white dark:bg-surface-dark rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300"
+                >
+                  <div className="aspect-square bg-gray-100 dark:bg-gray-800 flex items-center justify-center overflow-hidden relative">
+                    {entry.food_photos && entry.food_photos.length > 0 ? (
+                      <img
+                        src={
+                          entry.food_photos.sort(
+                            (a, b) =>
+                              (a.display_order ?? 0) - (b.display_order ?? 0),
+                          )[0].photo_url
+                        }
+                        alt={entry.title}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      />
+                    ) : (
+                      <span className="material-icons-round text-4xl text-gray-300">
+                        restaurant
+                      </span>
+                    )}
+                    {avgScore != null && (
+                      <div className="absolute top-3 right-3 bg-white/90 dark:bg-black/80 backdrop-blur-sm px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm">
+                        <span className="material-icons-round text-amber-300 text-xs">
+                          star
+                        </span>
+                        <span className="text-xs font-bold text-slate-900 dark:text-white">
+                          {avgScore.toFixed(1)}
+                        </span>
+                      </div>
+                    )}
+                    <AiQuestionsBadge
+                      entryId={entry.id}
+                      entryTitle={entry.title}
+                      createdBy={entry.created_by}
+                      creatorName={
+                        (
+                          entry.profiles as {
+                            display_name: string | null;
+                            avatar_url: string | null;
+                          } | null
+                        )?.display_name ?? "Someone"
+                      }
+                      creatorAvatar={
+                        (
+                          entry.profiles as {
+                            display_name: string | null;
+                            avatar_url: string | null;
+                          } | null
+                        )?.avatar_url ?? undefined
+                      }
                     />
-                  ) : (
-                    <span className="material-icons-round text-4xl text-gray-300">
-                      restaurant
-                    </span>
-                  )}
-                  <AiQuestionsBadge
-                    entryId={entry.id}
-                    entryTitle={entry.title}
-                    createdBy={entry.created_by}
-                    creatorName={(entry.profiles as { display_name: string | null; avatar_url: string | null } | null)?.display_name ?? "Someone"}
-                    creatorAvatar={(entry.profiles as { display_name: string | null; avatar_url: string | null } | null)?.avatar_url ?? undefined}
-                  />
-                </div>
-                <div className="p-3">
-                  <p className="font-bold text-sm leading-tight dark:text-white">
-                    {entry.title}
-                  </p>
-                  {entry.restaurant_name && (
-                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
-                      {entry.restaurant_name}
+                  </div>
+                  <div className="p-3">
+                    <p className="font-bold text-sm leading-tight text-slate-900 dark:text-white">
+                      {entry.title}
                     </p>
-                  )}
+                    {entry.restaurant_name && (
+                      <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                        {entry.restaurant_name}
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </section>
