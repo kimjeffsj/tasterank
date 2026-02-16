@@ -381,6 +381,174 @@ export type Database = {
         }
         Relationships: []
       }
+      tournament_votes: {
+        Row: {
+          entry_a_id: string
+          entry_b_id: string
+          id: string
+          match_order: number
+          round_number: number
+          tournament_id: string
+          user_id: string
+          voted_at: string | null
+          winner_id: string
+        }
+        Insert: {
+          entry_a_id: string
+          entry_b_id: string
+          id?: string
+          match_order: number
+          round_number: number
+          tournament_id: string
+          user_id: string
+          voted_at?: string | null
+          winner_id: string
+        }
+        Update: {
+          entry_a_id?: string
+          entry_b_id?: string
+          id?: string
+          match_order?: number
+          round_number?: number
+          tournament_id?: string
+          user_id?: string
+          voted_at?: string | null
+          winner_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tournament_votes_entry_a_id_fkey"
+            columns: ["entry_a_id"]
+            isOneToOne: false
+            referencedRelation: "food_entries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tournament_votes_entry_a_id_fkey"
+            columns: ["entry_a_id"]
+            isOneToOne: false
+            referencedRelation: "v_entry_avg_scores"
+            referencedColumns: ["entry_id"]
+          },
+          {
+            foreignKeyName: "tournament_votes_entry_a_id_fkey"
+            columns: ["entry_a_id"]
+            isOneToOne: false
+            referencedRelation: "v_trip_rankings"
+            referencedColumns: ["entry_id"]
+          },
+          {
+            foreignKeyName: "tournament_votes_entry_b_id_fkey"
+            columns: ["entry_b_id"]
+            isOneToOne: false
+            referencedRelation: "food_entries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tournament_votes_entry_b_id_fkey"
+            columns: ["entry_b_id"]
+            isOneToOne: false
+            referencedRelation: "v_entry_avg_scores"
+            referencedColumns: ["entry_id"]
+          },
+          {
+            foreignKeyName: "tournament_votes_entry_b_id_fkey"
+            columns: ["entry_b_id"]
+            isOneToOne: false
+            referencedRelation: "v_trip_rankings"
+            referencedColumns: ["entry_id"]
+          },
+          {
+            foreignKeyName: "tournament_votes_tournament_id_fkey"
+            columns: ["tournament_id"]
+            isOneToOne: false
+            referencedRelation: "tournaments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tournament_votes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tournament_votes_winner_id_fkey"
+            columns: ["winner_id"]
+            isOneToOne: false
+            referencedRelation: "food_entries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tournament_votes_winner_id_fkey"
+            columns: ["winner_id"]
+            isOneToOne: false
+            referencedRelation: "v_entry_avg_scores"
+            referencedColumns: ["entry_id"]
+          },
+          {
+            foreignKeyName: "tournament_votes_winner_id_fkey"
+            columns: ["winner_id"]
+            isOneToOne: false
+            referencedRelation: "v_trip_rankings"
+            referencedColumns: ["entry_id"]
+          },
+        ]
+      }
+      tournaments: {
+        Row: {
+          bracket_size: number
+          completed_at: string | null
+          created_at: string | null
+          created_by: string
+          id: string
+          seed_order: Json
+          status: string | null
+          total_entries: number
+          total_rounds: number
+          trip_id: string
+        }
+        Insert: {
+          bracket_size: number
+          completed_at?: string | null
+          created_at?: string | null
+          created_by: string
+          id?: string
+          seed_order: Json
+          status?: string | null
+          total_entries: number
+          total_rounds: number
+          trip_id: string
+        }
+        Update: {
+          bracket_size?: number
+          completed_at?: string | null
+          created_at?: string | null
+          created_by?: string
+          id?: string
+          seed_order?: Json
+          status?: string | null
+          total_entries?: number
+          total_rounds?: number
+          trip_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tournaments_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tournaments_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trip_members: {
         Row: {
           id: string
@@ -490,6 +658,43 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "trips"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      v_tournament_results: {
+        Row: {
+          entry_id: string | null
+          total_wins: number | null
+          tournament_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tournament_votes_tournament_id_fkey"
+            columns: ["tournament_id"]
+            isOneToOne: false
+            referencedRelation: "tournaments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tournament_votes_winner_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "food_entries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tournament_votes_winner_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "v_entry_avg_scores"
+            referencedColumns: ["entry_id"]
+          },
+          {
+            foreignKeyName: "tournament_votes_winner_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "v_trip_rankings"
+            referencedColumns: ["entry_id"]
           },
         ]
       }

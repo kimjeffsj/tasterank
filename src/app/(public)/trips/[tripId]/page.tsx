@@ -165,6 +165,12 @@ export default async function TripDetailPage({ params }: Props) {
           >
             Ranking
           </a>
+          <a
+            href={`/trips/${tripId}/tournament`}
+            className="flex-1 text-center py-2 rounded-full text-sm font-bold text-gray-500 dark:text-gray-400 hover:text-gray-700 transition-colors"
+          >
+            Tournament
+          </a>
         </div>
       </div>
 
