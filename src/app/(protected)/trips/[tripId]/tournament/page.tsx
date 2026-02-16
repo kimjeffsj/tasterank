@@ -41,6 +41,10 @@ export default function TournamentPage() {
   const [entryCount, setEntryCount] = useState(0);
   const [isEditor, setIsEditor] = useState(false);
 
+  const handleClose = useCallback(() => {
+    router.push(`/trips/${params.tripId}`);
+  }, [router, params.tripId]);
+
   // Check member role & entry count
   useEffect(() => {
     if (!user || !params.tripId) return;
@@ -100,9 +104,12 @@ export default function TournamentPage() {
     }
   }, [getResults]);
 
+  // Active match view — full dark immersive layout
+  const isActiveMatch = tournament && !isUserComplete && currentMatch && currentMatch.entryB !== null;
+
   if (authLoading || loading) {
     return (
-      <div className="mx-auto w-full max-w-md min-h-screen flex items-center justify-center">
+      <div className="mx-auto w-full max-w-md min-h-screen bg-gray-950 flex items-center justify-center">
         <div className="animate-spin">
           <span className="material-icons-round text-4xl text-primary">
             sync
@@ -114,13 +121,13 @@ export default function TournamentPage() {
 
   if (!user) {
     return (
-      <div className="mx-auto w-full max-w-md min-h-screen">
-        <Header tripId={params.tripId} />
+      <div className="mx-auto w-full max-w-md min-h-screen bg-gray-950">
+        <SimpleHeader onClose={handleClose} />
         <div className="flex flex-col items-center py-16 text-center px-6">
-          <span className="material-icons-round text-6xl text-gray-300 dark:text-gray-600 mb-4">
+          <span className="material-icons-round text-6xl text-gray-600 mb-4">
             lock
           </span>
-          <p className="text-gray-500 dark:text-gray-400 mb-4">
+          <p className="text-gray-400 mb-4">
             Sign in to participate in the tournament
           </p>
           <button
@@ -135,13 +142,63 @@ export default function TournamentPage() {
     );
   }
 
+  if (isActiveMatch) {
+    return (
+      <div className="mx-auto w-full max-w-md min-h-screen bg-gray-950 flex flex-col">
+        <TournamentHeader
+          currentRound={currentRound}
+          totalRounds={totalRounds}
+          matchesCompleted={matchesCompletedInRound}
+          totalMatches={totalMatchesInRound}
+          onClose={handleClose}
+        />
+
+        {error && (
+          <div className="mx-5 mb-2 bg-red-900/20 text-red-400 text-sm p-3 rounded-xl">
+            {error}
+          </div>
+        )}
+
+        <div className="flex-1 flex flex-col justify-center">
+          <MatchCard
+            entryA={entryMap.get(currentMatch.entryA) ?? {
+              id: currentMatch.entryA,
+              title: "Unknown",
+              restaurant_name: null,
+              photo_url: null,
+              avg_score: null,
+              tag_name: null,
+            }}
+            entryB={entryMap.get(currentMatch.entryB!) ?? {
+              id: currentMatch.entryB!,
+              title: "Unknown",
+              restaurant_name: null,
+              photo_url: null,
+              avg_score: null,
+              tag_name: null,
+            }}
+            onVote={vote}
+            disabled={voting}
+          />
+        </div>
+
+        <p className="text-center text-sm text-gray-500 py-4">
+          Tap your favorite to advance
+        </p>
+
+        <LoginPrompt open={showLogin} onOpenChange={setShowLogin} />
+      </div>
+    );
+  }
+
+  // Non-match states: no tournament, user complete, loading next match
   return (
-    <div className="mx-auto w-full max-w-md min-h-screen pb-24">
-      <Header tripId={params.tripId} />
+    <div className="mx-auto w-full max-w-md min-h-screen bg-gray-950 pb-24">
+      <SimpleHeader onClose={handleClose} />
 
       <div className="px-6 py-6 space-y-6">
         {error && (
-          <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm p-3 rounded-xl">
+          <div className="bg-red-900/20 text-red-400 text-sm p-3 rounded-xl">
             {error}
           </div>
         )}
@@ -160,38 +217,6 @@ export default function TournamentPage() {
           />
         ) : isUserComplete ? (
           <UserCompleteState onViewResults={handleViewResults} />
-        ) : currentMatch && currentMatch.entryB !== null ? (
-          <>
-            <TournamentHeader
-              currentRound={currentRound}
-              totalRounds={totalRounds}
-              matchesCompleted={matchesCompletedInRound}
-              totalMatches={totalMatchesInRound}
-            />
-            <div className="pt-4">
-              <p className="text-center text-sm text-gray-500 dark:text-gray-400 mb-6">
-                Tap your favorite!
-              </p>
-              <MatchCard
-                entryA={entryMap.get(currentMatch.entryA) ?? {
-                  id: currentMatch.entryA,
-                  title: "Unknown",
-                  restaurant_name: null,
-                  photo_url: null,
-                  avg_score: null,
-                }}
-                entryB={entryMap.get(currentMatch.entryB) ?? {
-                  id: currentMatch.entryB,
-                  title: "Unknown",
-                  restaurant_name: null,
-                  photo_url: null,
-                  avg_score: null,
-                }}
-                onVote={vote}
-                disabled={voting}
-              />
-            </div>
-          </>
         ) : (
           <div className="flex items-center justify-center py-16">
             <div className="animate-spin">
@@ -208,18 +233,18 @@ export default function TournamentPage() {
   );
 }
 
-function Header({ tripId }: { tripId: string }) {
+function SimpleHeader({ onClose }: { onClose: () => void }) {
   return (
-    <div className="sticky top-0 z-10 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md px-6 py-4 flex items-center gap-3">
-      <a
-        href={`/trips/${tripId}`}
-        className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 dark:bg-white/10"
+    <div className="px-5 py-4 flex items-center gap-3">
+      <button
+        onClick={onClose}
+        className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-800/60"
       >
-        <span className="material-icons-round text-gray-600 dark:text-gray-300">
+        <span className="material-icons-round text-gray-300">
           arrow_back
         </span>
-      </a>
-      <h1 className="text-lg font-extrabold dark:text-white">
+      </button>
+      <h1 className="text-lg font-extrabold text-white">
         Food Tournament
       </h1>
     </div>

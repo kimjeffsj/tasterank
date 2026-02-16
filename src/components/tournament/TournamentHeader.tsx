@@ -5,6 +5,7 @@ interface TournamentHeaderProps {
   totalRounds: number;
   matchesCompleted: number;
   totalMatches: number;
+  onClose: () => void;
 }
 
 const ROUND_NAMES: Record<number, string> = {
@@ -24,24 +25,49 @@ export function TournamentHeader({
   totalRounds,
   matchesCompleted,
   totalMatches,
+  onClose,
 }: TournamentHeaderProps) {
   const roundsFromEnd = totalRounds - currentRound + 1;
   const roundName = getRoundName(roundsFromEnd);
-  const progress = totalMatches > 0 ? (matchesCompleted / totalMatches) * 100 : 0;
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 px-5 pt-4 pb-2">
+      {/* Top row: X close — title — match count badge */}
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-extrabold dark:text-white">{roundName}</h2>
-        <span className="text-sm text-gray-500 dark:text-gray-400">
+        <button
+          onClick={onClose}
+          className="flex items-center justify-center w-9 h-9 rounded-full bg-gray-800/60 hover:bg-gray-700/80 transition-colors"
+          aria-label="Close tournament"
+        >
+          <span className="material-icons-round text-xl text-gray-300">
+            close
+          </span>
+        </button>
+
+        <span className="text-xs font-bold tracking-widest text-gray-400 uppercase">
+          TasteRank World Cup
+        </span>
+
+        <span className="bg-gray-800 text-gray-300 text-xs font-bold px-3 py-1 rounded-full">
           {matchesCompleted}/{totalMatches}
         </span>
       </div>
-      <div className="h-2 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden">
-        <div
-          className="h-full bg-primary rounded-full transition-all duration-500"
-          style={{ width: `${progress}%` }}
-        />
+
+      {/* Round name */}
+      <p className="text-center text-primary font-extrabold text-lg">
+        {roundName}
+      </p>
+
+      {/* Segment progress bar */}
+      <div className="flex gap-1.5">
+        {Array.from({ length: totalMatches }).map((_, i) => (
+          <div
+            key={i}
+            className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${
+              i < matchesCompleted ? "bg-primary" : "bg-gray-700"
+            }`}
+          />
+        ))}
       </div>
     </div>
   );

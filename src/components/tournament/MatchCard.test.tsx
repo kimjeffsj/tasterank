@@ -8,6 +8,7 @@ const entryA: TournamentEntryInfo = {
   restaurant_name: "Ichiran",
   photo_url: "https://example.com/ramen.jpg",
   avg_score: 4.5,
+  tag_name: "Japanese",
 };
 
 const entryB: TournamentEntryInfo = {
@@ -16,6 +17,7 @@ const entryB: TournamentEntryInfo = {
   restaurant_name: "Sukiyabashi",
   photo_url: null,
   avg_score: null,
+  tag_name: null,
 };
 
 describe("MatchCard", () => {
@@ -53,5 +55,11 @@ describe("MatchCard", () => {
     expect(screen.getByText("4.5")).toBeInTheDocument();
     // entryB has no score, so no score text for it
     expect(screen.queryAllByText(/\d\.\d/)).toHaveLength(1);
+  });
+
+  it("shows tag badge when tag_name exists", () => {
+    render(<MatchCard entryA={entryA} entryB={entryB} onVote={jest.fn()} />);
+
+    expect(screen.getByText("Japanese")).toBeInTheDocument();
   });
 });

@@ -41,6 +41,7 @@ export interface TournamentEntryInfo {
   restaurant_name: string | null;
   photo_url: string | null;
   avg_score: number | null;
+  tag_name: string | null;
 }
 
 export function useTournament(tripId: string) {
@@ -167,7 +168,7 @@ export function useTournament(tripId: string) {
       const { data: entries } = await supabase
         .from("food_entries")
         .select(
-          "id, title, restaurant_name, food_photos(photo_url, display_order)",
+          "id, title, restaurant_name, food_photos(photo_url, display_order), food_entry_tags(tags(name))",
         )
         .in("id", entryIds);
 
@@ -187,12 +188,15 @@ export function useTournament(tripId: string) {
         const photos = (
           e.food_photos as { photo_url: string; display_order: number | null }[]
         )?.sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0));
+        const entryTags = e.food_entry_tags as { tags: { name: string } | null }[] | null;
+        const firstTagName = entryTags?.[0]?.tags?.name ?? null;
         newEntryMap.set(e.id, {
           id: e.id,
           title: e.title,
           restaurant_name: e.restaurant_name,
           photo_url: photos?.[0]?.photo_url ?? null,
           avg_score: scoreMap.get(e.id) ?? null,
+          tag_name: firstTagName,
         });
       });
       setEntryMap(newEntryMap);
