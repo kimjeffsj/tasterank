@@ -46,7 +46,7 @@ export default async function HomePage() {
       {/* Collections */}
       <section className="px-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-bold dark:text-white">Your Collections</h3>
+          <h3 className="text-xl font-bold dark:text-white">Highlights</h3>
         </div>
 
         {!trips || trips.length === 0 ? (
