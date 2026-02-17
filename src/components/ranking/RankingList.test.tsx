@@ -31,8 +31,18 @@ describe("RankingList", () => {
   it("renders 2nd and 3rd place cards", () => {
     const entries = [
       makeEntry({ entry_id: "e1", title: "Ramen #1", rank: 1 }),
-      makeEntry({ entry_id: "e2", title: "Sushi Place", rank: 2, avg_score: 8.5 }),
-      makeEntry({ entry_id: "e3", title: "Tempura Spot", rank: 3, avg_score: 7.8 }),
+      makeEntry({
+        entry_id: "e2",
+        title: "Sushi Place",
+        rank: 2,
+        avg_score: 8.5,
+      }),
+      makeEntry({
+        entry_id: "e3",
+        title: "Tempura Spot",
+        rank: 3,
+        avg_score: 7.8,
+      }),
     ];
     render(<RankingList rankings={entries} tripName="Tokyo Trip" />);
 
@@ -47,8 +57,19 @@ describe("RankingList", () => {
       makeEntry({ entry_id: "e1", title: "First", rank: 1 }),
       makeEntry({ entry_id: "e2", title: "Second", rank: 2 }),
       makeEntry({ entry_id: "e3", title: "Third", rank: 3 }),
-      makeEntry({ entry_id: "e4", title: "Fourth Place", rank: 4, avg_score: 7.0, restaurant_name: "Runner Up Cafe" }),
-      makeEntry({ entry_id: "e5", title: "Fifth Place", rank: 5, avg_score: 6.5 }),
+      makeEntry({
+        entry_id: "e4",
+        title: "Fourth Place",
+        rank: 4,
+        avg_score: 7.0,
+        restaurant_name: "Runner Up Cafe",
+      }),
+      makeEntry({
+        entry_id: "e5",
+        title: "Fifth Place",
+        rank: 5,
+        avg_score: 6.5,
+      }),
     ];
     render(<RankingList rankings={entries} tripName="Tokyo Trip" />);
 
@@ -59,8 +80,19 @@ describe("RankingList", () => {
 
   it("filters entries by tag when a tag pill is clicked", () => {
     const entries = [
-      makeEntry({ entry_id: "e1", title: "Ramen Shop", rank: 1, tags: [{ id: "t1", name: "Ramen", category: "cuisine" }] }),
-      makeEntry({ entry_id: "e2", title: "Sushi Bar", rank: 2, avg_score: 8.0, tags: [{ id: "t2", name: "Sushi", category: "cuisine" }] }),
+      makeEntry({
+        entry_id: "e1",
+        title: "Ramen Shop",
+        rank: 1,
+        tags: [{ id: "t1", name: "Ramen", category: "cuisine" }],
+      }),
+      makeEntry({
+        entry_id: "e2",
+        title: "Sushi Bar",
+        rank: 2,
+        avg_score: 8.0,
+        tags: [{ id: "t2", name: "Sushi", category: "cuisine" }],
+      }),
     ];
     render(<RankingList rankings={entries} tripName="Tokyo Trip" />);
 
@@ -72,8 +104,19 @@ describe("RankingList", () => {
 
   it("shows all entries when 'All' filter is clicked", () => {
     const entries = [
-      makeEntry({ entry_id: "e1", title: "Ramen Shop", rank: 1, tags: [{ id: "t1", name: "Ramen", category: "cuisine" }] }),
-      makeEntry({ entry_id: "e2", title: "Sushi Bar", rank: 2, avg_score: 8.0, tags: [{ id: "t2", name: "Sushi", category: "cuisine" }] }),
+      makeEntry({
+        entry_id: "e1",
+        title: "Ramen Shop",
+        rank: 1,
+        tags: [{ id: "t1", name: "Ramen", category: "cuisine" }],
+      }),
+      makeEntry({
+        entry_id: "e2",
+        title: "Sushi Bar",
+        rank: 2,
+        avg_score: 8.0,
+        tags: [{ id: "t2", name: "Sushi", category: "cuisine" }],
+      }),
     ];
     render(<RankingList rankings={entries} tripName="Tokyo Trip" />);
 
@@ -100,7 +143,9 @@ describe("RankingList", () => {
     expect(screen.queryByAltText("Ichiran Ramen")).not.toBeInTheDocument();
     // Should show the restaurant fallback icon
     const icons = document.querySelectorAll(".material-icons-round");
-    const restaurantIcon = Array.from(icons).find((el) => el.textContent === "restaurant");
+    const restaurantIcon = Array.from(icons).find(
+      (el) => el.textContent === "restaurant",
+    );
     expect(restaurantIcon).toBeTruthy();
   });
 
@@ -111,5 +156,136 @@ describe("RankingList", () => {
     expect(screen.getByText("Ichiran Ramen")).toBeInTheDocument();
     // Should not show a score
     expect(screen.queryByText("0")).not.toBeInTheDocument();
+  });
+
+  it("shows user scores by default when showAiScore is false", () => {
+    const entries = [
+      makeEntry({
+        avg_score: 9.2,
+        composite_score: 8.5,
+        ai_comment: "Great ramen!",
+      }),
+    ];
+    render(
+      <RankingList
+        rankings={entries}
+        tripName="Tokyo Trip"
+        showAiScore={false}
+      />,
+    );
+
+    // Should show user score icon and value
+    expect(screen.getByText("9.2")).toBeInTheDocument();
+    const starIcons = document.querySelectorAll(".material-icons-round");
+    const starIcon = Array.from(starIcons).find(
+      (el) => el.textContent === "star",
+    );
+    expect(starIcon).toHaveClass("text-yellow-400");
+
+    // Should NOT show AI score
+    expect(screen.queryByText("8.5")).not.toBeInTheDocument();
+    expect(screen.queryByText("Great ramen!")).not.toBeInTheDocument();
+  });
+
+  it("shows AI composite scores when showAiScore is true", () => {
+    const entries = [
+      makeEntry({
+        avg_score: 9.2,
+        composite_score: 8.5,
+        ai_comment: "Great ramen!",
+      }),
+    ];
+    render(
+      <RankingList
+        rankings={entries}
+        tripName="Tokyo Trip"
+        showAiScore={true}
+      />,
+    );
+
+    // Should show AI score icon and value
+    expect(screen.getByText("8.5")).toBeInTheDocument();
+    const awesomeIcons = document.querySelectorAll(".material-icons-round");
+    const aiIcon = Array.from(awesomeIcons).find(
+      (el) => el.textContent === "auto_awesome",
+    );
+    expect(aiIcon).toHaveClass("text-purple-400");
+
+    // Should show AI comment
+    expect(screen.getByText("Great ramen!")).toBeInTheDocument();
+
+    // Should NOT show user score
+    expect(screen.queryByText("9.2")).not.toBeInTheDocument();
+  });
+
+  it("shows AI scores for all entry types (podium and runners-up)", () => {
+    const entries = [
+      makeEntry({
+        entry_id: "e1",
+        title: "First",
+        rank: 1,
+        avg_score: 9.0,
+        composite_score: 8.8,
+      }),
+      makeEntry({
+        entry_id: "e2",
+        title: "Second",
+        rank: 2,
+        avg_score: 8.5,
+        composite_score: 8.2,
+      }),
+      makeEntry({
+        entry_id: "e3",
+        title: "Third",
+        rank: 3,
+        avg_score: 8.0,
+        composite_score: 7.8,
+      }),
+      makeEntry({
+        entry_id: "e4",
+        title: "Fourth",
+        rank: 4,
+        avg_score: 7.5,
+        composite_score: 7.2,
+      }),
+    ];
+    render(
+      <RankingList
+        rankings={entries}
+        tripName="Tokyo Trip"
+        showAiScore={true}
+      />,
+    );
+
+    // All AI scores should be visible
+    expect(screen.getByText("8.8")).toBeInTheDocument(); // 1st
+    expect(screen.getByText("8.2")).toBeInTheDocument(); // 2nd
+    expect(screen.getByText("7.8")).toBeInTheDocument(); // 3rd
+    expect(screen.getByText("7.2")).toBeInTheDocument(); // 4th (runner-up)
+
+    // User scores should NOT be visible
+    expect(screen.queryByText("9.0")).not.toBeInTheDocument();
+    expect(screen.queryByText("8.5")).not.toBeInTheDocument();
+  });
+
+  it("handles entries with missing AI scores gracefully", () => {
+    const entries = [
+      makeEntry({
+        avg_score: 9.2,
+        composite_score: null,
+        ai_comment: null,
+      }),
+    ];
+    render(
+      <RankingList
+        rankings={entries}
+        tripName="Tokyo Trip"
+        showAiScore={true}
+      />,
+    );
+
+    // Should not crash, and should not show any score (since AI score is null)
+    expect(screen.queryByText("9.2")).not.toBeInTheDocument();
+    expect(screen.getByText("Ichiran Ramen")).toBeInTheDocument();
   });
 });

@@ -30,9 +30,14 @@ export interface RankedEntry {
 interface RankingListProps {
   rankings: RankedEntry[];
   tripName: string;
+  showAiScore?: boolean;
 }
 
-export function RankingList({ rankings, tripName }: RankingListProps) {
+export function RankingList({
+  rankings,
+  tripName,
+  showAiScore = false,
+}: RankingListProps) {
   const [activeTag, setActiveTag] = useState<string | null>(null);
 
   // Collect unique tags across all entries
@@ -65,7 +70,9 @@ export function RankingList({ rankings, tripName }: RankingListProps) {
         <span className="material-icons-round text-6xl text-gray-300 dark:text-gray-600 mb-4">
           emoji_events
         </span>
-        <p className="text-lg font-bold text-gray-500 dark:text-gray-400">No rankings yet</p>
+        <p className="text-lg font-bold text-gray-500 dark:text-gray-400">
+          No rankings yet
+        </p>
         <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
           Add entries and rate them to see rankings
         </p>
@@ -105,13 +112,25 @@ export function RankingList({ rankings, tripName }: RankingListProps) {
       )}
 
       {/* 1st place hero */}
-      {first && <FirstPlaceCard entry={first} />}
+      {first && <FirstPlaceCard entry={first} showAiScore={showAiScore} />}
 
       {/* 2nd & 3rd place */}
       {(second || third) && (
         <div className="grid grid-cols-2 gap-4">
-          {second && <PodiumCard entry={second} medal="silver" />}
-          {third && <PodiumCard entry={third} medal="bronze" />}
+          {second && (
+            <PodiumCard
+              entry={second}
+              medal="silver"
+              showAiScore={showAiScore}
+            />
+          )}
+          {third && (
+            <PodiumCard
+              entry={third}
+              medal="bronze"
+              showAiScore={showAiScore}
+            />
+          )}
         </div>
       )}
 
@@ -121,7 +140,11 @@ export function RankingList({ rankings, tripName }: RankingListProps) {
           <h3 className="text-lg font-bold dark:text-white mb-3">Runners Up</h3>
           <div className="space-y-3">
             {runnersUp.map((entry) => (
-              <RunnerUpItem key={entry.entry_id} entry={entry} />
+              <RunnerUpItem
+                key={entry.entry_id}
+                entry={entry}
+                showAiScore={showAiScore}
+              />
             ))}
           </div>
         </div>
@@ -130,7 +153,13 @@ export function RankingList({ rankings, tripName }: RankingListProps) {
   );
 }
 
-function FirstPlaceCard({ entry }: { entry: RankedEntry }) {
+function FirstPlaceCard({
+  entry,
+  showAiScore,
+}: {
+  entry: RankedEntry;
+  showAiScore: boolean;
+}) {
   return (
     <div className="relative aspect-[4/5] rounded-lg overflow-hidden shadow-soft">
       {entry.photo_url ? (
@@ -157,9 +186,11 @@ function FirstPlaceCard({ entry }: { entry: RankedEntry }) {
       <div className="absolute bottom-0 w-full p-5">
         <h3 className="text-2xl font-extrabold text-white">{entry.title}</h3>
         {entry.restaurant_name && (
-          <p className="text-sm text-white/70 mt-0.5">{entry.restaurant_name}</p>
+          <p className="text-sm text-white/70 mt-0.5">
+            {entry.restaurant_name}
+          </p>
         )}
-        {entry.composite_score != null ? (
+        {showAiScore && entry.composite_score != null ? (
           <div className="flex items-center gap-1.5 mt-2">
             <span className="material-icons-round text-purple-400 text-lg">
               auto_awesome
@@ -169,7 +200,7 @@ function FirstPlaceCard({ entry }: { entry: RankedEntry }) {
             </span>
             <span className="text-xs text-white/50 ml-1">AI Score</span>
           </div>
-        ) : entry.avg_score !== null ? (
+        ) : !showAiScore && entry.avg_score !== null ? (
           <div className="flex items-center gap-1.5 mt-2">
             <span className="material-icons-round text-yellow-400 text-lg">
               star
@@ -178,19 +209,30 @@ function FirstPlaceCard({ entry }: { entry: RankedEntry }) {
               {entry.avg_score}
             </span>
             <span className="text-xs text-white/50 ml-1">
-              ({entry.rating_count} {entry.rating_count === 1 ? "rating" : "ratings"})
+              ({entry.rating_count}{" "}
+              {entry.rating_count === 1 ? "rating" : "ratings"})
             </span>
           </div>
         ) : null}
-        {entry.ai_comment && (
-          <p className="text-sm text-white/70 italic mt-1.5">{entry.ai_comment}</p>
+        {showAiScore && entry.ai_comment && (
+          <p className="text-sm text-white/70 italic mt-1.5">
+            {entry.ai_comment}
+          </p>
         )}
       </div>
     </div>
   );
 }
 
-function PodiumCard({ entry, medal }: { entry: RankedEntry; medal: "silver" | "bronze" }) {
+function PodiumCard({
+  entry,
+  medal,
+  showAiScore,
+}: {
+  entry: RankedEntry;
+  medal: "silver" | "bronze";
+  showAiScore: boolean;
+}) {
   const badgeClasses =
     medal === "silver"
       ? "bg-gray-300 text-gray-700"
@@ -214,23 +256,29 @@ function PodiumCard({ entry, medal }: { entry: RankedEntry; medal: "silver" | "b
           </div>
         )}
         {/* Badge */}
-        <div className={`absolute top-2 left-2 flex items-center justify-center w-7 h-7 rounded-full font-bold text-xs ${badgeClasses}`}>
+        <div
+          className={`absolute top-2 left-2 flex items-center justify-center w-7 h-7 rounded-full font-bold text-xs ${badgeClasses}`}
+        >
           {rankNum}
         </div>
       </div>
       <div className="mt-2">
-        <p className="font-bold text-sm leading-tight dark:text-white">{entry.title}</p>
+        <p className="font-bold text-sm leading-tight dark:text-white">
+          {entry.title}
+        </p>
         {entry.restaurant_name && (
-          <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">{entry.restaurant_name}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
+            {entry.restaurant_name}
+          </p>
         )}
-        {entry.composite_score != null ? (
+        {showAiScore && entry.composite_score != null ? (
           <div className="flex items-center gap-1 mt-1">
             <span className="material-icons-round text-purple-400 text-sm">
               auto_awesome
             </span>
             <span className="text-sm font-bold">{entry.composite_score}</span>
           </div>
-        ) : entry.avg_score !== null ? (
+        ) : !showAiScore && entry.avg_score !== null ? (
           <div className="flex items-center gap-1 mt-1">
             <span className="material-icons-round text-yellow-400 text-sm">
               star
@@ -243,7 +291,13 @@ function PodiumCard({ entry, medal }: { entry: RankedEntry; medal: "silver" | "b
   );
 }
 
-function RunnerUpItem({ entry }: { entry: RankedEntry }) {
+function RunnerUpItem({
+  entry,
+  showAiScore,
+}: {
+  entry: RankedEntry;
+  showAiScore: boolean;
+}) {
   return (
     <div className="flex items-center gap-4 bg-white dark:bg-white/5 p-2 rounded-xl">
       {/* Rank number */}
@@ -272,19 +326,21 @@ function RunnerUpItem({ entry }: { entry: RankedEntry }) {
       <div className="flex-1 min-w-0">
         <p className="font-bold text-sm dark:text-white">{entry.title}</p>
         {entry.restaurant_name && (
-          <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{entry.restaurant_name}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+            {entry.restaurant_name}
+          </p>
         )}
       </div>
 
       {/* Score */}
-      {entry.composite_score != null ? (
+      {showAiScore && entry.composite_score != null ? (
         <div className="flex items-center gap-1 shrink-0">
           <span className="material-icons-round text-purple-400 text-sm">
             auto_awesome
           </span>
           <span className="text-sm font-bold">{entry.composite_score}</span>
         </div>
-      ) : entry.avg_score !== null ? (
+      ) : !showAiScore && entry.avg_score !== null ? (
         <div className="flex items-center gap-1 shrink-0">
           <span className="material-icons-round text-yellow-400 text-sm">
             star

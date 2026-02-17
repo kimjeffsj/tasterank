@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { Tables } from "@/types/database";
 import { PhotoUploader } from "./PhotoUploader";
 import { RatingSlider } from "./RatingSlider";
@@ -50,6 +50,8 @@ export function EntryForm({
   const [aiLoading, setAiLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const lastSuggestedTitle = useRef<string>("");
 
   const handleAiSuggest = async () => {
     if (!title.trim()) return;
@@ -137,8 +139,15 @@ export function EntryForm({
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+          onBlur={() => {
+            const trimmed = title.trim();
+            if (trimmed && trimmed !== lastSuggestedTitle.current) {
+              lastSuggestedTitle.current = trimmed;
+              handleAiSuggest();
+            }
+          }}
           placeholder="What did you eat?"
-          className="w-full text-2xl font-extrabold bg-transparent border-b-2 border-gray-200 dark:border-white/10 focus:border-primary outline-none py-3 transition-colors placeholder:text-gray-300 dark:placeholder:text-gray-600 dark:text-white"
+          className="..."
         />
       </div>
 

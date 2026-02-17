@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { anonClient } from "@/lib/supabase/anon";
 import { notFound } from "next/navigation";
-import { RankingList } from "@/components/ranking/RankingList";
 import type { RankedEntry } from "@/components/ranking/RankingList";
-import { GenerateRankingButton } from "@/components/ranking/GenerateRankingButton";
+import { RankingPageClient } from "@/components/ranking/RankingPageClient";
 
 interface Props {
   params: Promise<{ tripId: string }>;
@@ -56,23 +55,27 @@ export default async function RankingPage({ params }: Props) {
     .order("rank", { ascending: true });
 
   // Fetch photos for all ranked entries
-  const entryIds = (rankings ?? []).map((r) => r.entry_id).filter(Boolean) as string[];
+  const entryIds = (rankings ?? [])
+    .map((r) => r.entry_id)
+    .filter(Boolean) as string[];
 
-  const { data: photos } = entryIds.length > 0
-    ? await anonClient
-        .from("food_photos")
-        .select("entry_id, photo_url, display_order")
-        .in("entry_id", entryIds)
-        .order("display_order", { ascending: true })
-    : { data: [] };
+  const { data: photos } =
+    entryIds.length > 0
+      ? await anonClient
+          .from("food_photos")
+          .select("entry_id, photo_url, display_order")
+          .in("entry_id", entryIds)
+          .order("display_order", { ascending: true })
+      : { data: [] };
 
   // Fetch tags for all ranked entries
-  const { data: entryTags } = entryIds.length > 0
-    ? await anonClient
-        .from("food_entry_tags")
-        .select("entry_id, tags(id, name, category)")
-        .in("entry_id", entryIds)
-    : { data: [] };
+  const { data: entryTags } =
+    entryIds.length > 0
+      ? await anonClient
+          .from("food_entry_tags")
+          .select("entry_id, tags(id, name, category)")
+          .in("entry_id", entryIds)
+      : { data: [] };
 
   // Build a map: entry_id -> first photo url
   const photoMap = new Map<string, string>();
@@ -83,10 +86,17 @@ export default async function RankingPage({ params }: Props) {
   }
 
   // Build a map: entry_id -> tags
-  const tagMap = new Map<string, { id: string; name: string; category: string | null }[]>();
+  const tagMap = new Map<
+    string,
+    { id: string; name: string; category: string | null }[]
+  >();
   for (const et of entryTags ?? []) {
     if (!et.tags) continue;
-    const tag = et.tags as unknown as { id: string; name: string; category: string | null };
+    const tag = et.tags as unknown as {
+      id: string;
+      name: string;
+      category: string | null;
+    };
     const existing = tagMap.get(et.entry_id) ?? [];
     existing.push(tag);
     tagMap.set(et.entry_id, existing);
@@ -101,19 +111,33 @@ export default async function RankingPage({ params }: Props) {
     .limit(1);
 
   const aiRanking = aiRankings?.[0] ?? null;
-  const aiRankingData = (aiRanking?.ranking_data as Array<{
-    entry_id: string;
-    composite_score: number;
-    ai_comment: string;
-    breakdown: { user_score: number; tournament: number; ai_questions: number; sentiment: number };
-  }>) ?? [];
+  const aiRankingData =
+    (aiRanking?.ranking_data as Array<{
+      entry_id: string;
+      composite_score: number;
+      ai_comment: string;
+      breakdown: {
+        user_score: number;
+        tournament: number;
+        ai_questions: number;
+        sentiment: number;
+      };
+    }>) ?? [];
 
   // Build AI data map
-  const aiDataMap = new Map<string, {
-    composite_score: number;
-    ai_comment: string;
-    breakdown: { user_score: number; tournament: number; ai_questions: number; sentiment: number };
-  }>();
+  const aiDataMap = new Map<
+    string,
+    {
+      composite_score: number;
+      ai_comment: string;
+      breakdown: {
+        user_score: number;
+        tournament: number;
+        ai_questions: number;
+        sentiment: number;
+      };
+    }
+  >();
   for (const item of aiRankingData) {
     aiDataMap.set(item.entry_id, {
       composite_score: item.composite_score,
@@ -123,7 +147,7 @@ export default async function RankingPage({ params }: Props) {
   }
 
   // Combine into RankedEntry[]
-  let rankedEntries: RankedEntry[] = (rankings ?? []).map((r) => ({
+  const rankedEntries: RankedEntry[] = (rankings ?? []).map((r) => ({
     entry_id: r.entry_id!,
     title: r.title ?? "Untitled",
     restaurant_name: r.restaurant_name ?? null,
@@ -137,12 +161,6 @@ export default async function RankingPage({ params }: Props) {
     breakdown: aiDataMap.get(r.entry_id!)?.breakdown ?? null,
   }));
 
-  // If AI ranking exists, re-sort by composite score
-  if (aiRanking) {
-    rankedEntries.sort((a, b) => (b.composite_score ?? 0) - (a.composite_score ?? 0));
-    rankedEntries = rankedEntries.map((e, i) => ({ ...e, rank: i + 1 }));
-  }
-
   return (
     <div className="mx-auto w-full max-w-md min-h-screen pb-24">
       {/* Header */}
@@ -155,7 +173,9 @@ export default async function RankingPage({ params }: Props) {
             <span className="material-icons-round">arrow_back</span>
           </a>
           <div className="flex-1 min-w-0">
-            <h1 className="text-lg font-bold truncate dark:text-white">{trip.name}</h1>
+            <h1 className="text-lg font-bold truncate dark:text-white">
+              {trip.name}
+            </h1>
             <p className="text-xs text-gray-500 dark:text-gray-400">Rankings</p>
           </div>
           <span className="material-icons-round text-2xl text-primary">
@@ -164,29 +184,14 @@ export default async function RankingPage({ params }: Props) {
         </div>
       </div>
 
-      {/* AI Ranking controls */}
-      <div className="px-6 pt-2 pb-0 space-y-2">
-        <GenerateRankingButton
-          tripId={tripId}
-          hasExistingRanking={!!aiRanking}
-        />
-        {aiRanking && (
-          <p className="text-xs text-gray-400 dark:text-gray-500 text-center">
-            AI Score generated{" "}
-            {new Date(aiRanking.generated_at!).toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-              hour: "numeric",
-              minute: "2-digit",
-            })}
-          </p>
-        )}
-      </div>
-
-      {/* Ranking content */}
-      <section className="px-6 py-4">
-        <RankingList rankings={rankedEntries} tripName={trip.name} />
-      </section>
+      {/* Client-side ranking view */}
+      <RankingPageClient
+        tripId={tripId}
+        tripName={trip.name}
+        entries={rankedEntries}
+        hasAiRanking={!!aiRanking}
+        aiGeneratedAt={aiRanking?.generated_at ?? null}
+      />
     </div>
   );
 }
