@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { anonClient } from "@/lib/supabase/anon";
 import {
   calculateBracketSize,
   seedEntries,
@@ -44,7 +45,31 @@ export interface TournamentEntryInfo {
   tag_name: string | null;
 }
 
-export function useTournament(tripId: string) {
+interface UseTournamentOptions {
+  isDemo?: boolean;
+}
+
+const DEMO_VOTES_KEY = (tournamentId: string) =>
+  `tasterank-demo-votes-${tournamentId}`;
+
+function loadDemoVotes(tournamentId: string): TournamentVote[] {
+  try {
+    const raw = localStorage.getItem(DEMO_VOTES_KEY(tournamentId));
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveDemoVotes(tournamentId: string, votes: TournamentVote[]) {
+  localStorage.setItem(DEMO_VOTES_KEY(tournamentId), JSON.stringify(votes));
+}
+
+export function useTournament(
+  tripId: string,
+  options: UseTournamentOptions = {},
+) {
+  const { isDemo = false } = options;
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [userVotes, setUserVotes] = useState<TournamentVote[]>([]);
   const [currentRound, setCurrentRound] = useState(1);
@@ -135,12 +160,17 @@ export function useTournament(tripId: string) {
     setError(null);
 
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      // Use anon client for demo reads, authenticated client otherwise
+      const client = isDemo ? anonClient : supabase;
 
-      // Find active/pending tournament for this trip
-      const { data: t, error: tErr } = await supabase
+      let user = null;
+      if (!isDemo) {
+        const { data } = await supabase.auth.getUser();
+        user = data.user;
+      }
+
+      // Find active tournament for this trip
+      const { data: t, error: tErr } = await client
         .from("tournaments")
         .select("*")
         .eq("trip_id", tripId)
@@ -165,14 +195,14 @@ export function useTournament(tripId: string) {
 
       // Load entry details for display
       const entryIds = tournament.seed_order;
-      const { data: entries } = await supabase
+      const { data: entries } = await client
         .from("food_entries")
         .select(
           "id, title, restaurant_name, food_photos(photo_url, display_order), food_entry_tags(tags(name))",
         )
         .in("id", entryIds);
 
-      const { data: scores } = await supabase
+      const { data: scores } = await client
         .from("v_entry_avg_scores")
         .select("entry_id, avg_score")
         .in("entry_id", entryIds);
@@ -186,9 +216,14 @@ export function useTournament(tripId: string) {
       const newEntryMap = new Map<string, TournamentEntryInfo>();
       entries?.forEach((e) => {
         const photos = (
-          e.food_photos as { photo_url: string; display_order: number | null }[]
+          e.food_photos as {
+            photo_url: string;
+            display_order: number | null;
+          }[]
         )?.sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0));
-        const entryTags = e.food_entry_tags as { tags: { name: string } | null }[] | null;
+        const entryTags = e.food_entry_tags as
+          | { tags: { name: string } | null }[]
+          | null;
         const firstTagName = entryTags?.[0]?.tags?.name ?? null;
         newEntryMap.set(e.id, {
           id: e.id,
@@ -201,8 +236,13 @@ export function useTournament(tripId: string) {
       });
       setEntryMap(newEntryMap);
 
-      // Load user votes
-      if (user) {
+      // Load votes
+      if (isDemo) {
+        // Demo: load from localStorage
+        const demoVotes = loadDemoVotes(tournament.id);
+        setUserVotes(demoVotes);
+        computeCurrentState(tournament, demoVotes);
+      } else if (user) {
         const { data: votes } = await supabase
           .from("tournament_votes")
           .select("*")
@@ -224,7 +264,7 @@ export function useTournament(tripId: string) {
     } finally {
       setLoading(false);
     }
-  }, [supabase, tripId, computeCurrentState]);
+  }, [supabase, tripId, isDemo, computeCurrentState]);
 
   useEffect(() => {
     fetchTournament();
@@ -235,6 +275,30 @@ export function useTournament(tripId: string) {
     setError(null);
 
     try {
+      if (isDemo) {
+        // Demo: use server API route
+        const res = await fetch("/api/tournament/create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ tripId }),
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Failed to create tournament");
+
+        const tournament: Tournament = {
+          ...data.tournament,
+          seed_order: data.tournament.seed_order as string[],
+        };
+        setTournament(tournament);
+        setUserVotes([]);
+        computeCurrentState(tournament, []);
+
+        // Refetch to get entry details
+        await fetchTournament();
+        return;
+      }
+
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -304,7 +368,7 @@ export function useTournament(tripId: string) {
       );
       throw err;
     }
-  }, [supabase, tripId, computeCurrentState, fetchTournament]);
+  }, [supabase, tripId, isDemo, computeCurrentState, fetchTournament]);
 
   // Vote for a winner in the current match
   const vote = useCallback(
@@ -315,29 +379,10 @@ export function useTournament(tripId: string) {
       setError(null);
 
       try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-        if (!user) throw new Error("Must be logged in");
-
-        const { error: vErr } = await supabase
-          .from("tournament_votes")
-          .insert({
-            tournament_id: tournament.id,
-            user_id: user.id,
-            round_number: currentRound,
-            match_order: currentMatch.matchOrder,
-            entry_a_id: currentMatch.entryA,
-            entry_b_id: currentMatch.entryB!,
-            winner_id: winnerId,
-          });
-
-        if (vErr) throw vErr;
-
         const newVote: TournamentVote = {
           id: crypto.randomUUID(),
           tournament_id: tournament.id,
-          user_id: user.id,
+          user_id: "demo",
           round_number: currentRound,
           match_order: currentMatch.matchOrder,
           entry_a_id: currentMatch.entryA,
@@ -345,58 +390,134 @@ export function useTournament(tripId: string) {
           winner_id: winnerId,
         };
 
-        const updatedVotes = [...userVotes, newVote];
-        setUserVotes(updatedVotes);
-        computeCurrentState(tournament, updatedVotes);
+        if (isDemo) {
+          // Demo: save to localStorage only
+          const updatedVotes = [...userVotes, newVote];
+          saveDemoVotes(tournament.id, updatedVotes);
+          setUserVotes(updatedVotes);
+          computeCurrentState(tournament, updatedVotes);
+        } else {
+          const {
+            data: { user },
+          } = await supabase.auth.getUser();
+          if (!user) throw new Error("Must be logged in");
+
+          const { error: vErr } = await supabase
+            .from("tournament_votes")
+            .insert({
+              tournament_id: tournament.id,
+              user_id: user.id,
+              round_number: currentRound,
+              match_order: currentMatch.matchOrder,
+              entry_a_id: currentMatch.entryA,
+              entry_b_id: currentMatch.entryB!,
+              winner_id: winnerId,
+            });
+
+          if (vErr) throw vErr;
+
+          newVote.user_id = user.id;
+          const updatedVotes = [...userVotes, newVote];
+          setUserVotes(updatedVotes);
+          computeCurrentState(tournament, updatedVotes);
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to vote");
       } finally {
         setVoting(false);
       }
     },
-    [supabase, tournament, currentMatch, currentRound, userVotes, voting, computeCurrentState],
+    [
+      supabase,
+      tournament,
+      currentMatch,
+      currentRound,
+      userVotes,
+      voting,
+      isDemo,
+      computeCurrentState,
+    ],
   );
 
   // Auto-vote byes
   const voteBye = useCallback(async () => {
     if (!tournament || !currentMatch || currentMatch.entryB !== null) return;
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) return;
-
-    const { error: vErr } = await supabase.from("tournament_votes").insert({
+    const newVote: TournamentVote = {
+      id: crypto.randomUUID(),
       tournament_id: tournament.id,
-      user_id: user.id,
+      user_id: "demo",
       round_number: currentRound,
       match_order: currentMatch.matchOrder,
       entry_a_id: currentMatch.entryA,
       entry_b_id: currentMatch.entryA, // bye: same entry for both
       winner_id: currentMatch.entryA,
-    });
+    };
 
-    if (!vErr) {
-      const newVote: TournamentVote = {
-        id: crypto.randomUUID(),
-        tournament_id: tournament.id,
-        user_id: user.id,
-        round_number: currentRound,
-        match_order: currentMatch.matchOrder,
-        entry_a_id: currentMatch.entryA,
-        entry_b_id: currentMatch.entryA,
-        winner_id: currentMatch.entryA,
-      };
-
+    if (isDemo) {
+      // Demo: save to localStorage only
       const updatedVotes = [...userVotes, newVote];
+      saveDemoVotes(tournament.id, updatedVotes);
       setUserVotes(updatedVotes);
       computeCurrentState(tournament, updatedVotes);
-    }
-  }, [supabase, tournament, currentMatch, currentRound, userVotes, computeCurrentState]);
+    } else {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return;
 
-  // Get results (all users' votes aggregated)
+      const { error: vErr } = await supabase
+        .from("tournament_votes")
+        .insert({
+          tournament_id: tournament.id,
+          user_id: user.id,
+          round_number: currentRound,
+          match_order: currentMatch.matchOrder,
+          entry_a_id: currentMatch.entryA,
+          entry_b_id: currentMatch.entryA,
+          winner_id: currentMatch.entryA,
+        });
+
+      if (!vErr) {
+        newVote.user_id = user.id;
+        const updatedVotes = [...userVotes, newVote];
+        setUserVotes(updatedVotes);
+        computeCurrentState(tournament, updatedVotes);
+      }
+    }
+  }, [
+    supabase,
+    tournament,
+    currentMatch,
+    currentRound,
+    userVotes,
+    isDemo,
+    computeCurrentState,
+  ]);
+
+  // Get results
   const getResults = useCallback(async () => {
     if (!tournament) return [];
+
+    if (isDemo) {
+      // Demo: compute results from localStorage votes
+      const votes = loadDemoVotes(tournament.id);
+      const winCounts = new Map<string, number>();
+
+      // Count wins for each entry
+      for (const v of votes) {
+        winCounts.set(v.winner_id, (winCounts.get(v.winner_id) ?? 0) + 1);
+      }
+
+      // Include all seeded entries (even those with 0 wins)
+      return tournament.seed_order
+        .map((entryId) => ({
+          entryId,
+          totalWins: winCounts.get(entryId) ?? 0,
+          entry: entryMap.get(entryId),
+        }))
+        .sort((a, b) => b.totalWins - a.totalWins);
+    }
 
     const { data, error: err } = await supabase
       .from("v_tournament_results")
@@ -412,7 +533,7 @@ export function useTournament(tripId: string) {
         entry: entryMap.get(r.entry_id as string),
       }))
       .sort((a, b) => b.totalWins - a.totalWins);
-  }, [supabase, tournament, entryMap]);
+  }, [supabase, tournament, entryMap, isDemo]);
 
   // Calculate progress
   const totalMatchesInRound = tournament

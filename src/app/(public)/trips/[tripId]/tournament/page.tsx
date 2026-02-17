@@ -6,15 +6,21 @@ import { useAuth } from "@/hooks/useAuth";
 import { useTournament } from "@/hooks/useTournament";
 import { MatchCard } from "@/components/tournament/MatchCard";
 import { TournamentHeader } from "@/components/tournament/TournamentHeader";
-import { TournamentResults, type TournamentResultEntry } from "@/components/tournament/TournamentResults";
+import {
+  TournamentResults,
+  type TournamentResultEntry,
+} from "@/components/tournament/TournamentResults";
 import { NoTournamentState } from "@/components/tournament/NoTournamentState";
 import { UserCompleteState } from "@/components/tournament/UserCompleteState";
 import { LoginPrompt } from "@/components/auth/LoginPrompt";
+import { isDemoTrip } from "@/lib/constants";
 import { createClient } from "@/lib/supabase/client";
+import { anonClient } from "@/lib/supabase/anon";
 
 export default function TournamentPage() {
   const params = useParams<{ tripId: string }>();
   const router = useRouter();
+  const isDemo = isDemoTrip(params.tripId);
   const { user, loading: authLoading } = useAuth();
   const {
     tournament,
@@ -32,14 +38,14 @@ export default function TournamentPage() {
     vote,
     voteBye,
     getResults,
-  } = useTournament(params.tripId);
+  } = useTournament(params.tripId, { isDemo });
 
   const [showLogin, setShowLogin] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [results, setResults] = useState<TournamentResultEntry[]>([]);
   const [starting, setStarting] = useState(false);
   const [entryCount, setEntryCount] = useState(0);
-  const [isEditor, setIsEditor] = useState(false);
+  const [isEditor, setIsEditor] = useState(isDemo);
 
   const handleClose = useCallback(() => {
     router.push(`/trips/${params.tripId}`);
@@ -47,6 +53,19 @@ export default function TournamentPage() {
 
   // Check member role & entry count
   useEffect(() => {
+    if (isDemo) {
+      // For demo trips, fetch entry count with anon client
+      const fetchCount = async () => {
+        const { count } = await anonClient
+          .from("food_entries")
+          .select("id", { count: "exact", head: true })
+          .eq("trip_id", params.tripId);
+        setEntryCount(count ?? 0);
+      };
+      fetchCount();
+      return;
+    }
+
     if (!user || !params.tripId) return;
 
     const checkAccess = async () => {
@@ -70,7 +89,7 @@ export default function TournamentPage() {
     };
 
     checkAccess();
-  }, [user, params.tripId]);
+  }, [user, params.tripId, isDemo]);
 
   // Auto-handle bye matches
   useEffect(() => {
@@ -80,7 +99,7 @@ export default function TournamentPage() {
   }, [currentMatch, voting, voteBye]);
 
   const handleStart = useCallback(async () => {
-    if (!user) {
+    if (!isDemo && !user) {
       setShowLogin(true);
       return;
     }
@@ -92,7 +111,7 @@ export default function TournamentPage() {
     } finally {
       setStarting(false);
     }
-  }, [user, createTournament]);
+  }, [isDemo, user, createTournament]);
 
   const handleViewResults = useCallback(async () => {
     try {
@@ -104,10 +123,12 @@ export default function TournamentPage() {
     }
   }, [getResults]);
 
-  // Active match view — full dark immersive layout
-  const isActiveMatch = tournament && !isUserComplete && currentMatch && currentMatch.entryB !== null;
+  // Active match view
+  const isActiveMatch =
+    tournament && !isUserComplete && currentMatch && currentMatch.entryB !== null;
 
-  if (authLoading || loading) {
+  // Loading state — skip auth loading for demo trips
+  if ((!isDemo && authLoading) || loading) {
     return (
       <div className="mx-auto w-full max-w-md min-h-screen bg-background-light dark:bg-background-dark flex items-center justify-center">
         <div className="animate-spin">
@@ -119,7 +140,8 @@ export default function TournamentPage() {
     );
   }
 
-  if (!user) {
+  // Non-demo: show sign-in prompt for unauthenticated users
+  if (!isDemo && !user) {
     return (
       <div className="mx-auto w-full max-w-md min-h-screen bg-background-light dark:bg-background-dark">
         <SimpleHeader onClose={handleClose} />
@@ -161,22 +183,26 @@ export default function TournamentPage() {
 
         <div className="flex-1 flex flex-col justify-center">
           <MatchCard
-            entryA={entryMap.get(currentMatch.entryA) ?? {
-              id: currentMatch.entryA,
-              title: "Unknown",
-              restaurant_name: null,
-              photo_url: null,
-              avg_score: null,
-              tag_name: null,
-            }}
-            entryB={entryMap.get(currentMatch.entryB!) ?? {
-              id: currentMatch.entryB!,
-              title: "Unknown",
-              restaurant_name: null,
-              photo_url: null,
-              avg_score: null,
-              tag_name: null,
-            }}
+            entryA={
+              entryMap.get(currentMatch.entryA) ?? {
+                id: currentMatch.entryA,
+                title: "Unknown",
+                restaurant_name: null,
+                photo_url: null,
+                avg_score: null,
+                tag_name: null,
+              }
+            }
+            entryB={
+              entryMap.get(currentMatch.entryB!) ?? {
+                id: currentMatch.entryB!,
+                title: "Unknown",
+                restaurant_name: null,
+                photo_url: null,
+                avg_score: null,
+                tag_name: null,
+              }
+            }
             onVote={vote}
             disabled={voting}
           />
@@ -186,7 +212,9 @@ export default function TournamentPage() {
           Tap your favorite to advance
         </p>
 
-        <LoginPrompt open={showLogin} onOpenChange={setShowLogin} />
+        {!isDemo && (
+          <LoginPrompt open={showLogin} onOpenChange={setShowLogin} />
+        )}
       </div>
     );
   }
@@ -228,7 +256,9 @@ export default function TournamentPage() {
         )}
       </div>
 
-      <LoginPrompt open={showLogin} onOpenChange={setShowLogin} />
+      {!isDemo && (
+        <LoginPrompt open={showLogin} onOpenChange={setShowLogin} />
+      )}
     </div>
   );
 }
