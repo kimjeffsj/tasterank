@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { anonClient } from "@/lib/supabase/anon";
 import {
@@ -82,7 +82,9 @@ export function useTournament(
   const [entryMap, setEntryMap] = useState<Map<string, TournamentEntryInfo>>(
     new Map(),
   );
-  const supabase = createClient();
+
+  // Only create browser client for non-demo mode to avoid duplicate GoTrueClient
+  const supabase = useMemo(() => (isDemo ? null : createClient()), [isDemo]);
 
   // Compute current match from tournament state + votes
   const computeCurrentState = useCallback(
@@ -161,10 +163,10 @@ export function useTournament(
 
     try {
       // Use anon client for demo reads, authenticated client otherwise
-      const client = isDemo ? anonClient : supabase;
+      const client = isDemo ? anonClient : supabase!;
 
       let user = null;
-      if (!isDemo) {
+      if (!isDemo && supabase) {
         const { data } = await supabase.auth.getUser();
         user = data.user;
       }
@@ -177,9 +179,9 @@ export function useTournament(
         .eq("status", "active")
         .order("created_at", { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
-      if (tErr && tErr.code !== "PGRST116") throw tErr;
+      if (tErr) throw tErr;
 
       if (!t) {
         setTournament(null);
@@ -242,7 +244,7 @@ export function useTournament(
         const demoVotes = loadDemoVotes(tournament.id);
         setUserVotes(demoVotes);
         computeCurrentState(tournament, demoVotes);
-      } else if (user) {
+      } else if (user && supabase) {
         const { data: votes } = await supabase
           .from("tournament_votes")
           .select("*")
@@ -284,7 +286,8 @@ export function useTournament(
         });
 
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Failed to create tournament");
+        if (!res.ok)
+          throw new Error(data.error || "Failed to create tournament");
 
         const tournament: Tournament = {
           ...data.tournament,
@@ -298,6 +301,8 @@ export function useTournament(
         await fetchTournament();
         return;
       }
+
+      if (!supabase) throw new Error("Client not initialized");
 
       const {
         data: { user },
@@ -397,6 +402,8 @@ export function useTournament(
           setUserVotes(updatedVotes);
           computeCurrentState(tournament, updatedVotes);
         } else {
+          if (!supabase) throw new Error("Client not initialized");
+
           const {
             data: { user },
           } = await supabase.auth.getUser();
@@ -461,6 +468,8 @@ export function useTournament(
       setUserVotes(updatedVotes);
       computeCurrentState(tournament, updatedVotes);
     } else {
+      if (!supabase) return;
+
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -518,6 +527,8 @@ export function useTournament(
         }))
         .sort((a, b) => b.totalWins - a.totalWins);
     }
+
+    if (!supabase) return [];
 
     const { data, error: err } = await supabase
       .from("v_tournament_results")

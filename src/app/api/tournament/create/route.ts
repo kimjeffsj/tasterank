@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { isDemoTrip, DEMO_USER_ID } from "@/lib/constants";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { anonClient } from "@/lib/supabase/anon";
 import {
   calculateBracketSize,
   seedEntries,
@@ -22,7 +22,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const supabase = createAdminClient();
+  const supabase = anonClient;
 
   // Check if active tournament already exists
   const { data: existing } = await supabase
@@ -31,7 +31,7 @@ export async function POST(request: Request) {
     .eq("trip_id", tripId)
     .eq("status", "active")
     .limit(1)
-    .single();
+    .maybeSingle();
 
   if (existing) {
     return NextResponse.json(
