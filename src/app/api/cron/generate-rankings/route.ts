@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import { NextResponse } from "next/server";
 import { anonClient } from "@/lib/supabase/anon";
 import { getModel } from "@/lib/ai/client";
@@ -19,6 +20,9 @@ import type { Json } from "@/types/database";
  *
  * Uses anon client (no service-role key) + SECURITY DEFINER RPC
  * for the ai_rankings write. Protected by CRON_SECRET bearer token.
+ *
+ * Returns 202 immediately to avoid cron-job.org timeout,
+ * then processes trips in the background via after().
  */
 export async function GET(request: Request) {
   // Verify cron secret
@@ -31,7 +35,7 @@ export async function GET(request: Request) {
 
   const supabase = anonClient;
 
-  // Fetch all public trips with at least 2 entries
+  // Quick count check before handing off to background
   const { data: trips } = await supabase
     .from("trips")
     .select("id")
@@ -41,37 +45,35 @@ export async function GET(request: Request) {
     return NextResponse.json({ message: "No trips to process", processed: 0 });
   }
 
-  const results: {
-    trip_id: string;
-    status: "success" | "skipped" | "error";
-    entries?: number;
-    error?: string;
-  }[] = [];
-
-  for (const trip of trips) {
-    try {
-      const result = await generateRankingForTrip(supabase, trip.id);
-      results.push(result);
-    } catch (err) {
-      results.push({
-        trip_id: trip.id,
-        status: "error",
-        error: err instanceof Error ? err.message : "Unknown error",
-      });
-    }
-  }
-
-  const successCount = results.filter((r) => r.status === "success").length;
-  const skipCount = results.filter((r) => r.status === "skipped").length;
-  const errorCount = results.filter((r) => r.status === "error").length;
-
-  return NextResponse.json({
-    message: `Processed ${trips.length} trips`,
-    processed: successCount,
-    skipped: skipCount,
-    errors: errorCount,
-    details: results,
+  // Kick off background processing — responds before work completes
+  // so cron-job.org doesn't timeout waiting for all Gemini calls
+  after(async () => {
+    await processAllTrips(
+      supabase,
+      trips.map((t) => t.id),
+    );
   });
+
+  return NextResponse.json(
+    { message: `Ranking generation started for ${trips.length} trips` },
+    { status: 202 },
+  );
+}
+
+/**
+ * Process trips in parallel batches of 3 to respect Gemini free-tier
+ * rate limits (15 RPM). Promise.allSettled ensures one failure doesn't
+ * cancel the rest of the batch.
+ */
+const CONCURRENCY = 3;
+
+async function processAllTrips(supabase: typeof anonClient, tripIds: string[]) {
+  for (let i = 0; i < tripIds.length; i += CONCURRENCY) {
+    const batch = tripIds.slice(i, i + CONCURRENCY);
+    await Promise.allSettled(
+      batch.map((tripId) => generateRankingForTrip(supabase, tripId)),
+    );
+  }
 }
 
 async function generateRankingForTrip(
