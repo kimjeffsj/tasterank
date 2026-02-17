@@ -3,6 +3,8 @@ import {
   parseTagSuggestions,
   buildFollowUpPrompt,
   parseFollowUpQuestions,
+  buildRankingPrompt,
+  parseRankingResponse,
 } from "./prompts";
 
 describe("buildTagSuggestionPrompt", () => {
@@ -152,5 +154,67 @@ describe("parseFollowUpQuestions", () => {
     const text = `[{"question_text": "Bad type?", "question_type": "multiple", "question_order": 1}]`;
     const questions = parseFollowUpQuestions(text);
     expect(questions).toHaveLength(0);
+  });
+});
+
+describe("buildRankingPrompt", () => {
+  it("includes all entry titles", () => {
+    const prompt = buildRankingPrompt([
+      { entry_id: "e1", title: "Tonkotsu Ramen", review_texts: [], ai_response_texts: [] },
+      { entry_id: "e2", title: "Sushi Platter", review_texts: [], ai_response_texts: [] },
+    ]);
+    expect(prompt).toContain("Tonkotsu Ramen");
+    expect(prompt).toContain("Sushi Platter");
+  });
+
+  it("includes restaurant name when provided", () => {
+    const prompt = buildRankingPrompt([
+      { entry_id: "e1", title: "Ramen", restaurant_name: "Ichiran", review_texts: [], ai_response_texts: [] },
+    ]);
+    expect(prompt).toContain("Ichiran");
+  });
+
+  it("includes review texts truncated", () => {
+    const longReview = "A".repeat(300);
+    const prompt = buildRankingPrompt([
+      { entry_id: "e1", title: "Ramen", review_texts: [longReview], ai_response_texts: [] },
+    ]);
+    expect(prompt).toContain("A".repeat(200));
+    expect(prompt).not.toContain("A".repeat(201));
+  });
+
+  it("requests JSON array output with sentiment_score and ai_comment", () => {
+    const prompt = buildRankingPrompt([
+      { entry_id: "e1", title: "Ramen", review_texts: [], ai_response_texts: [] },
+    ]);
+    expect(prompt).toContain("JSON");
+    expect(prompt).toContain("sentiment_score");
+    expect(prompt).toContain("ai_comment");
+  });
+});
+
+describe("parseRankingResponse", () => {
+  it("parses valid response", () => {
+    const text = `[{"entry_id": "e1", "sentiment_score": 8.5, "ai_comment": "Great dish"}]`;
+    const result = parseRankingResponse(text);
+    expect(result).toEqual([
+      { entry_id: "e1", sentiment_score: 8.5, ai_comment: "Great dish" },
+    ]);
+  });
+
+  it("handles markdown-wrapped JSON", () => {
+    const text = '```json\n[{"entry_id": "e1", "sentiment_score": 7, "ai_comment": "Good"}]\n```';
+    const result = parseRankingResponse(text);
+    expect(result).toHaveLength(1);
+  });
+
+  it("returns empty array for invalid JSON", () => {
+    expect(parseRankingResponse("not json")).toEqual([]);
+  });
+
+  it("filters out invalid objects", () => {
+    const text = `[{"entry_id": "e1", "sentiment_score": 8, "ai_comment": "Good"}, {"invalid": true}]`;
+    const result = parseRankingResponse(text);
+    expect(result).toHaveLength(1);
   });
 });

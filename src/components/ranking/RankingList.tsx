@@ -17,6 +17,14 @@ export interface RankedEntry {
   rating_count: number;
   photo_url: string | null;
   tags: RankedEntryTag[];
+  composite_score?: number | null;
+  ai_comment?: string | null;
+  breakdown?: {
+    user_score: number;
+    tournament: number;
+    ai_questions: number;
+    sentiment: number;
+  } | null;
 }
 
 interface RankingListProps {
@@ -151,7 +159,17 @@ function FirstPlaceCard({ entry }: { entry: RankedEntry }) {
         {entry.restaurant_name && (
           <p className="text-sm text-white/70 mt-0.5">{entry.restaurant_name}</p>
         )}
-        {entry.avg_score !== null && (
+        {entry.composite_score != null ? (
+          <div className="flex items-center gap-1.5 mt-2">
+            <span className="material-icons-round text-purple-400 text-lg">
+              auto_awesome
+            </span>
+            <span className="text-xl font-extrabold text-white">
+              {entry.composite_score}
+            </span>
+            <span className="text-xs text-white/50 ml-1">AI Score</span>
+          </div>
+        ) : entry.avg_score !== null ? (
           <div className="flex items-center gap-1.5 mt-2">
             <span className="material-icons-round text-yellow-400 text-lg">
               star
@@ -163,6 +181,9 @@ function FirstPlaceCard({ entry }: { entry: RankedEntry }) {
               ({entry.rating_count} {entry.rating_count === 1 ? "rating" : "ratings"})
             </span>
           </div>
+        ) : null}
+        {entry.ai_comment && (
+          <p className="text-sm text-white/70 italic mt-1.5">{entry.ai_comment}</p>
         )}
       </div>
     </div>
@@ -202,14 +223,21 @@ function PodiumCard({ entry, medal }: { entry: RankedEntry; medal: "silver" | "b
         {entry.restaurant_name && (
           <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">{entry.restaurant_name}</p>
         )}
-        {entry.avg_score !== null && (
+        {entry.composite_score != null ? (
+          <div className="flex items-center gap-1 mt-1">
+            <span className="material-icons-round text-purple-400 text-sm">
+              auto_awesome
+            </span>
+            <span className="text-sm font-bold">{entry.composite_score}</span>
+          </div>
+        ) : entry.avg_score !== null ? (
           <div className="flex items-center gap-1 mt-1">
             <span className="material-icons-round text-yellow-400 text-sm">
               star
             </span>
             <span className="text-sm font-bold">{entry.avg_score}</span>
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );
@@ -249,14 +277,21 @@ function RunnerUpItem({ entry }: { entry: RankedEntry }) {
       </div>
 
       {/* Score */}
-      {entry.avg_score !== null && (
+      {entry.composite_score != null ? (
+        <div className="flex items-center gap-1 shrink-0">
+          <span className="material-icons-round text-purple-400 text-sm">
+            auto_awesome
+          </span>
+          <span className="text-sm font-bold">{entry.composite_score}</span>
+        </div>
+      ) : entry.avg_score !== null ? (
         <div className="flex items-center gap-1 shrink-0">
           <span className="material-icons-round text-yellow-400 text-sm">
             star
           </span>
           <span className="text-sm font-bold">{entry.avg_score}</span>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

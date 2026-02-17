@@ -66,6 +66,41 @@ export type Database = {
           },
         ]
       }
+      ai_rankings: {
+        Row: {
+          generated_at: string | null
+          id: string
+          ranking_data: Json
+          reasoning: string | null
+          trip_id: string
+          weights_used: Json | null
+        }
+        Insert: {
+          generated_at?: string | null
+          id?: string
+          ranking_data: Json
+          reasoning?: string | null
+          trip_id: string
+          weights_used?: Json | null
+        }
+        Update: {
+          generated_at?: string | null
+          id?: string
+          ranking_data?: Json
+          reasoning?: string | null
+          trip_id?: string
+          weights_used?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_rankings_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_responses: {
         Row: {
           created_at: string | null

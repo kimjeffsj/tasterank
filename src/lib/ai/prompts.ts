@@ -102,6 +102,80 @@ export function parseFollowUpQuestions(text: string): FollowUpQuestion[] {
   }
 }
 
+// ─── Ranking Sentiment Analysis ──────────────────────────
+
+export interface RankingEntryInput {
+  entry_id: string;
+  title: string;
+  restaurant_name?: string;
+  review_texts: string[];
+  ai_response_texts: string[];
+}
+
+export interface RankingSentimentResult {
+  entry_id: string;
+  sentiment_score: number;
+  ai_comment: string;
+}
+
+export function buildRankingPrompt(entries: RankingEntryInput[]): string {
+  const entryDescriptions = entries.map((e, i) => {
+    const parts = [`Entry ${i + 1} (id: ${e.entry_id}): ${e.title}`];
+    if (e.restaurant_name) parts.push(`  Restaurant: ${e.restaurant_name}`);
+    if (e.review_texts.length > 0) {
+      const truncated = e.review_texts
+        .slice(0, 5)
+        .map((r) => r.slice(0, 200));
+      parts.push(`  Reviews: ${truncated.join(" | ")}`);
+    }
+    if (e.ai_response_texts.length > 0) {
+      const truncated = e.ai_response_texts
+        .slice(0, 5)
+        .map((r) => r.slice(0, 200));
+      parts.push(`  AI Q&A responses: ${truncated.join(" | ")}`);
+    }
+    return parts.join("\n");
+  });
+
+  return `You are a food ranking analyst. Analyze the sentiment of user reviews and AI question responses for each food entry below.
+
+${entryDescriptions.join("\n\n")}
+
+For each entry, provide:
+- sentiment_score: A score from 0 to 10 reflecting overall sentiment (0 = very negative, 10 = very positive). If no reviews/responses exist, default to 5.0.
+- ai_comment: A 1-2 sentence summary highlighting what makes this dish stand out or notable.
+
+Respond ONLY with a JSON array, no markdown, no explanation:
+[{"entry_id": "...", "sentiment_score": 8.5, "ai_comment": "..."}]
+
+Rules:
+- Return one object per entry, in the same order
+- sentiment_score must be a number between 0 and 10
+- ai_comment should be specific and reference actual review content when available
+- Keep ai_comment under 120 characters`;
+}
+
+export function parseRankingResponse(text: string): RankingSentimentResult[] {
+  const jsonMatch = text.match(/\[[\s\S]*\]/);
+  if (!jsonMatch) return [];
+
+  try {
+    const parsed = JSON.parse(jsonMatch[0]);
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed.filter(
+      (r: unknown): r is RankingSentimentResult =>
+        typeof r === "object" &&
+        r !== null &&
+        typeof (r as RankingSentimentResult).entry_id === "string" &&
+        typeof (r as RankingSentimentResult).sentiment_score === "number" &&
+        typeof (r as RankingSentimentResult).ai_comment === "string",
+    );
+  } catch {
+    return [];
+  }
+}
+
 // ─── Tag Suggestions ──────────────────────────────────────
 
 export function parseTagSuggestions(text: string): SuggestedTag[] {

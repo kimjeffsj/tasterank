@@ -1,6 +1,6 @@
 # TasteRank Development Checklist
 
-> 진행 상태: Phase 5 Step 5-1 완료 ✅ → Step 5-2 다음
+> 진행 상태: Phase 5 Step 5-3 완료 ✅ → Step 5-4 다음
 
 ---
 
@@ -146,16 +146,20 @@
 - [x] `FollowUpQuestions` 컴포넌트 (테스트 9개, scale/text/choice 렌더링)
 - [x] New Entry 페이지 통합 (form → followup phase 전환)
 
-### Step 5-2: 이상형 월드컵
+### Step 5-2: 이상형 월드컵 ✅
 
-- [ ] 토너먼트 생성 (8/16/32강)
-- [ ] 1:1 대결 UI
-- [ ] 멤버별 진행 + 집계
+- [x] 토너먼트 생성 (8/16/32강)
+- [x] 1:1 대결 UI
+- [x] 멤버별 진행 + 집계
 
-### Step 5-3: AI 종합 랭킹
+### Step 5-3: AI 종합 랭킹 ✅
 
-- [ ] 가중 합산 (점수 40% + 월드컵 25% + AI 20% + 감성 15%)
-- [ ] AI 코멘트 생성
+- [x] `ai_rankings` 테이블 + RLS 마이그레이션
+- [x] 랭킹 엔진 (정규화 + 가중 합산: 점수 40% + 월드컵 25% + AI 20% + 감성 15%)
+- [x] AI 감성 분석 프롬프트 + 파서 (Gemini)
+- [x] `/api/ai/generate-ranking` API Route (graceful degradation)
+- [x] `GenerateRankingButton` 컴포넌트 (Lazy Auth)
+- [x] 랭킹 페이지 AI 스코어/코멘트 통합 표시
 
 ### Step 5-4: 소셜 + 지도
 
@@ -184,3 +188,4 @@
 | 2026-02-14 | `2026-02-14_step4-1-pwa-setup.md`     | Step 4-1 PWA 기초 설정                            |
 | 2026-02-14 | `2026-02-14_step4-2-responsive-ui.md` | Step 4-2 반응형 UI (다크모드, 로딩/에러 상태)     |
 | 2026-02-14 | `2026-02-14_step4-3-seo-meta.md`      | Step 4-3 SEO + Meta (OG, sitemap, robots)         |
+| 2026-02-17 | `2026-02-17_step5-2-3-tournament-ai-ranking.md` | Step 5-2/5-3 Tournament + AI Ranking      |

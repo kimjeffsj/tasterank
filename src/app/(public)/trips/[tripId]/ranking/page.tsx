@@ -3,6 +3,7 @@ import { anonClient } from "@/lib/supabase/anon";
 import { notFound } from "next/navigation";
 import { RankingList } from "@/components/ranking/RankingList";
 import type { RankedEntry } from "@/components/ranking/RankingList";
+import { GenerateRankingButton } from "@/components/ranking/GenerateRankingButton";
 
 interface Props {
   params: Promise<{ tripId: string }>;
@@ -91,8 +92,38 @@ export default async function RankingPage({ params }: Props) {
     tagMap.set(et.entry_id, existing);
   }
 
+  // Fetch AI ranking (latest)
+  const { data: aiRankings } = await anonClient
+    .from("ai_rankings")
+    .select("ranking_data, generated_at")
+    .eq("trip_id", tripId)
+    .order("generated_at", { ascending: false })
+    .limit(1);
+
+  const aiRanking = aiRankings?.[0] ?? null;
+  const aiRankingData = (aiRanking?.ranking_data as Array<{
+    entry_id: string;
+    composite_score: number;
+    ai_comment: string;
+    breakdown: { user_score: number; tournament: number; ai_questions: number; sentiment: number };
+  }>) ?? [];
+
+  // Build AI data map
+  const aiDataMap = new Map<string, {
+    composite_score: number;
+    ai_comment: string;
+    breakdown: { user_score: number; tournament: number; ai_questions: number; sentiment: number };
+  }>();
+  for (const item of aiRankingData) {
+    aiDataMap.set(item.entry_id, {
+      composite_score: item.composite_score,
+      ai_comment: item.ai_comment,
+      breakdown: item.breakdown,
+    });
+  }
+
   // Combine into RankedEntry[]
-  const rankedEntries: RankedEntry[] = (rankings ?? []).map((r) => ({
+  let rankedEntries: RankedEntry[] = (rankings ?? []).map((r) => ({
     entry_id: r.entry_id!,
     title: r.title ?? "Untitled",
     restaurant_name: r.restaurant_name ?? null,
@@ -101,7 +132,16 @@ export default async function RankingPage({ params }: Props) {
     rating_count: r.rating_count ?? 0,
     photo_url: photoMap.get(r.entry_id!) ?? null,
     tags: tagMap.get(r.entry_id!) ?? [],
+    composite_score: aiDataMap.get(r.entry_id!)?.composite_score ?? null,
+    ai_comment: aiDataMap.get(r.entry_id!)?.ai_comment ?? null,
+    breakdown: aiDataMap.get(r.entry_id!)?.breakdown ?? null,
   }));
+
+  // If AI ranking exists, re-sort by composite score
+  if (aiRanking) {
+    rankedEntries.sort((a, b) => (b.composite_score ?? 0) - (a.composite_score ?? 0));
+    rankedEntries = rankedEntries.map((e, i) => ({ ...e, rank: i + 1 }));
+  }
 
   return (
     <div className="mx-auto w-full max-w-md min-h-screen pb-24">
@@ -122,6 +162,25 @@ export default async function RankingPage({ params }: Props) {
             emoji_events
           </span>
         </div>
+      </div>
+
+      {/* AI Ranking controls */}
+      <div className="px-6 pt-2 pb-0 space-y-2">
+        <GenerateRankingButton
+          tripId={tripId}
+          hasExistingRanking={!!aiRanking}
+        />
+        {aiRanking && (
+          <p className="text-xs text-gray-400 dark:text-gray-500 text-center">
+            AI Score generated{" "}
+            {new Date(aiRanking.generated_at!).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              hour: "numeric",
+              minute: "2-digit",
+            })}
+          </p>
+        )}
       </div>
 
       {/* Ranking content */}
