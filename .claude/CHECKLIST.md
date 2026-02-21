@@ -173,19 +173,20 @@
 
 구현 완료된 단계의 노트는 `.claude/docs/implementation/`에 기록:
 
-| 날짜       | 파일                                  | 주제                                              |
-| ---------- | ------------------------------------- | ------------------------------------------------- |
-| 2026-02-10 | `2026-02-10_project-structure.md`     | 프로젝트 구조 개선 (src/ 이동, .claude/ 정리)     |
-| 2026-02-11 | `2026-02-11_phase0-setup.md`          | Phase 0 셋업 (폰트, 테마, shadcn, Jest, 환경변수) |
-| 2026-02-12 | `2026-02-12_phase1-foundation.md`     | Phase 1 파운데이션 (DB 스키마, Auth, 라우팅)      |
-| 2026-02-11 | `2026-02-11_step2-3-useEntries.md`    | Step 2-3 useEntries 훅 (CRUD + 테스트 7개)        |
-| 2026-02-13 | `2026-02-13_step2-4-entry-form.md`    | Step 2-4 EntryForm 컴포넌트 (테스트 11개)         |
-| 2026-02-13 | `2026-02-13_step2-5-photo-upload.md`  | Step 2-5 사진 업로드 (PhotoUploader, Storage)     |
-| 2026-02-13 | `2026-02-13_step2-6-ratings.md`       | Step 2-6 평가 시스템 (useRatings, RatingSlider)   |
-| 2026-02-13 | `2026-02-13_step2-7-tests.md`         | Step 2-7 테스트 보강 (InviteShare, RLS 검증)      |
-| 2026-02-13 | `2026-02-13_step3-1-3-2-tags-ai.md`   | Step 3-1/3-2 태그 CRUD + AI 태그 추천             |
-| 2026-02-14 | `2026-02-14_step3-3-ranking-page.md`  | Step 3-3 기본 랭킹 페이지                         |
-| 2026-02-14 | `2026-02-14_step4-1-pwa-setup.md`     | Step 4-1 PWA 기초 설정                            |
-| 2026-02-14 | `2026-02-14_step4-2-responsive-ui.md` | Step 4-2 반응형 UI (다크모드, 로딩/에러 상태)     |
-| 2026-02-14 | `2026-02-14_step4-3-seo-meta.md`      | Step 4-3 SEO + Meta (OG, sitemap, robots)         |
-| 2026-02-17 | `2026-02-17_step5-2-3-tournament-ai-ranking.md` | Step 5-2/5-3 Tournament + AI Ranking      |
+| 날짜       | 파일                                            | 주제                                              |
+| ---------- | ----------------------------------------------- | ------------------------------------------------- |
+| 2026-02-10 | `2026-02-10_project-structure.md`               | 프로젝트 구조 개선 (src/ 이동, .claude/ 정리)     |
+| 2026-02-11 | `2026-02-11_phase0-setup.md`                    | Phase 0 셋업 (폰트, 테마, shadcn, Jest, 환경변수) |
+| 2026-02-12 | `2026-02-12_phase1-foundation.md`               | Phase 1 파운데이션 (DB 스키마, Auth, 라우팅)      |
+| 2026-02-11 | `2026-02-11_step2-3-useEntries.md`              | Step 2-3 useEntries 훅 (CRUD + 테스트 7개)        |
+| 2026-02-13 | `2026-02-13_step2-4-entry-form.md`              | Step 2-4 EntryForm 컴포넌트 (테스트 11개)         |
+| 2026-02-13 | `2026-02-13_step2-5-photo-upload.md`            | Step 2-5 사진 업로드 (PhotoUploader, Storage)     |
+| 2026-02-13 | `2026-02-13_step2-6-ratings.md`                 | Step 2-6 평가 시스템 (useRatings, RatingSlider)   |
+| 2026-02-13 | `2026-02-13_step2-7-tests.md`                   | Step 2-7 테스트 보강 (InviteShare, RLS 검증)      |
+| 2026-02-13 | `2026-02-13_step3-1-3-2-tags-ai.md`             | Step 3-1/3-2 태그 CRUD + AI 태그 추천             |
+| 2026-02-14 | `2026-02-14_step3-3-ranking-page.md`            | Step 3-3 기본 랭킹 페이지                         |
+| 2026-02-14 | `2026-02-14_step4-1-pwa-setup.md`               | Step 4-1 PWA 기초 설정                            |
+| 2026-02-14 | `2026-02-14_step4-2-responsive-ui.md`           | Step 4-2 반응형 UI (다크모드, 로딩/에러 상태)     |
+| 2026-02-14 | `2026-02-14_step4-3-seo-meta.md`                | Step 4-3 SEO + Meta (OG, sitemap, robots)         |
+| 2026-02-17 | `2026-02-17_step5-2-3-tournament-ai-ranking.md` | Step 5-2/5-3 Tournament + AI Ranking              |
+| 2026-02-17 | `2026-02-17_my-trips-trip-list-components.md`   | My Trips 페이지 + 재사용 Trip List 컴포넌트       |

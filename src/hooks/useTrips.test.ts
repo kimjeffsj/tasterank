@@ -157,4 +157,48 @@ describe("useTrips", () => {
 
     expect(mockFrom).toHaveBeenCalledWith("trips");
   });
+
+  describe("myTripsOnly", () => {
+    it("fetches trips from trip_members", async () => {
+      const memberRows = [
+        { trip_id: "t1", trips: { id: "t1", name: "Tokyo" } },
+        { trip_id: "t2", trips: { id: "t2", name: "Seoul" } },
+      ];
+      // myTripsOnly uses: from("trip_members").select(...).order(...)
+      mockSelect.mockReturnValue({ order: mockOrder });
+      mockOrder.mockResolvedValue({ data: memberRows, error: null });
+
+      const { result } = renderHook(() => useTrips({ myTripsOnly: true }));
+
+      await waitFor(() => {
+        expect(result.current.loading).toBe(false);
+      });
+
+      expect(mockFrom).toHaveBeenCalledWith("trip_members");
+      expect(result.current.trips).toEqual([
+        { id: "t1", name: "Tokyo" },
+        { id: "t2", name: "Seoul" },
+      ]);
+    });
+
+    it("deduplicates trips when the same trip appears multiple times in trip_members", async () => {
+      // A trip can appear twice: once as owner row, once as member row
+      const memberRows = [
+        { trip_id: "t1", trips: { id: "t1", name: "Tokyo" } },
+        { trip_id: "t1", trips: { id: "t1", name: "Tokyo" } }, // duplicate
+        { trip_id: "t2", trips: { id: "t2", name: "Seoul" } },
+      ];
+      mockSelect.mockReturnValue({ order: mockOrder });
+      mockOrder.mockResolvedValue({ data: memberRows, error: null });
+
+      const { result } = renderHook(() => useTrips({ myTripsOnly: true }));
+
+      await waitFor(() => {
+        expect(result.current.loading).toBe(false);
+      });
+
+      expect(result.current.trips).toHaveLength(2);
+      expect(result.current.trips.map((t) => t.id)).toEqual(["t1", "t2"]);
+    });
+  });
 });

@@ -33,7 +33,10 @@ export function useTrips(options: UseTripsOptions = {}) {
 
         const extracted = (memberTrips ?? [])
           .map((m) => m.trips)
-          .filter((t): t is Trip => t !== null);
+          .filter((t): t is Trip => t !== null)
+          // Deduplicate: a trip can appear multiple times in trip_members
+          // (e.g. owner row + member row for the same trip)
+          .filter((t, i, arr) => arr.findIndex((x) => x.id === t.id) === i);
         setTrips(extracted);
       } else {
         const { data, error: err } = await supabase
@@ -97,10 +100,7 @@ export function useTrips(options: UseTripsOptions = {}) {
 
   const deleteTrip = useCallback(
     async (id: string) => {
-      const { error: err } = await supabase
-        .from("trips")
-        .delete()
-        .eq("id", id);
+      const { error: err } = await supabase.from("trips").delete().eq("id", id);
 
       if (err) throw err;
       await fetchTrips();
