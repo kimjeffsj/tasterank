@@ -13,7 +13,7 @@ export default function MyTripsPage() {
     trips,
     loading: tripsLoading,
     error,
-  } = useTrips({ myTripsOnly: true });
+  } = useTrips({ myTripsOnly: true, userId: user?.id });
   const [showLogin, setShowLogin] = useState(false);
 
   // Auth loading

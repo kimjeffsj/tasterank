@@ -9,6 +9,8 @@ type Trip = Tables<"trips">;
 interface UseTripsOptions {
   /** Only fetch trips the current user is a member of */
   myTripsOnly?: boolean;
+  /** User ID to filter by — required when myTripsOnly is true */
+  userId?: string;
 }
 
 export function useTrips(options: UseTripsOptions = {}) {
@@ -23,10 +25,18 @@ export function useTrips(options: UseTripsOptions = {}) {
 
     try {
       if (options.myTripsOnly) {
-        // Get trips where user is a member
+        // Wait for auth before querying — skip if userId not yet available
+        if (!options.userId) {
+          setTrips([]);
+          setLoading(false);
+          return;
+        }
+
+        // Get trips where user is a member, filtering explicitly by user_id
         const { data: memberTrips, error: err } = await supabase
           .from("trip_members")
           .select("trip_id, trips(*)")
+          .eq("user_id", options.userId)
           .order("joined_at", { ascending: false });
 
         if (err) throw err;
@@ -53,7 +63,7 @@ export function useTrips(options: UseTripsOptions = {}) {
     } finally {
       setLoading(false);
     }
-  }, [supabase, options.myTripsOnly]);
+  }, [supabase, options.myTripsOnly, options.userId]);
 
   useEffect(() => {
     fetchTrips();
