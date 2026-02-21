@@ -4,7 +4,7 @@
 
 ## Stack
 
-Next.js 16 (App Router) · React 19 · TypeScript 5 · Tailwind 4.1 (CSS-first, no config.js) · shadcn/ui (selective: Dialog, Sheet, Slider, Form) · Supabase (Auth, DB, Storage, RLS) · Zustand · Google AI Studio (Gemini) · @serwist/next (PWA) · Vercel · Plus Jakarta Sans · Material Icons Round
+Next.js 16 (App Router) · React 19 · TypeScript 5 · Tailwind 4.1 (CSS-first, no config.js) · shadcn/ui (selective: Dialog, Sheet, Slider, Form) · Supabase (Auth, DB, Storage, RLS) · Google AI Studio (Gemini) · @serwist/next (PWA) · Vercel · Plus Jakarta Sans · Material Icons Round
 
 ## Commands
 
@@ -36,7 +36,6 @@ src/components/        도메인별: trip/, entry/, ranking/, tournament/, auth/
 src/hooks/             커스텀 훅: useTrips, useEntries, useRatings, useAuth
 src/lib/supabase/      client.ts (브라우저), server.ts (SSR), anon.ts (비로그인)
 src/lib/ai/            Gemini API 클라이언트, 프롬프트, 랭킹 엔진
-src/stores/            Zustand 스토어
 src/types/             database.ts (자동생성), index.ts
 supabase/migrations/   SQL 마이그레이션 파일
 ```
