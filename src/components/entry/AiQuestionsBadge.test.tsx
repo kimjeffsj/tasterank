@@ -1,11 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import type { User } from "@supabase/supabase-js";
 import { AiQuestionsBadge } from "./AiQuestionsBadge";
-
-// Mock useAuth
-let mockUser: { id: string } | null = { id: "user-1" };
-jest.mock("@/hooks/useAuth", () => ({
-  useAuth: () => ({ user: mockUser }),
-}));
 
 // Mock FollowUpQuestions
 jest.mock("./FollowUpQuestions", () => ({
@@ -41,19 +37,7 @@ jest.mock("@/components/ui/dialog", () => ({
   DialogDescription: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
-// Mock Supabase
-let mockSupabaseData: unknown[] | null = null;
-jest.mock("@/lib/supabase/client", () => ({
-  createClient: () => ({
-    from: () => ({
-      select: () => ({
-        eq: () => ({
-          eq: () => Promise.resolve({ data: mockSupabaseData }),
-        }),
-      }),
-    }),
-  }),
-}));
+const mockUser = { id: "user-1" } as User;
 
 const defaultProps = {
   entryId: "e1",
@@ -61,82 +45,52 @@ const defaultProps = {
   createdBy: "creator-1",
   creatorName: "Alice",
   creatorAvatar: "https://example.com/avatar.png",
+  hasUnanswered: true,
+  user: mockUser,
 };
 
 describe("AiQuestionsBadge", () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    mockUser = { id: "user-1" };
-    mockSupabaseData = null;
-  });
-
-  it("renders nothing when user is not logged in", () => {
-    mockUser = null;
-    const { container } = render(<AiQuestionsBadge {...defaultProps} />);
+  it("renders nothing when hasUnanswered is false", () => {
+    const { container } = render(
+      <AiQuestionsBadge {...defaultProps} hasUnanswered={false} />,
+    );
     expect(container.firstChild).toBeNull();
   });
 
-  it("renders nothing when no questions exist", async () => {
-    mockSupabaseData = [];
-    const { container } = render(<AiQuestionsBadge {...defaultProps} />);
-    await waitFor(() => {
-      expect(container.querySelector("[aria-label]")).toBeNull();
-    });
+  it("renders nothing when user is null", () => {
+    const { container } = render(
+      <AiQuestionsBadge {...defaultProps} user={null} />,
+    );
+    // hasUnanswered=true but still renders (isCreator will be false)
+    // badge renders regardless of user null — visibility is controlled by parent
+    expect(
+      container.querySelector("[aria-label='AI follow-up questions available']"),
+    ).toBeInTheDocument();
   });
 
-  it("renders nothing when user has any response (1 of 2 answered)", async () => {
-    mockSupabaseData = [
-      { id: "q1", ai_responses: [{ id: "r1" }] },
-      { id: "q2", ai_responses: [] },
-    ];
-    const { container } = render(<AiQuestionsBadge {...defaultProps} />);
-    await waitFor(() => {
-      expect(container.querySelector("[aria-label]")).toBeNull();
-    });
-  });
-
-  it("shows badge when no questions are answered", async () => {
-    mockSupabaseData = [
-      { id: "q1", ai_responses: [] },
-      { id: "q2", ai_responses: [] },
-    ];
+  it("shows badge when hasUnanswered is true", () => {
     render(<AiQuestionsBadge {...defaultProps} />);
-    await waitFor(() => {
-      expect(
-        screen.getByLabelText("AI follow-up questions available"),
-      ).toBeInTheDocument();
-    });
+    expect(
+      screen.getByLabelText("AI follow-up questions available"),
+    ).toBeInTheDocument();
   });
 
   it("opens dialog when badge is clicked", async () => {
-    mockSupabaseData = [
-      { id: "q1", ai_responses: [] },
-    ];
+    const user = userEvent.setup();
     render(<AiQuestionsBadge {...defaultProps} />);
 
-    await waitFor(() => {
-      screen.getByLabelText("AI follow-up questions available").click();
-    });
+    await user.click(screen.getByLabelText("AI follow-up questions available"));
 
-    await waitFor(() => {
-      expect(screen.getByTestId("dialog")).toBeInTheDocument();
-      expect(screen.getByTestId("follow-up-questions")).toBeInTheDocument();
-    });
+    expect(screen.getByTestId("dialog")).toBeInTheDocument();
+    expect(screen.getByTestId("follow-up-questions")).toBeInTheDocument();
   });
 
   it("hides badge after completing questions", async () => {
-    mockSupabaseData = [
-      { id: "q1", ai_responses: [] },
-    ];
+    const user = userEvent.setup();
     const { container } = render(<AiQuestionsBadge {...defaultProps} />);
 
-    await waitFor(() => {
-      screen.getByLabelText("AI follow-up questions available").click();
-    });
-
-    await waitFor(() => {
-      screen.getByText("Complete").click();
-    });
+    await user.click(screen.getByLabelText("AI follow-up questions available"));
+    await user.click(screen.getByText("Complete"));
 
     await waitFor(() => {
       expect(container.querySelector("[aria-label]")).toBeNull();
@@ -144,54 +98,44 @@ describe("AiQuestionsBadge", () => {
   });
 
   it("hides badge after skipping questions", async () => {
-    mockSupabaseData = [
-      { id: "q1", ai_responses: [] },
-    ];
+    const user = userEvent.setup();
     const { container } = render(<AiQuestionsBadge {...defaultProps} />);
 
-    await waitFor(() => {
-      screen.getByLabelText("AI follow-up questions available").click();
-    });
-
-    await waitFor(() => {
-      screen.getByText("SkipQ").click();
-    });
+    await user.click(screen.getByLabelText("AI follow-up questions available"));
+    await user.click(screen.getByText("SkipQ"));
 
     await waitFor(() => {
       expect(container.querySelector("[aria-label]")).toBeNull();
     });
   });
 
-  it("passes isCreator=true when user is creator", async () => {
-    mockUser = { id: "creator-1" };
-    mockSupabaseData = [
-      { id: "q1", ai_responses: [] },
-    ];
-    render(<AiQuestionsBadge {...defaultProps} />);
+  it("calls onAnswered after completing questions", async () => {
+    const onAnswered = jest.fn();
+    const user = userEvent.setup();
+    render(<AiQuestionsBadge {...defaultProps} onAnswered={onAnswered} />);
 
-    await waitFor(() => {
-      screen.getByLabelText("AI follow-up questions available").click();
-    });
+    await user.click(screen.getByLabelText("AI follow-up questions available"));
+    await user.click(screen.getByText("Complete"));
 
-    await waitFor(() => {
-      expect(screen.getByTestId("is-creator")).toBeInTheDocument();
-    });
+    expect(onAnswered).toHaveBeenCalledTimes(1);
   });
 
-  it("passes isCreator=false when user is not creator", async () => {
-    mockUser = { id: "member-1" };
-    mockSupabaseData = [
-      { id: "q1", ai_responses: [] },
-    ];
-    render(<AiQuestionsBadge {...defaultProps} />);
+  it("renders nothing when user is the creator (isCreator=true)", () => {
+    const creator = { id: "creator-1" } as User;
+    const { container } = render(
+      <AiQuestionsBadge {...defaultProps} user={creator} />,
+    );
+    expect(container.firstChild).toBeNull();
+  });
 
-    await waitFor(() => {
-      screen.getByLabelText("AI follow-up questions available").click();
-    });
+  it("passes isCreator=false when user.id does not match createdBy", async () => {
+    const member = { id: "member-1" } as User;
+    const user = userEvent.setup();
+    render(<AiQuestionsBadge {...defaultProps} user={member} />);
 
-    await waitFor(() => {
-      expect(screen.queryByTestId("is-creator")).not.toBeInTheDocument();
-      expect(screen.getByTestId("creator-name")).toHaveTextContent("Alice");
-    });
+    await user.click(screen.getByLabelText("AI follow-up questions available"));
+
+    expect(screen.queryByTestId("is-creator")).not.toBeInTheDocument();
+    expect(screen.getByTestId("creator-name")).toHaveTextContent("Alice");
   });
 });

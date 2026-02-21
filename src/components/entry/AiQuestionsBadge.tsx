@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
+import { useState } from "react";
+import type { User } from "@supabase/supabase-js";
 import { FollowUpQuestions } from "./FollowUpQuestions";
 import {
   Dialog,
@@ -18,6 +17,9 @@ interface AiQuestionsBadgeProps {
   createdBy: string;
   creatorName: string;
   creatorAvatar?: string;
+  hasUnanswered: boolean;
+  user: User | null;
+  onAnswered?: () => void;
 }
 
 export function AiQuestionsBadge({
@@ -26,53 +28,27 @@ export function AiQuestionsBadge({
   createdBy,
   creatorName,
   creatorAvatar,
+  hasUnanswered,
+  user,
+  onAnswered,
 }: AiQuestionsBadgeProps) {
-  const { user } = useAuth();
-  const [hasUnanswered, setHasUnanswered] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
   const [open, setOpen] = useState(false);
 
   const isCreator = user?.id === createdBy;
 
-  useEffect(() => {
-    if (!user) return;
-
-    const checkUnanswered = async () => {
-      const supabase = createClient();
-      const { data } = await supabase
-        .from("ai_questions")
-        .select("id, ai_responses!left(id)")
-        .eq("entry_id", entryId)
-        .eq("ai_responses.user_id", user.id);
-
-      if (!data || data.length === 0) {
-        setHasUnanswered(false);
-        return;
-      }
-
-      // If user has ANY response, consider done
-      const hasAnyResponse = data.some((q) => {
-        const responses = q.ai_responses as unknown as
-          | { id: string }[]
-          | null;
-        return responses && responses.length > 0;
-      });
-
-      setHasUnanswered(!hasAnyResponse);
-    };
-
-    checkUnanswered();
-  }, [entryId, user]);
-
-  if (!hasUnanswered) return null;
+  if (!hasUnanswered || dismissed || isCreator) return null;
 
   const handleComplete = () => {
     setOpen(false);
-    setHasUnanswered(false);
+    setDismissed(true);
+    onAnswered?.();
   };
 
   const handleSkip = () => {
     setOpen(false);
-    setHasUnanswered(false);
+    setDismissed(true);
+    onAnswered?.();
   };
 
   return (

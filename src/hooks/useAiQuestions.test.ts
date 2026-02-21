@@ -182,6 +182,8 @@ describe("useAiQuestions", () => {
   });
 
   it("fetchUnansweredCount returns count map", async () => {
+    // e1 has ANY response (q2) → considered answered → not in map
+    // e2 has no responses at all → unanswered → in map
     const mockData = [
       { id: "q1", entry_id: "e1", ai_responses: [] },
       { id: "q2", entry_id: "e1", ai_responses: [{ id: "r1" }] },
@@ -197,8 +199,8 @@ describe("useAiQuestions", () => {
       countMap = await result.current.fetchUnansweredCount(["e1", "e2"], "u1");
     });
 
-    expect(countMap!.get("e1")).toBe(1);
-    expect(countMap!.get("e2")).toBe(1);
+    expect(countMap!.get("e1")).toBeUndefined(); // e1 has at least one response → answered
+    expect(countMap!.get("e2")).toBe(1);         // e2 has no responses → unanswered
   });
 
   it("fetchUnansweredCount returns empty map on error", async () => {

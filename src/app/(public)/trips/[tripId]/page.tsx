@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { anonClient } from "@/lib/supabase/anon";
 import { notFound } from "next/navigation";
 import { TripActions } from "@/components/trip/TripActions";
-import { AiQuestionsBadge } from "@/components/entry/AiQuestionsBadge";
+import { EntryGridWithBadges } from "@/components/entry/EntryGridWithBadges";
 
 interface Props {
   params: Promise<{ tripId: string }>;
@@ -177,94 +177,10 @@ export default async function TripDetailPage({ params }: Props) {
       {/* Food entries */}
       <section className="px-6 py-6">
         <h2 className="text-xl font-bold dark:text-white mb-4">Recent Eats</h2>
-
-        {!entries || entries.length === 0 ? (
-          <div className="flex flex-col items-center py-12 text-center">
-            <span className="material-icons-round text-5xl text-gray-300 dark:text-gray-600 mb-3">
-              restaurant_menu
-            </span>
-            <p className="text-gray-500 dark:text-gray-400">
-              No food entries yet
-            </p>
-            <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
-              Add your first meal to get started
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 gap-4">
-            {entries.map((entry) => {
-              const avgScore = scoreMap.get(entry.id);
-              return (
-                <div
-                  key={entry.id}
-                  className="group relative bg-white dark:bg-surface-dark rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300"
-                >
-                  <div className="aspect-square bg-gray-100 dark:bg-gray-800 flex items-center justify-center overflow-hidden relative">
-                    {entry.food_photos && entry.food_photos.length > 0 ? (
-                      <img
-                        src={
-                          entry.food_photos.sort(
-                            (a, b) =>
-                              (a.display_order ?? 0) - (b.display_order ?? 0),
-                          )[0].photo_url
-                        }
-                        alt={entry.title}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                      />
-                    ) : (
-                      <span className="material-icons-round text-4xl text-gray-300">
-                        restaurant
-                      </span>
-                    )}
-                    <AiQuestionsBadge
-                      entryId={entry.id}
-                      entryTitle={entry.title}
-                      createdBy={entry.created_by}
-                      creatorName={
-                        (
-                          entry.profiles as {
-                            display_name: string | null;
-                            avatar_url: string | null;
-                          } | null
-                        )?.display_name ?? "Someone"
-                      }
-                      creatorAvatar={
-                        (
-                          entry.profiles as {
-                            display_name: string | null;
-                            avatar_url: string | null;
-                          } | null
-                        )?.avatar_url ?? undefined
-                      }
-                    />
-                  </div>
-                  <div className="p-3">
-                    <div className="flex items-start justify-between gap-1">
-                      <p className="font-bold text-sm leading-tight text-slate-900 dark:text-white">
-                        {entry.title}
-                      </p>
-                      {avgScore != null && (
-                        <div className="flex items-center gap-0.5 shrink-0">
-                          <span className="material-icons-round text-amber-400 text-xs">
-                            star
-                          </span>
-                          <span className="text-xs font-bold text-slate-900 dark:text-white">
-                            {avgScore.toFixed(1)}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    {entry.restaurant_name && (
-                      <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
-                        {entry.restaurant_name}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+        <EntryGridWithBadges
+          entries={entries ?? []}
+          scoreMap={Object.fromEntries(scoreMap)}
+        />
       </section>
     </div>
   );

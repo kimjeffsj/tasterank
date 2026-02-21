@@ -91,12 +91,18 @@ export function useAiQuestions() {
 
       if (dbError || !data) return new Map<string, number>();
 
-      const countMap = new Map<string, number>();
+      const answeredEntries = new Set<string>();
       for (const q of data) {
         const responses = q.ai_responses as unknown as { id: string }[] | null;
-        const hasResponse = responses && responses.length > 0;
-        if (!hasResponse) {
-          countMap.set(q.entry_id, (countMap.get(q.entry_id) ?? 0) + 1);
+        if (responses && responses.length > 0) {
+          answeredEntries.add(q.entry_id);
+        }
+      }
+
+      const countMap = new Map<string, number>();
+      for (const q of data) {
+        if (!answeredEntries.has(q.entry_id)) {
+          countMap.set(q.entry_id, 1);
         }
       }
 
