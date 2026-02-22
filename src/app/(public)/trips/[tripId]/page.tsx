@@ -178,7 +178,10 @@ export default async function TripDetailPage({ params }: Props) {
       <section className="px-6 py-6">
         <h2 className="text-xl font-bold dark:text-white mb-4">Recent Eats</h2>
         <EntryGridWithBadges
-          entries={entries ?? []}
+          entries={(entries ?? []).map((entry) => ({
+            ...entry,
+            created_at: entry.created_at ?? new Date().toISOString(),
+          }))}
           scoreMap={Object.fromEntries(scoreMap)}
         />
       </section>
