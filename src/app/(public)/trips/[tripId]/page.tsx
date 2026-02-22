@@ -183,6 +183,7 @@ export default async function TripDetailPage({ params }: Props) {
             created_at: entry.created_at ?? new Date().toISOString(),
           }))}
           scoreMap={Object.fromEntries(scoreMap)}
+          tripId={tripId}
         />
       </section>
     </div>

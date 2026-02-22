@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { useAiQuestions } from "@/hooks/useAiQuestions";
 import { AiQuestionsBadge } from "./AiQuestionsBadge";
@@ -28,11 +29,13 @@ export interface EntryForGrid {
 interface EntryGridWithBadgesProps {
   entries: EntryForGrid[];
   scoreMap: Record<string, number>;
+  tripId?: string;
 }
 
 export function EntryGridWithBadges({
   entries,
   scoreMap,
+  tripId,
 }: EntryGridWithBadgesProps) {
   const { user } = useAuth();
   const { fetchUnansweredCount } = useAiQuestions();
@@ -77,11 +80,8 @@ export function EntryGridWithBadges({
         const avgScore = scoreMap[entry.id];
         const hasUnanswered = unansweredMap[entry.id] ?? false;
 
-        return (
-          <div
-            key={entry.id}
-            className="group relative bg-white dark:bg-surface-dark rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300"
-          >
+        const cardContent = (
+          <>
             <div className="aspect-square bg-gray-100 dark:bg-gray-800 flex items-center justify-center overflow-hidden relative">
               {entry.food_photos && entry.food_photos.length > 0 ? (
                 <img
@@ -132,6 +132,24 @@ export function EntryGridWithBadges({
                 </p>
               )}
             </div>
+          </>
+        );
+
+        const cardClassName =
+          "group relative bg-white dark:bg-surface-dark rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300";
+
+        return tripId ? (
+          <Link
+            key={entry.id}
+            href={`/trips/${tripId}/entries/${entry.id}`}
+            prefetch={false}
+            className={cardClassName}
+          >
+            {cardContent}
+          </Link>
+        ) : (
+          <div key={entry.id} className={cardClassName}>
+            {cardContent}
           </div>
         );
       })}
