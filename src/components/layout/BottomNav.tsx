@@ -113,12 +113,17 @@ export function BottomNav() {
             }
 
             // Standard nav items
-            const { href, icon, label } = item as { href: string; icon: string; label: string };
+            const { href, icon, label } = item as {
+              href: string;
+              icon: string;
+              label: string;
+            };
             const active = isActive(href);
             return (
               <Link
                 key={href}
                 href={href}
+                prefetch={false}
                 className={`flex flex-col items-center gap-1 transition-colors ${
                   active
                     ? "text-primary"

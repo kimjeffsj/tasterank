@@ -43,3 +43,13 @@ next-env.d.ts
 # Serwist (PWA service worker build output)
 public/sw*
 public/swe-worker*
+.moai/
+hooks/
+output-styles/
+rules/
+.mcp.json
+CLAUDE.md
+.claude/agents/
+.claude/skills/
+.claude/settings.json
+.claude/agent-memory/
