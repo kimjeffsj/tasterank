@@ -1,6 +1,6 @@
 # TasteRank Development Checklist
 
-> 진행 상태: Phase 5 Step 5-3 완료 ✅ → Step 5-4 다음
+> 진행 상태: Phase 5 Step 5-3 완료 ✅ → Step 5-4 (Food Detail Page) 완료 ✅ → Step 5-5 다음
 
 ---
 
@@ -161,7 +161,19 @@
 - [x] `GenerateRankingButton` 컴포넌트 (Lazy Auth)
 - [x] 랭킹 페이지 AI 스코어/코멘트 통합 표시
 
-### Step 5-4: 소셜 + 지도
+### Step 5-4: Food Detail Page (SPEC-UI-001) ✅
+
+- [x] `src/app/(public)/trips/[tripId]/entries/[entryId]/page.tsx` — Server Component + SSR
+- [x] `src/app/(public)/trips/[tripId]/entries/[entryId]/loading.tsx` — Skeleton 로딩 UI
+- [x] `PhotoCarousel` 컴포넌트 (CSS snap scroll, pagination dots)
+- [x] `EntryDetailHeader` 컴포넌트 (제목, 스코어, 태그)
+- [x] `ReviewCard` 컴포넌트 (리뷰 표시)
+- [x] `AddReviewSheet` 컴포넌트 (shadcn/ui Sheet + Lazy Auth)
+- [x] `EntryBottomBar` 컴포넌트 (Map/Review 액션 바)
+- [x] `EntryGridWithBadges` 수정 (tripId prop + 네비게이션 링크)
+- [x] 108개 테스트 통과, TRUST 5 품질 검증
+
+### Step 5-5: 소셜 + 지도
 
 - [ ] 소셜 공유 (랭킹 카드)
 - [ ] 지도 뷰
@@ -190,3 +202,4 @@
 | 2026-02-14 | `2026-02-14_step4-3-seo-meta.md`                | Step 4-3 SEO + Meta (OG, sitemap, robots)         |
 | 2026-02-17 | `2026-02-17_step5-2-3-tournament-ai-ranking.md` | Step 5-2/5-3 Tournament + AI Ranking              |
 | 2026-02-17 | `2026-02-17_my-trips-trip-list-components.md`   | My Trips 페이지 + 재사용 Trip List 컴포넌트       |
+| 2026-02-22 | `2026-02-22_food-detail-page.md`                | Step 5-4 Food Detail Page (SPEC-UI-001)           |
