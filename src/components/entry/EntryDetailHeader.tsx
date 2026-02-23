@@ -32,8 +32,11 @@ export function EntryDetailHeader({
           {title}
         </h1>
         {avgScore != null && (
-          <div className="bg-primary text-white font-bold text-xl px-4 py-2 rounded-xl shadow-lg shrink-0">
-            {avgScore.toFixed(1)}
+          <div className="flex items-center gap-1 bg-primary text-white px-3 py-1.5 rounded-2xl shadow-md shrink-0">
+            <span className="material-icons-round text-amber-300 text-lg">
+              star
+            </span>
+            <span className="font-bold text-xl">{avgScore.toFixed(1)}</span>
           </div>
         )}
       </div>

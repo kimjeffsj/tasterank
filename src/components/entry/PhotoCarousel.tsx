@@ -25,8 +25,7 @@ export function PhotoCarousel({
 
   const handleShare = async () => {
     const url =
-      shareUrl ||
-      (typeof window !== "undefined" ? window.location.href : "");
+      shareUrl || (typeof window !== "undefined" ? window.location.href : "");
     if (navigator.share) {
       try {
         await navigator.share({ title, url });
@@ -43,7 +42,7 @@ export function PhotoCarousel({
   };
 
   const sortedPhotos = [...photos].sort(
-    (a, b) => (a.display_order ?? 0) - (b.display_order ?? 0)
+    (a, b) => (a.display_order ?? 0) - (b.display_order ?? 0),
   );
 
   const handleDotClick = (index: number) => {
@@ -57,8 +56,10 @@ export function PhotoCarousel({
   const handleScroll = () => {
     if (scrollRef.current) {
       const width = scrollRef.current.offsetWidth;
-      const index = Math.round(scrollRef.current.scrollLeft / width);
-      setCurrentIndex(index);
+      if (width > 0) {
+        const index = Math.round(scrollRef.current.scrollLeft / width);
+        setCurrentIndex(index);
+      }
     }
   };
 
@@ -75,7 +76,7 @@ export function PhotoCarousel({
           <button
             aria-label="Share"
             onClick={handleShare}
-            className="absolute top-4 right-4 bg-black/30 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center text-white z-10"
+            className="absolute top-12 right-6 bg-black/30 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center text-white z-10"
           >
             <span className="material-icons-round text-[18px]">ios_share</span>
           </button>
@@ -90,7 +91,7 @@ export function PhotoCarousel({
         <button
           aria-label="Share"
           onClick={handleShare}
-          className="absolute top-4 right-4 bg-black/30 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center text-white z-10"
+          className="absolute top-12 right-6 bg-black/30 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center text-white z-10"
         >
           <span className="material-icons-round text-[18px]">ios_share</span>
         </button>
@@ -115,16 +116,14 @@ export function PhotoCarousel({
 
       {/* Pagination dots */}
       {sortedPhotos.length > 1 && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-2 z-20">
           {sortedPhotos.map((_, index) => (
             <button
               key={index}
               aria-label={`Go to photo ${index + 1}`}
               onClick={() => handleDotClick(index)}
               className={`w-2 h-2 rounded-full transition-all duration-200 ${
-                index === currentIndex
-                  ? "bg-white w-4"
-                  : "bg-white/50"
+                index === currentIndex ? "bg-white w-4" : "bg-white/50"
               }`}
             />
           ))}

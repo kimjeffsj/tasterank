@@ -161,125 +161,152 @@ export default async function EntryDetailPage({ params }: Props) {
   const ratingCount = avgScoreData?.rating_count ?? 0;
 
   // Google Maps link for location
+  const mapsQuery =
+    entry.restaurant_name && entry.location_name
+      ? `${entry.restaurant_name} ${entry.location_name}`
+      : entry.restaurant_name || entry.location_name;
+
   const mapsUrl =
     entry.latitude && entry.longitude
       ? `https://maps.google.com/?q=${entry.latitude},${entry.longitude}`
-      : entry.location_name
-        ? `https://maps.google.com/?q=${encodeURIComponent(entry.location_name)}`
+      : mapsQuery
+        ? `https://maps.google.com/?q=${encodeURIComponent(mapsQuery)}`
         : null;
 
   return (
-    <div className="mx-auto w-full max-w-md min-h-screen pb-32">
-      {/* Back button */}
-      <div className="absolute top-12 left-4 z-10">
-        <Link
-          href={`/trips/${tripId}`}
-          prefetch={false}
-          className="flex items-center justify-center w-10 h-10 rounded-full bg-black/30 backdrop-blur-md"
-        >
-          <span className="material-icons-round text-white">arrow_back</span>
-        </Link>
+    <div className="mx-auto w-full max-w-md min-h-screen bg-white dark:bg-gray-950 pb-32">
+      {/* Hero Section */}
+      <div className="relative">
+        {/* Back button */}
+        <div className="absolute top-12 left-6 z-20">
+          <Link
+            href={`/trips/${tripId}`}
+            prefetch={false}
+            className="flex items-center justify-center w-10 h-10 rounded-full bg-black/30 backdrop-blur-md"
+          >
+            <span className="material-icons-round text-white">arrow_back</span>
+          </Link>
+        </div>
+
+        {/* Photo carousel */}
+        <PhotoCarousel
+          photos={photos}
+          title={entry.title}
+          showShareButton={true}
+        />
       </div>
 
-      {/* Photo carousel */}
-      <PhotoCarousel photos={photos} title={entry.title} showShareButton={true} />
+      {/* Overlapping Content Container */}
+      <div className="relative z-10 -mt-6 bg-white dark:bg-gray-950 rounded-t-[2rem] pt-2 pb-32">
+        {/* Entry header */}
+        <EntryDetailHeader
+          title={entry.title}
+          restaurantName={entry.restaurant_name}
+          location={entry.location_name}
+          avgScore={avgScore ? Number(avgScore) : null}
+          ratingCount={Number(ratingCount)}
+          tags={tags}
+          creatorName={profile?.display_name ?? null}
+          creatorAvatar={profile?.avatar_url ?? null}
+        />
 
-      {/* Entry header */}
-      <EntryDetailHeader
-        title={entry.title}
-        restaurantName={entry.restaurant_name}
-        location={entry.location_name}
-        avgScore={avgScore ? Number(avgScore) : null}
-        ratingCount={Number(ratingCount)}
-        tags={tags}
-        creatorName={profile?.display_name ?? null}
-        creatorAvatar={profile?.avatar_url ?? null}
-      />
-
-      {/* Map button */}
-      {mapsUrl && (
-        <div className="px-6 mb-4">
-          <a
-            href={mapsUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 text-sm text-primary font-medium"
-          >
-            <span className="material-icons-round text-base">map</span>
-            View on Google Maps
-          </a>
-        </div>
-      )}
-
-      {/* AI Verdict section */}
-      {aiVerdict.verdict && (
-        <div className="px-6 mb-6">
-          <div className="bg-gradient-to-br from-primary/10 to-primary/5 p-6 rounded-[2rem] border border-primary/10">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="material-icons-round text-primary">
-                auto_awesome
-              </span>
-              <h3 className="font-bold text-gray-900 dark:text-white text-sm uppercase tracking-wide">
-                AI Verdict
-              </h3>
-              {aiVerdict.rank && (
-                <span className="ml-auto text-xs font-bold text-primary">
-                  #{aiVerdict.rank}
+        {/* Map button */}
+        {mapsUrl && (
+          <div className="px-6 mb-6">
+            <a
+              href={mapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between bg-gray-50 dark:bg-gray-900 rounded-2xl p-4 active:scale-[0.98] transition-transform"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary">
+                  <span className="material-icons-round text-lg">map</span>
+                </div>
+                <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                  View on Google Maps
                 </span>
-              )}
-            </div>
-            <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-              {aiVerdict.verdict}
-            </p>
-            {aiRanking?.reasoning && (
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 leading-relaxed">
-                {aiRanking.reasoning}
-              </p>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Reviews section */}
-      <div className="px-6">
-        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
-          Reviews
-        </h2>
-
-        {ratings && ratings.length > 0 ? (
-          <div className="flex flex-col gap-3">
-            {ratings.map((rating) => {
-              const ratingProfile = rating.profiles as {
-                display_name: string | null;
-                avatar_url: string | null;
-              } | null;
-              return (
-                <ReviewCard
-                  key={rating.id}
-                  displayName={ratingProfile?.display_name ?? null}
-                  avatarUrl={ratingProfile?.avatar_url ?? null}
-                  score={rating.score}
-                  comment={rating.review_text ?? null}
-                  createdAt={rating.created_at ?? new Date().toISOString()}
-                />
-              );
-            })}
-          </div>
-        ) : (
-          <div className="flex flex-col items-center py-10 text-center">
-            <span className="material-icons-round text-4xl text-gray-300 dark:text-gray-600 mb-2">
-              rate_review
-            </span>
-            <p className="text-gray-500 dark:text-gray-400 text-sm">
-              No reviews yet
-            </p>
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-              Be the first to leave a review
-            </p>
+              </div>
+              <span className="material-icons-round text-gray-400">
+                chevron_right
+              </span>
+            </a>
           </div>
         )}
-      </div>
 
+        {/* AI Verdict section */}
+        {aiVerdict.verdict && (
+          <div className="px-6 mb-8">
+            <div className="bg-gradient-to-br from-primary/5 to-transparent border border-primary/20 p-6 rounded-3xl shadow-sm">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-1.5 bg-primary/10 text-primary px-3 py-1 rounded-full">
+                  <span className="material-icons-round text-sm">
+                    auto_awesome
+                  </span>
+                  <span className="text-xs font-bold uppercase tracking-wide">
+                    AI Verdict
+                  </span>
+                </div>
+                {aiVerdict.rank && (
+                  <span className="text-lg font-black text-primary">
+                    #{aiVerdict.rank}
+                  </span>
+                )}
+              </div>
+              <p className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed">
+                {aiVerdict.verdict}
+              </p>
+              {aiRanking?.reasoning && (
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 leading-relaxed">
+                  {aiRanking.reasoning}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Reviews section */}
+        <div className="px-6">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+            Reviews
+          </h2>
+
+          {ratings && ratings.length > 0 ? (
+            <div className="flex flex-col gap-3">
+              {ratings.map((rating) => {
+                const ratingProfile = rating.profiles as {
+                  display_name: string | null;
+                  avatar_url: string | null;
+                } | null;
+                return (
+                  <ReviewCard
+                    key={rating.id}
+                    displayName={ratingProfile?.display_name ?? null}
+                    avatarUrl={ratingProfile?.avatar_url ?? null}
+                    score={rating.score}
+                    comment={rating.review_text ?? null}
+                    createdAt={rating.created_at ?? new Date().toISOString()}
+                  />
+                );
+              })}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900/50 rounded-3xl py-12 px-6 border-2 border-dashed border-gray-200 dark:border-gray-800">
+              <div className="bg-white dark:bg-gray-800 p-4 rounded-full shadow-sm mb-4">
+                <span className="material-icons-round text-3xl text-gray-400 dark:text-gray-500">
+                  rate_review
+                </span>
+              </div>
+              <p className="font-bold text-gray-700 dark:text-gray-300">
+                No reviews yet
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                Be the first to leave a review
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
