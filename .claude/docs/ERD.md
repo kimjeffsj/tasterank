@@ -2,7 +2,7 @@
 
 > **Version**: 2.0  
 > **Date**: 2025-02-09  
-> **Database**: PostgreSQL (Supabase)  
+> **Database**: PostgreSQL (Supabase)
 
 ---
 
@@ -296,7 +296,7 @@ CREATE TABLE public.ratings (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     entry_id UUID NOT NULL REFERENCES public.food_entries(id) ON DELETE CASCADE,
     user_id UUID NOT NULL REFERENCES public.profiles(id),
-    score INT NOT NULL CHECK (score >= 1 AND score <= 10),
+    score NUMERIC(3,1) NOT NULL CHECK (score >= 1 AND score <= 10),
     review_text TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),

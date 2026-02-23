@@ -162,7 +162,7 @@ Step 10: Tests
 
 참고사항
 
-- Score 타입: DB는 INT(1-10), RatingSlider는 step=0.5 → PostgreSQL이 INT로 반올림.
+- Score 타입: DB는 NUMERIC(3,1) (1.0-10.0), RatingSlider는 step=0.5.
   기존 동작과 동일하게 유지.
 - BottomNav: /trips/[tripId]/entries/\* 경로에서 이미 자동 숨김 처리됨.
 - Private trip: anonClient로 접근 불가 → 자동 404 (기존 패턴과 동일).
