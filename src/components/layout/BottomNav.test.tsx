@@ -1,71 +1,240 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { BottomNav } from "./BottomNav";
+import { TripMembershipProvider } from "@/contexts/TripMembershipContext";
+import React from "react";
 
 // Mock next/navigation
 const mockPathname = jest.fn();
+const mockRouterPush = jest.fn();
+
 jest.mock("next/navigation", () => ({
   usePathname: () => mockPathname(),
+  useRouter: () => ({ push: mockRouterPush }),
+}));
+
+// Mock useAuth
+const mockUser = jest.fn();
+jest.mock("@/hooks/useAuth", () => ({
+  useAuth: () => ({ user: mockUser() }),
+}));
+
+// Mock LoginPrompt
+jest.mock("@/components/auth/LoginPrompt", () => ({
+  LoginPrompt: ({ open }: { open: boolean }) =>
+    open ? <div data-testid="login-prompt" /> : null,
 }));
 
 describe("BottomNav", () => {
   beforeEach(() => {
     mockPathname.mockReturnValue("/");
+    mockUser.mockReturnValue(null);
+    mockRouterPush.mockClear();
   });
 
-  it("renders all 5 nav items", () => {
-    render(<BottomNav />);
+  // -------------------------
+  // shouldHideNav tests
+  // -------------------------
+  describe("shouldHideNav", () => {
+    it("should NOT render on tournament page", () => {
+      mockPathname.mockReturnValue("/trips/abc123/tournament");
+      const { container } = render(<BottomNav />);
+      expect(container.innerHTML).toBe("");
+    });
 
-    expect(screen.getByText("Home")).toBeInTheDocument();
-    expect(screen.getByText("Search")).toBeInTheDocument();
-    expect(screen.getByText("Saved")).toBeInTheDocument();
-    expect(screen.getByText("Profile")).toBeInTheDocument();
-    // Center add button (no label, just icon)
-    const addLink = screen.getByRole("link", { name: /add/i });
-    expect(addLink).toBeInTheDocument();
+    it("should NOT render on /trips/new page", () => {
+      mockPathname.mockReturnValue("/trips/new");
+      const { container } = render(<BottomNav />);
+      expect(container.innerHTML).toBe("");
+    });
+
+    it("should NOT render on trip edit page", () => {
+      mockPathname.mockReturnValue("/trips/abc123/edit");
+      const { container } = render(<BottomNav />);
+      expect(container.innerHTML).toBe("");
+    });
+
+    it("should NOT render on entry detail page", () => {
+      mockPathname.mockReturnValue("/trips/abc123/entries/entry456");
+      const { container } = render(<BottomNav />);
+      expect(container.innerHTML).toBe("");
+    });
+
+    it("should render on trip detail page", () => {
+      mockPathname.mockReturnValue("/trips/abc123");
+      const { container } = render(<BottomNav />);
+      expect(container.innerHTML).not.toBe("");
+    });
+
+    it("should render on trip ranking page", () => {
+      mockPathname.mockReturnValue("/trips/abc123/ranking");
+      const { container } = render(<BottomNav />);
+      expect(container.innerHTML).not.toBe("");
+    });
+
+    it("should render on home page", () => {
+      mockPathname.mockReturnValue("/");
+      const { container } = render(<BottomNav />);
+      expect(container.innerHTML).not.toBe("");
+    });
   });
 
-  it("highlights Home tab as active on / route", () => {
-    mockPathname.mockReturnValue("/");
-    render(<BottomNav />);
+  // -------------------------
+  // Center button: trip page, member user
+  // -------------------------
+  describe("center button - trip page, member user", () => {
+    it("navigates to entries/new when member clicks center button on trip page", () => {
+      mockPathname.mockReturnValue("/trips/abc123");
+      mockUser.mockReturnValue({ id: "user1" });
 
-    const homeLink = screen.getByRole("link", { name: /home/i });
-    expect(homeLink).toHaveClass("text-primary");
+      render(
+        <TripMembershipProvider isMember={true} role="owner">
+          <BottomNav />
+        </TripMembershipProvider>
+      );
+
+      const centerBtn = screen.getByLabelText("Add Photos");
+      fireEvent.click(centerBtn);
+
+      expect(mockRouterPush).toHaveBeenCalledWith("/trips/abc123/entries/new");
+    });
+
+    it("does NOT show popover when member clicks center button", () => {
+      mockPathname.mockReturnValue("/trips/abc123");
+      mockUser.mockReturnValue({ id: "user1" });
+
+      render(
+        <TripMembershipProvider isMember={true} role="owner">
+          <BottomNav />
+        </TripMembershipProvider>
+      );
+
+      const centerBtn = screen.getByLabelText("Add Photos");
+      fireEvent.click(centerBtn);
+
+      expect(
+        screen.queryByText("멤버만 사진을 추가할 수 있어요")
+      ).not.toBeInTheDocument();
+    });
   });
 
-  it("highlights Search tab as active on /search route", () => {
-    mockPathname.mockReturnValue("/search");
-    render(<BottomNav />);
+  // -------------------------
+  // Center button: trip page, non-member logged-in user
+  // -------------------------
+  describe("center button - trip page, non-member logged-in user", () => {
+    it("shows member-only popover when non-member logged-in user clicks center button", () => {
+      mockPathname.mockReturnValue("/trips/abc123");
+      mockUser.mockReturnValue({ id: "user1" });
 
-    const searchLink = screen.getByRole("link", { name: /search/i });
-    expect(searchLink).toHaveClass("text-primary");
+      render(
+        <TripMembershipProvider isMember={false} role={null}>
+          <BottomNav />
+        </TripMembershipProvider>
+      );
+
+      const centerBtn = screen.getByLabelText("Add Photos");
+      fireEvent.click(centerBtn);
+
+      expect(
+        screen.getByText("멤버만 사진을 추가할 수 있어요")
+      ).toBeInTheDocument();
+    });
+
+    it("does NOT navigate when non-member logged-in user clicks center button", () => {
+      mockPathname.mockReturnValue("/trips/abc123");
+      mockUser.mockReturnValue({ id: "user1" });
+
+      render(
+        <TripMembershipProvider isMember={false} role={null}>
+          <BottomNav />
+        </TripMembershipProvider>
+      );
+
+      const centerBtn = screen.getByLabelText("Add Photos");
+      fireEvent.click(centerBtn);
+
+      expect(mockRouterPush).not.toHaveBeenCalled();
+    });
+
+    it("does NOT show LoginPrompt when non-member logged-in user clicks center button", () => {
+      mockPathname.mockReturnValue("/trips/abc123");
+      mockUser.mockReturnValue({ id: "user1" });
+
+      render(
+        <TripMembershipProvider isMember={false} role={null}>
+          <BottomNav />
+        </TripMembershipProvider>
+      );
+
+      const centerBtn = screen.getByLabelText("Add Photos");
+      fireEvent.click(centerBtn);
+
+      expect(screen.queryByTestId("login-prompt")).not.toBeInTheDocument();
+    });
   });
 
-  it("links to correct destinations", () => {
-    render(<BottomNav />);
+  // -------------------------
+  // Center button: trip page, non-logged-in user
+  // -------------------------
+  describe("center button - trip page, non-logged-in user", () => {
+    it("shows LoginPrompt when non-logged-in user clicks center button on trip page", () => {
+      mockPathname.mockReturnValue("/trips/abc123");
+      mockUser.mockReturnValue(null);
 
-    expect(screen.getByRole("link", { name: /home/i })).toHaveAttribute("href", "/");
-    expect(screen.getByRole("link", { name: /search/i })).toHaveAttribute("href", "/search");
-    expect(screen.getByRole("link", { name: /add/i })).toHaveAttribute("href", "/trips/new");
-    expect(screen.getByRole("link", { name: /saved/i })).toHaveAttribute("href", "/saved");
-    expect(screen.getByRole("link", { name: /profile/i })).toHaveAttribute("href", "/profile");
+      render(
+        <TripMembershipProvider isMember={false} role={null}>
+          <BottomNav />
+        </TripMembershipProvider>
+      );
+
+      const centerBtn = screen.getByLabelText("Add Photos");
+      fireEvent.click(centerBtn);
+
+      expect(screen.getByTestId("login-prompt")).toBeInTheDocument();
+    });
+
+    it("does NOT navigate when non-logged-in user clicks center button on trip page", () => {
+      mockPathname.mockReturnValue("/trips/abc123");
+      mockUser.mockReturnValue(null);
+
+      render(
+        <TripMembershipProvider isMember={false} role={null}>
+          <BottomNav />
+        </TripMembershipProvider>
+      );
+
+      const centerBtn = screen.getByLabelText("Add Photos");
+      fireEvent.click(centerBtn);
+
+      expect(mockRouterPush).not.toHaveBeenCalled();
+    });
   });
 
-  it("center add button has raised styling", () => {
-    render(<BottomNav />);
+  // -------------------------
+  // Center button: non-trip page
+  // -------------------------
+  describe("center button - non-trip page", () => {
+    it("navigates to /trips/new when logged-in user clicks center button on home", () => {
+      mockPathname.mockReturnValue("/");
+      mockUser.mockReturnValue({ id: "user1" });
 
-    const addLink = screen.getByRole("link", { name: /add/i });
-    expect(addLink).toHaveClass("-mt-8");
-  });
+      render(<BottomNav />);
 
-  it("returns null on /trips/[tripId] routes", () => {
-    mockPathname.mockReturnValue("/trips/abc123");
-    const { container } = render(<BottomNav />);
-    expect(container.innerHTML).toBe("");
-  });
+      const centerBtn = screen.getByLabelText("Add Trip");
+      fireEvent.click(centerBtn);
 
-  it("returns null on /trips/[tripId]/ranking routes", () => {
-    mockPathname.mockReturnValue("/trips/abc123/ranking");
-    const { container } = render(<BottomNav />);
-    expect(container.innerHTML).toBe("");
+      expect(mockRouterPush).toHaveBeenCalledWith("/trips/new");
+    });
+
+    it("shows LoginPrompt when non-logged-in user clicks center button on home", () => {
+      mockPathname.mockReturnValue("/");
+      mockUser.mockReturnValue(null);
+
+      render(<BottomNav />);
+
+      const centerBtn = screen.getByLabelText("Add Trip");
+      fireEvent.click(centerBtn);
+
+      expect(screen.getByTestId("login-prompt")).toBeInTheDocument();
+    });
   });
 });
