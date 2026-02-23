@@ -86,6 +86,15 @@ export function useTrips(options: UseTripsOptions = {}) {
       });
 
       if (err) throw err;
+
+      // Fire-and-forget: trigger cover image generation in background
+      const tripId = (data as unknown as Trip).id;
+      fetch("/api/ai/generate-trip-cover", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tripId }),
+      }).catch(() => {}); // Silently ignore failures
+
       await fetchTrips();
       return data as unknown as Trip;
     },

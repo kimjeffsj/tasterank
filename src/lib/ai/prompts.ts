@@ -176,6 +176,52 @@ export function parseRankingResponse(text: string): RankingSentimentResult[] {
   }
 }
 
+// ─── Cover Image Keywords ──────────────────────────────────
+export interface CoverImageInput {
+  name: string;
+  description?: string;
+}
+
+export function buildCoverImagePrompt(input: CoverImageInput): string {
+  const parts = [`Trip: ${input.name}`];
+  if (input.description) parts.push(`Description: ${input.description}`);
+
+  return `You are a travel photo search assistant. Given the following trip information, generate 2-4 English keywords suitable for an Unsplash landscape photo search.
+
+${parts.join("\n")}
+
+Choose keywords that best represent the location, cuisine, or atmosphere of the trip.
+
+Respond ONLY with a JSON object, no markdown, no explanation:
+{"keywords": "keyword phrase here"}
+
+Rules:
+- Keywords should be in English
+- Use 2-4 descriptive words
+- Focus on location and food style
+- Avoid generic words like "food" or "trip"`;
+}
+
+export function parseCoverImageKeywords(text: string): string {
+  const jsonMatch = text.match(/\{[\s\S]*"keywords"[\s\S]*\}/);
+  if (!jsonMatch) return "";
+
+  try {
+    const parsed: unknown = JSON.parse(jsonMatch[0]);
+    if (
+      typeof parsed === "object" &&
+      parsed !== null &&
+      "keywords" in parsed &&
+      typeof (parsed as Record<string, unknown>).keywords === "string"
+    ) {
+      return (parsed as { keywords: string }).keywords;
+    }
+    return "";
+  } catch {
+    return "";
+  }
+}
+
 // ─── Tag Suggestions ──────────────────────────────────────
 
 export function parseTagSuggestions(text: string): SuggestedTag[] {

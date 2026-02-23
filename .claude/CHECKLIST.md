@@ -1,6 +1,6 @@
 # TasteRank Development Checklist
 
-> 진행 상태: Phase 5 Step 5-3 완료 ✅ → Step 5-4 (Food Detail Page) 완료 ✅ → Step 5-5 다음
+> 진행 상태: Phase 5 Step 5-3 완료 ✅ → Step 5-4 (Food Detail Page) 완료 ✅ → SPEC-AI-001 (Trip 커버 이미지) 완료 ✅ → Step 5-5 다음
 
 ---
 
@@ -173,6 +173,16 @@
 - [x] `EntryGridWithBadges` 수정 (tripId prop + 네비게이션 링크)
 - [x] 108개 테스트 통과, TRUST 5 품질 검증
 
+### Step 5-4b: Trip 커버 이미지 AI 자동 매칭 (SPEC-AI-001) ✅
+
+- [x] `src/lib/unsplash.ts` — Unsplash API 클라이언트 (searchPhotos, null-safe)
+- [x] `buildCoverImagePrompt()` + `parseCoverImageKeywords()` in `src/lib/ai/prompts.ts`
+- [x] `POST /api/ai/generate-trip-cover` — after() 백그라운드 처리 API 라우트
+- [x] `useTrips.createTrip()` — fire-and-forget 커버 이미지 트리거 추가
+- [x] `next.config.ts` — images.unsplash.com remotePattern 추가
+- [x] 21개 테스트 통과, pnpm build 성공
+- [ ] `UNSPLASH_ACCESS_KEY` 환경변수 추가 필요 (로컬 + Vercel)
+
 ### Step 5-5: 소셜 + 지도
 
 - [ ] 소셜 공유 (랭킹 카드)
@@ -203,3 +213,4 @@
 | 2026-02-17 | `2026-02-17_step5-2-3-tournament-ai-ranking.md` | Step 5-2/5-3 Tournament + AI Ranking              |
 | 2026-02-17 | `2026-02-17_my-trips-trip-list-components.md`   | My Trips 페이지 + 재사용 Trip List 컴포넌트       |
 | 2026-02-22 | `2026-02-22_food-detail-page.md`                | Step 5-4 Food Detail Page (SPEC-UI-001)           |
+| 2026-02-23 | `2026-02-23_spec-ai-001-cover-image.md`         | SPEC-AI-001 Trip 커버 이미지 AI 자동 매칭         |

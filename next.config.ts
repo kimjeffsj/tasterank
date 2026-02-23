@@ -14,6 +14,14 @@ const nextConfig: NextConfig = {
     "*.local-origin.dev",
     "192.168.1.105",
   ],
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+    ],
+  },
 };
 
 export default withSerwist(nextConfig);
