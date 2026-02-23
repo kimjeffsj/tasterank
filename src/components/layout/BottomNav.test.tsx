@@ -89,7 +89,7 @@ describe("BottomNav", () => {
       render(
         <TripMembershipProvider isMember={true} role="owner">
           <BottomNav />
-        </TripMembershipProvider>
+        </TripMembershipProvider>,
       );
 
       const centerBtn = screen.getByLabelText("Add Photos");
@@ -105,14 +105,14 @@ describe("BottomNav", () => {
       render(
         <TripMembershipProvider isMember={true} role="owner">
           <BottomNav />
-        </TripMembershipProvider>
+        </TripMembershipProvider>,
       );
 
       const centerBtn = screen.getByLabelText("Add Photos");
       fireEvent.click(centerBtn);
 
       expect(
-        screen.queryByText("멤버만 사진을 추가할 수 있어요")
+        screen.queryByText("You must be a member to add photos."),
       ).not.toBeInTheDocument();
     });
   });
@@ -128,14 +128,14 @@ describe("BottomNav", () => {
       render(
         <TripMembershipProvider isMember={false} role={null}>
           <BottomNav />
-        </TripMembershipProvider>
+        </TripMembershipProvider>,
       );
 
       const centerBtn = screen.getByLabelText("Add Photos");
       fireEvent.click(centerBtn);
 
       expect(
-        screen.getByText("멤버만 사진을 추가할 수 있어요")
+        screen.getByText("You must be a member to add photos."),
       ).toBeInTheDocument();
     });
 
@@ -146,7 +146,7 @@ describe("BottomNav", () => {
       render(
         <TripMembershipProvider isMember={false} role={null}>
           <BottomNav />
-        </TripMembershipProvider>
+        </TripMembershipProvider>,
       );
 
       const centerBtn = screen.getByLabelText("Add Photos");
@@ -162,7 +162,7 @@ describe("BottomNav", () => {
       render(
         <TripMembershipProvider isMember={false} role={null}>
           <BottomNav />
-        </TripMembershipProvider>
+        </TripMembershipProvider>,
       );
 
       const centerBtn = screen.getByLabelText("Add Photos");
@@ -183,7 +183,7 @@ describe("BottomNav", () => {
       render(
         <TripMembershipProvider isMember={false} role={null}>
           <BottomNav />
-        </TripMembershipProvider>
+        </TripMembershipProvider>,
       );
 
       const centerBtn = screen.getByLabelText("Add Photos");
@@ -199,7 +199,7 @@ describe("BottomNav", () => {
       render(
         <TripMembershipProvider isMember={false} role={null}>
           <BottomNav />
-        </TripMembershipProvider>
+        </TripMembershipProvider>,
       );
 
       const centerBtn = screen.getByLabelText("Add Photos");

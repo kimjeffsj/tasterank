@@ -119,7 +119,7 @@ export function BottomNav() {
                       className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 bg-white rounded-xl shadow-lg px-4 py-2 text-sm text-gray-700 whitespace-nowrap z-30"
                       role="tooltip"
                     >
-                      멤버만 사진을 추가할 수 있어요
+                      You must be a member to add photos.
                       {/* Downward arrow */}
                       <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-white" />
                     </div>
