@@ -1,6 +1,6 @@
 # TasteRank Development Checklist
 
-> 진행 상태: Phase 5 Step 5-3 완료 ✅ → Step 5-4 (Food Detail Page) 완료 ✅ → SPEC-AI-001 (Trip 커버 이미지) 완료 ✅ → Step 5-5 다음
+> 진행 상태: Phase 5 Step 5-3 완료 ✅ → Step 5-4 (Food Detail Page) 완료 ✅ → SPEC-AI-001 (Trip 커버 이미지) 완료 ✅ → SPEC-UI-003 (BottomNav UX) 완료 ✅ → Step 5-5 다음
 
 ---
 
@@ -181,7 +181,15 @@
 - [x] `useTrips.createTrip()` — fire-and-forget 커버 이미지 트리거 추가
 - [x] `next.config.ts` — images.unsplash.com remotePattern 추가
 - [x] 21개 테스트 통과, pnpm build 성공
-- [ ] `UNSPLASH_ACCESS_KEY` 환경변수 추가 필요 (로컬 + Vercel)
+- [x] `UNSPLASH_ACCESS_KEY` 환경변수 추가 필요 (로컬 + Vercel)
+
+### Step 5-4c: Bottom Navigation UX 개선 (SPEC-UI-003) ✅
+
+- [x] Tournament 페이지에서 BottomNav 숨김 (`shouldHideNav` tournament 패턴 추가)
+- [x] `TripMembershipContext` 생성 (Context + Provider + `useTripMembership` 훅)
+- [x] Trip 레이아웃 서버 컴포넌트 생성 (`/trips/[tripId]/layout.tsx`)
+- [x] 비멤버 로그인 사용자: 센터 버튼 비활성화(opacity-40) + 한국어 Popover
+- [x] 26개 테스트 통과, pnpm build 성공
 
 ### Step 5-5: 소셜 + 지도
 
@@ -214,3 +222,4 @@
 | 2026-02-17 | `2026-02-17_my-trips-trip-list-components.md`   | My Trips 페이지 + 재사용 Trip List 컴포넌트       |
 | 2026-02-22 | `2026-02-22_food-detail-page.md`                | Step 5-4 Food Detail Page (SPEC-UI-001)           |
 | 2026-02-23 | `2026-02-23_spec-ai-001-cover-image.md`         | SPEC-AI-001 Trip 커버 이미지 AI 자동 매칭         |
+| 2026-02-23 | `2026-02-23_spec-ui-003-bottomnav-ux.md`        | SPEC-UI-003 Bottom Navigation UX 개선         |
