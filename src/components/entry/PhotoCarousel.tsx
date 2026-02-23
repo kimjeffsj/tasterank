@@ -102,13 +102,18 @@ export function PhotoCarousel({
         ref={scrollRef}
         onScroll={handleScroll}
         className="h-full flex overflow-x-auto snap-x snap-mandatory no-scrollbar"
+        style={{ WebkitOverflowScrolling: "touch" }}
       >
         {sortedPhotos.map((photo, index) => (
-          <div key={index} className="h-full w-full shrink-0 snap-center">
+          <div
+            key={index}
+            className="h-full w-full shrink-0 snap-center bg-gray-100 dark:bg-gray-800"
+          >
             <img
               src={photo.photo_url}
               alt={`${title} ${index + 1}`}
               className="w-full h-full object-cover"
+              loading={index === 0 ? "eager" : "lazy"}
             />
           </div>
         ))}
