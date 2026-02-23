@@ -10,20 +10,20 @@ import {
 import { RatingSlider } from "./RatingSlider";
 import { useRatings } from "@/hooks/useRatings";
 import { useAuth } from "@/hooks/useAuth";
+import { useRouter } from "next/navigation";
 
 interface AddReviewSheetProps {
   entryId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onReviewAdded: () => void;
 }
 
 export function AddReviewSheet({
   entryId,
   open,
   onOpenChange,
-  onReviewAdded,
 }: AddReviewSheetProps) {
+  const router = useRouter();
   const [score, setScore] = useState(7);
   const [comment, setComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -41,7 +41,7 @@ export function AddReviewSheet({
         score,
         review_text: comment.trim() || null,
       });
-      onReviewAdded();
+      router.refresh();
       onOpenChange(false);
       setScore(7);
       setComment("");

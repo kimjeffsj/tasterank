@@ -22,18 +22,16 @@ interface RankingDataEntry {
 
 function extractAiVerdict(
   rankingData: Json,
-  entryId: string
+  entryId: string,
 ): { rank: number | null; verdict: string | null } {
   if (!rankingData || !Array.isArray(rankingData)) {
     return { rank: null, verdict: null };
   }
 
-  const found = rankingData.find(
-    (item: unknown) => {
-      const entry = item as RankingDataEntry;
-      return entry?.entry_id === entryId || entry?.id === entryId;
-    }
-  );
+  const found = rankingData.find((item: unknown) => {
+    const entry = item as RankingDataEntry;
+    return entry?.entry_id === entryId || entry?.id === entryId;
+  });
 
   if (!found) return { rank: null, verdict: null };
   const entry = found as RankingDataEntry;
@@ -48,12 +46,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const { data: entry } = await anonClient
     .from("food_entries")
-    .select(`
+    .select(
+      `
       title,
       restaurant_name,
       food_photos(photo_url, display_order),
       trips!trip_id(name, is_public)
-    `)
+    `,
+    )
     .eq("id", entryId)
     .single();
 
@@ -62,8 +62,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const trip = entry.trips as { name: string; is_public: boolean } | null;
   if (!trip?.is_public) return {};
 
-  const photos = entry.food_photos as { photo_url: string; display_order: number | null }[] | null;
-  const firstPhoto = photos?.sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0))[0];
+  const photos = entry.food_photos as
+    | { photo_url: string; display_order: number | null }[]
+    | null;
+  const firstPhoto = photos?.sort(
+    (a, b) => (a.display_order ?? 0) - (b.display_order ?? 0),
+  )[0];
 
   return {
     title: `${entry.title} — ${trip.name}`,
@@ -88,17 +92,23 @@ export default async function EntryDetailPage({ params }: Props) {
   // Entry + photos + tags + creator profile + trip public check
   const { data: entry } = await anonClient
     .from("food_entries")
-    .select(`
+    .select(
+      `
       *,
       food_photos(photo_url, display_order),
       food_entry_tags(tag_id, tags(name, category)),
       profiles!created_by(display_name, avatar_url),
       trips!trip_id(id, name, is_public)
-    `)
+    `,
+    )
     .eq("id", entryId)
     .single();
 
-  const trip = entry?.trips as { id: string; name: string; is_public: boolean } | null;
+  const trip = entry?.trips as {
+    id: string;
+    name: string;
+    is_public: boolean;
+  } | null;
 
   if (!entry || !trip?.is_public) {
     notFound();
@@ -131,11 +141,22 @@ export default async function EntryDetailPage({ params }: Props) {
     ? extractAiVerdict(aiRanking.ranking_data, entryId)
     : { rank: null, verdict: null };
 
-  const photos = entry.food_photos as { photo_url: string; display_order: number | null }[] | null ?? [];
-  const tags = (entry.food_entry_tags as { tag_id: string; tags: { name: string; category: string } | null }[] | null)
-    ?.map((t) => t.tags)
-    .filter((t): t is { name: string; category: string } => t !== null) ?? [];
-  const profile = entry.profiles as { display_name: string | null; avatar_url: string | null } | null;
+  const photos =
+    (entry.food_photos as
+      | { photo_url: string; display_order: number | null }[]
+      | null) ?? [];
+  const tags =
+    (
+      entry.food_entry_tags as
+        | { tag_id: string; tags: { name: string; category: string } | null }[]
+        | null
+    )
+      ?.map((t) => t.tags)
+      .filter((t): t is { name: string; category: string } => t !== null) ?? [];
+  const profile = entry.profiles as {
+    display_name: string | null;
+    avatar_url: string | null;
+  } | null;
 
   const avgScore = avgScoreData?.avg_score ?? null;
   const ratingCount = avgScoreData?.rating_count ?? 0;
@@ -196,7 +217,9 @@ export default async function EntryDetailPage({ params }: Props) {
         <div className="px-6 mb-6">
           <div className="bg-gradient-to-br from-primary/10 to-primary/5 p-6 rounded-[2rem] border border-primary/10">
             <div className="flex items-center gap-2 mb-2">
-              <span className="material-icons-round text-primary">auto_awesome</span>
+              <span className="material-icons-round text-primary">
+                auto_awesome
+              </span>
               <h3 className="font-bold text-gray-900 dark:text-white text-sm uppercase tracking-wide">
                 AI Verdict
               </h3>
@@ -227,7 +250,10 @@ export default async function EntryDetailPage({ params }: Props) {
         {ratings && ratings.length > 0 ? (
           <div className="flex flex-col gap-3">
             {ratings.map((rating) => {
-              const ratingProfile = rating.profiles as { display_name: string | null; avatar_url: string | null } | null;
+              const ratingProfile = rating.profiles as {
+                display_name: string | null;
+                avatar_url: string | null;
+              } | null;
               return (
                 <ReviewCard
                   key={rating.id}
@@ -245,7 +271,9 @@ export default async function EntryDetailPage({ params }: Props) {
             <span className="material-icons-round text-4xl text-gray-300 dark:text-gray-600 mb-2">
               rate_review
             </span>
-            <p className="text-gray-500 dark:text-gray-400 text-sm">No reviews yet</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm">
+              No reviews yet
+            </p>
             <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
               Be the first to leave a review
             </p>
@@ -254,11 +282,7 @@ export default async function EntryDetailPage({ params }: Props) {
       </div>
 
       {/* Bottom action bar (client component) */}
-      <EntryBottomBar
-        entryId={entryId}
-        entryTitle={entry.title}
-        onReviewAdded={() => {}}
-      />
+      <EntryBottomBar entryId={entryId} entryTitle={entry.title} />
     </div>
   );
 }

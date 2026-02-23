@@ -8,14 +8,9 @@ import { AddReviewSheet } from "./AddReviewSheet";
 interface EntryBottomBarProps {
   entryId: string;
   entryTitle: string;
-  onReviewAdded: () => void;
 }
 
-export function EntryBottomBar({
-  entryId,
-  entryTitle,
-  onReviewAdded,
-}: EntryBottomBarProps) {
+export function EntryBottomBar({ entryId, entryTitle }: EntryBottomBarProps) {
   const { user } = useAuth();
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [showReviewSheet, setShowReviewSheet] = useState(false);
@@ -76,17 +71,13 @@ export function EntryBottomBar({
       </div>
 
       {/* Login Prompt (Lazy Auth) */}
-      <LoginPrompt
-        open={showLoginPrompt}
-        onOpenChange={setShowLoginPrompt}
-      />
+      <LoginPrompt open={showLoginPrompt} onOpenChange={setShowLoginPrompt} />
 
       {/* Add Review Sheet (authenticated) */}
       <AddReviewSheet
         entryId={entryId}
         open={showReviewSheet}
         onOpenChange={setShowReviewSheet}
-        onReviewAdded={onReviewAdded}
       />
     </>
   );
