@@ -23,7 +23,19 @@ export async function POST(request: Request) {
 
   const { tripId } = body as { tripId: string };
 
-  // 3. Return 202 immediately
+  // 3. Authorization: verify current user is a member of the trip
+  const { data: membership } = await supabase
+    .from("trip_members")
+    .select("id")
+    .eq("trip_id", tripId)
+    .eq("user_id", user.id)
+    .single();
+
+  if (!membership) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  // 4. Return 202 immediately
   after(async () => {
     try {
       // a. Fetch trip details
