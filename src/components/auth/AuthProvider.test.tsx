@@ -1,4 +1,4 @@
-import { render, screen, act, waitFor } from "@testing-library/react";
+import { render, screen, act, waitFor, fireEvent } from "@testing-library/react";
 import { AuthProvider, useAuth } from "./AuthProvider";
 
 const mockGetUser = jest.fn();
@@ -103,6 +103,32 @@ describe("AuthProvider", () => {
 
     await waitFor(() => {
       expect(screen.getByText("user:test@example.com")).toBeInTheDocument();
+    });
+  });
+
+  it("signInWithGoogle passes current pathname as next param in redirectTo", async () => {
+    function SignInConsumer() {
+      const { signInWithGoogle } = useAuth();
+      return <button onClick={signInWithGoogle}>sign in</button>;
+    }
+
+    render(
+      <AuthProvider>
+        <SignInConsumer />
+      </AuthProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("sign in")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByText("sign in"));
+
+    expect(mockSignInWithOAuth).toHaveBeenCalledWith({
+      provider: "google",
+      options: {
+        redirectTo: expect.stringContaining("/auth/callback?next="),
+      },
     });
   });
 

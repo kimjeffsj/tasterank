@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import { AuthProvider } from "@/components/auth/AuthProvider";
+import { InAppBrowserBanner } from "@/components/auth/InAppBrowserBanner";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 
@@ -69,6 +70,7 @@ export default function RootLayout({
       <body className="font-display antialiased">
         <ThemeProvider>
           <AuthProvider>{children}</AuthProvider>
+          <InAppBrowserBanner />
         </ThemeProvider>
         <Analytics />
       </body>
