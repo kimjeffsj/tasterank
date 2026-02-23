@@ -10,11 +10,37 @@ interface Photo {
 interface PhotoCarouselProps {
   photos: Photo[];
   title: string;
+  shareUrl?: string;
+  showShareButton?: boolean;
 }
 
-export function PhotoCarousel({ photos, title }: PhotoCarouselProps) {
+export function PhotoCarousel({
+  photos,
+  title,
+  shareUrl,
+  showShareButton,
+}: PhotoCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const handleShare = async () => {
+    const url =
+      shareUrl ||
+      (typeof window !== "undefined" ? window.location.href : "");
+    if (navigator.share) {
+      try {
+        await navigator.share({ title, url });
+      } catch {
+        // 취소 무시
+      }
+    } else if (navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        // 무시
+      }
+    }
+  };
 
   const sortedPhotos = [...photos].sort(
     (a, b) => (a.display_order ?? 0) - (b.display_order ?? 0)
@@ -40,17 +66,36 @@ export function PhotoCarousel({ photos, title }: PhotoCarouselProps) {
     return (
       <div
         data-testid="photo-carousel"
-        className="h-[400px] bg-gray-100 dark:bg-gray-800 flex items-center justify-center"
+        className="h-[400px] bg-gray-100 dark:bg-gray-800 flex items-center justify-center relative"
       >
         <span className="material-icons-round text-6xl text-gray-300">
           restaurant
         </span>
+        {showShareButton && (
+          <button
+            aria-label="Share"
+            onClick={handleShare}
+            className="absolute top-4 right-4 bg-black/30 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center text-white z-10"
+          >
+            <span className="material-icons-round text-[18px]">ios_share</span>
+          </button>
+        )}
       </div>
     );
   }
 
   return (
     <div data-testid="photo-carousel" className="h-[400px] relative">
+      {showShareButton && (
+        <button
+          aria-label="Share"
+          onClick={handleShare}
+          className="absolute top-4 right-4 bg-black/30 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center text-white z-10"
+        >
+          <span className="material-icons-round text-[18px]">ios_share</span>
+        </button>
+      )}
+
       {/* Scrollable carousel */}
       <div
         ref={scrollRef}

@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { PhotoCarousel } from "./PhotoCarousel";
 
 describe("PhotoCarousel", () => {
@@ -56,5 +56,45 @@ describe("PhotoCarousel", () => {
     render(<PhotoCarousel photos={mockPhotos} title="Ramen" />);
     const container = screen.getByTestId("photo-carousel");
     expect(container).toHaveClass("h-[400px]");
+  });
+
+  it("renders share button when showShareButton is true", () => {
+    render(<PhotoCarousel photos={mockPhotos} title="Ramen" showShareButton={true} />);
+    const shareButton = screen.getByRole("button", { name: "Share" });
+    expect(shareButton).toBeInTheDocument();
+  });
+
+  it("does not render share button when showShareButton is not provided", () => {
+    render(<PhotoCarousel photos={mockPhotos} title="Ramen" />);
+    const shareButton = screen.queryByRole("button", { name: "Share" });
+    expect(shareButton).not.toBeInTheDocument();
+  });
+
+  it("renders share button in empty state when showShareButton is true", () => {
+    render(<PhotoCarousel photos={[]} title="Ramen" showShareButton={true} />);
+    const shareButton = screen.getByRole("button", { name: "Share" });
+    expect(shareButton).toBeInTheDocument();
+  });
+
+  it("does not render share button in empty state when showShareButton is not provided", () => {
+    render(<PhotoCarousel photos={[]} title="Ramen" />);
+    const shareButton = screen.queryByRole("button", { name: "Share" });
+    expect(shareButton).not.toBeInTheDocument();
+  });
+
+  it("calls navigator.share when share button is clicked and Web Share API is available", () => {
+    const mockShare = jest.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "share", {
+      value: mockShare,
+      configurable: true,
+    });
+
+    render(<PhotoCarousel photos={mockPhotos} title="Ramen" showShareButton={true} />);
+    const shareButton = screen.getByRole("button", { name: "Share" });
+    fireEvent.click(shareButton);
+
+    expect(mockShare).toHaveBeenCalledWith(
+      expect.objectContaining({ title: "Ramen" })
+    );
   });
 });

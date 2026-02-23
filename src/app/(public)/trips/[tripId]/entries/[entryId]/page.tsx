@@ -5,7 +5,6 @@ import { anonClient } from "@/lib/supabase/anon";
 import { PhotoCarousel } from "@/components/entry/PhotoCarousel";
 import { EntryDetailHeader } from "@/components/entry/EntryDetailHeader";
 import { ReviewCard } from "@/components/entry/ReviewCard";
-import { EntryBottomBar } from "@/components/entry/EntryBottomBar";
 import type { Json } from "@/types/database";
 
 interface Props {
@@ -42,7 +41,7 @@ function extractAiVerdict(
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { tripId, entryId } = await params;
+  const { entryId } = await params;
 
   const { data: entry } = await anonClient
     .from("food_entries")
@@ -183,7 +182,7 @@ export default async function EntryDetailPage({ params }: Props) {
       </div>
 
       {/* Photo carousel */}
-      <PhotoCarousel photos={photos} title={entry.title} />
+      <PhotoCarousel photos={photos} title={entry.title} showShareButton={true} />
 
       {/* Entry header */}
       <EntryDetailHeader
@@ -281,8 +280,6 @@ export default async function EntryDetailPage({ params }: Props) {
         )}
       </div>
 
-      {/* Bottom action bar (client component) */}
-      <EntryBottomBar entryId={entryId} entryTitle={entry.title} />
     </div>
   );
 }
