@@ -26,26 +26,32 @@ export function BottomNav() {
   const pathname = usePathname();
   const router = useRouter();
   const { user } = useAuth();
-  const [isMember, setIsMember] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [showMemberPopover, setShowMemberPopover] = useState(false);
+  const [isMember, setIsMember] = useState(false);
   const centerButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Fetch membership status client-side when on a trip page
+  // Compute tripId here so it's available in useEffect below
+  const tripId = getTripIdFromPath(pathname);
+
+  // BottomNav renders outside TripMembershipProvider scope, so query membership directly
   useEffect(() => {
-    const tripId = getTripIdFromPath(pathname);
     if (!tripId || !user) {
       setIsMember(false);
       return;
     }
+
     const supabase = createClient();
     supabase
       .from("trip_members")
-      .select("role", { count: "exact", head: true })
+      .select("role")
       .eq("trip_id", tripId)
       .eq("user_id", user.id)
-      .then(({ count }) => setIsMember((count ?? 0) > 0));
-  }, [pathname, user?.id]);
+      .single()
+      .then(({ data }) => {
+        setIsMember(!!data);
+      });
+  }, [tripId, user?.id]);
 
   // Close popover when clicking outside
   useEffect(() => {
@@ -65,8 +71,6 @@ export function BottomNav() {
   }, [showMemberPopover]);
 
   if (shouldHideNav(pathname)) return null;
-
-  const tripId = getTripIdFromPath(pathname);
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";

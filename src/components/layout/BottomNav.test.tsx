@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import { BottomNav } from "./BottomNav";
 import React from "react";
 
@@ -23,17 +23,20 @@ jest.mock("@/components/auth/LoginPrompt", () => ({
     open ? <div data-testid="login-prompt" /> : null,
 }));
 
-// Mock Supabase client — controls isMember via mockMemberCount
-let mockMemberCount = 0;
-const mockThen = jest.fn((cb: (result: { count: number }) => void) =>
-  cb({ count: mockMemberCount }),
-);
-const mockEq = jest.fn().mockReturnThis();
-const mockSelect = jest.fn(() => ({ eq: mockEq, then: mockThen }));
-const mockFrom = jest.fn(() => ({ select: mockSelect }));
-
+// Mock Supabase client with chainable query builder
+const mockSingle = jest.fn();
 jest.mock("@/lib/supabase/client", () => ({
-  createClient: () => ({ from: mockFrom }),
+  createClient: () => ({
+    from: () => ({
+      select: () => ({
+        eq: () => ({
+          eq: () => ({
+            single: mockSingle,
+          }),
+        }),
+      }),
+    }),
+  }),
 }));
 
 describe("BottomNav", () => {
@@ -41,10 +44,7 @@ describe("BottomNav", () => {
     mockPathname.mockReturnValue("/");
     mockUser.mockReturnValue(null);
     mockRouterPush.mockClear();
-    mockMemberCount = 0;
-    // Wire eq → then chain
-    mockEq.mockReturnValue({ eq: mockEq, then: mockThen });
-    mockThen.mockImplementation((cb) => cb({ count: mockMemberCount }));
+    mockSingle.mockResolvedValue({ data: null, error: null });
   });
 
   // -------------------------
@@ -101,34 +101,34 @@ describe("BottomNav", () => {
     it("navigates to entries/new when member clicks center button on trip page", async () => {
       mockPathname.mockReturnValue("/trips/abc123");
       mockUser.mockReturnValue({ id: "user1" });
-      mockMemberCount = 1;
-      mockThen.mockImplementation((cb) => cb({ count: 1 }));
+      mockSingle.mockResolvedValue({ data: { role: "owner" }, error: null });
 
       render(<BottomNav />);
 
-      await waitFor(() => {
-        const centerBtn = screen.getByLabelText("Add Photos");
-        fireEvent.click(centerBtn);
-        expect(mockRouterPush).toHaveBeenCalledWith(
-          "/trips/abc123/entries/new",
-        );
-      });
+      // Flush useEffect, Promise.then(), and React state update
+      await act(async () => {});
+
+      const centerBtn = screen.getByLabelText("Add Photos");
+      fireEvent.click(centerBtn);
+
+      expect(mockRouterPush).toHaveBeenCalledWith("/trips/abc123/entries/new");
     });
 
     it("does NOT show popover when member clicks center button", async () => {
       mockPathname.mockReturnValue("/trips/abc123");
       mockUser.mockReturnValue({ id: "user1" });
-      mockThen.mockImplementation((cb) => cb({ count: 1 }));
+      mockSingle.mockResolvedValue({ data: { role: "owner" }, error: null });
 
       render(<BottomNav />);
 
-      await waitFor(() => {
-        const centerBtn = screen.getByLabelText("Add Photos");
-        fireEvent.click(centerBtn);
-        expect(
-          screen.queryByText("You must be a member to add photos."),
-        ).not.toBeInTheDocument();
-      });
+      await act(async () => {});
+
+      const centerBtn = screen.getByLabelText("Add Photos");
+      fireEvent.click(centerBtn);
+
+      expect(
+        screen.queryByText("You must be a member to add photos."),
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -139,11 +139,15 @@ describe("BottomNav", () => {
     it("shows member-only popover when non-member logged-in user clicks center button", async () => {
       mockPathname.mockReturnValue("/trips/abc123");
       mockUser.mockReturnValue({ id: "user1" });
-      mockThen.mockImplementation((cb) => cb({ count: 0 }));
+      mockSingle.mockResolvedValue({ data: null, error: { message: "not found" } });
 
       render(<BottomNav />);
 
-      const centerBtn = await screen.findByLabelText("Add Photos");
+      await waitFor(() => {
+        expect(mockSingle).toHaveBeenCalled();
+      });
+
+      const centerBtn = screen.getByLabelText("Add Photos");
       fireEvent.click(centerBtn);
 
       expect(
@@ -154,11 +158,15 @@ describe("BottomNav", () => {
     it("does NOT navigate when non-member logged-in user clicks center button", async () => {
       mockPathname.mockReturnValue("/trips/abc123");
       mockUser.mockReturnValue({ id: "user1" });
-      mockThen.mockImplementation((cb) => cb({ count: 0 }));
+      mockSingle.mockResolvedValue({ data: null, error: { message: "not found" } });
 
       render(<BottomNav />);
 
-      const centerBtn = await screen.findByLabelText("Add Photos");
+      await waitFor(() => {
+        expect(mockSingle).toHaveBeenCalled();
+      });
+
+      const centerBtn = screen.getByLabelText("Add Photos");
       fireEvent.click(centerBtn);
 
       expect(mockRouterPush).not.toHaveBeenCalled();
@@ -167,11 +175,15 @@ describe("BottomNav", () => {
     it("does NOT show LoginPrompt when non-member logged-in user clicks center button", async () => {
       mockPathname.mockReturnValue("/trips/abc123");
       mockUser.mockReturnValue({ id: "user1" });
-      mockThen.mockImplementation((cb) => cb({ count: 0 }));
+      mockSingle.mockResolvedValue({ data: null, error: { message: "not found" } });
 
       render(<BottomNav />);
 
-      const centerBtn = await screen.findByLabelText("Add Photos");
+      await waitFor(() => {
+        expect(mockSingle).toHaveBeenCalled();
+      });
+
+      const centerBtn = screen.getByLabelText("Add Photos");
       fireEvent.click(centerBtn);
 
       expect(screen.queryByTestId("login-prompt")).not.toBeInTheDocument();
