@@ -1,36 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TasteRank 🍽️🌍
 
-## Getting Started
+![Next.js](https://img.shields.io/badge/Next.js-16-black.svg?logo=next.js)
+![React](https://img.shields.io/badge/React-19-blue.svg?logo=react)
+![Supabase](https://img.shields.io/badge/Supabase-DB-green.svg?logo=supabase)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-38B2AC.svg?logo=tailwind-css)
 
-First, run the development server:
+TasteRank is a collaborative web application that allows you and your friends to record, rate, and rank your travel food experiences together. Built with modern web technologies, it features AI-driven insights, tournaments, and a seamless PWA experience.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🚀 Live Demo
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Check out the live service (populated with demo data): **[tasterank.vercel.app](https://tasterank.vercel.app)**
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## ✨ Features
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Collaborative Trips**: Create trips and invite friends to share food experiences.
+- **Rate & Ranking**: Rate restaurants and view aggregated top spots for your trip.
+- **Tournaments**: Pit food spots against each other in bracket-style tournaments to find the ultimate favorite.
+- **AI-Powered Insights**: Get AI-generated questions and intelligent rankings using Google Generative AI.
+- **Dynamic Cover Images**: Automatically fetch beautiful, relevant trip cover photos via the Unsplash API.
+- **Automated Processing**: Scheduled Cron jobs keep tournaments and data fresh behind the scenes.
+- **Progressive Web App (PWA)**: Installable on mobile devices for a native-like experience on the go.
+- **Dark Mode Support**: Beautifully themed for both light and dark preferences.
 
-## Learn More
+## 🛠️ Tech Stack
 
-To learn more about Next.js, take a look at the following resources:
+- **Framework**: [Next.js 16](https://nextjs.org/) (React 19, App Router)
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/) & [shadcn/ui](https://ui.shadcn.com/)
+- **Database & Auth**: [Supabase](https://supabase.com/) (PostgreSQL)
+- **AI Integration**: [Google Generative AI](https://ai.google.dev/) (Gemini)
+- **Media**: [Unsplash API](https://unsplash.com/developers) (Dynamic imagery)
+- **Background Jobs**: [cron-job.org](https://cron-job.org/)
+- **PWA**: [Serwist](https://serwist.build/)
+- **Forms & Validation**: React Hook Form + Zod
+- **Typography**: Plus Jakarta Sans
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📂 Project Structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `src/app/` - Next.js App Router (Public & Protected routes)
+- `src/components/` - Reusable UI components (auth, layout, trips, etc.)
+- `src/lib/` - Utility functions, Supabase clients, and AI helpers
+- `supabase/migrations/` - PostgreSQL schema migrations and RPC functions
 
-## Deploy on Vercel
+## 🚀 Getting Started
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Prerequisites
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Node.js & pnpm (or npm/yarn/bun)
+- Supabase project
+- Google Gemini API Key
+
+### Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone <repository-url>
+   cd tasterank
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   pnpm install
+   ```
+
+3. **Set up environment variables:**
+   Duplicate the `.env.example` file and rename it to `.env.local`, then fill in your API credentials:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-supabase-publishable-key
+   GEMINI_API_KEY=your-gemini-api-key
+   NEXT_PUBLIC_APP_URL=http://localhost:3000
+   CRON_SECRET=your-cron-secret
+   UNSPLASH_ACCESS_KEY=your-unsplash-access-key
+   ```
+
+4. **Run the development server:**
+   ```bash
+   pnpm dev
+   ```
+
+5. Open [http://localhost:3000](http://localhost:3000) with your browser to see the local result.
+
+## 📄 License
+
+This project is released under the [MIT License](LICENSE).
