@@ -39,6 +39,17 @@ jest.mock("@/components/auth/LoginPrompt", () => ({
   LoginPrompt: () => null,
 }));
 
+// Mock supabase anon client
+jest.mock("@/lib/supabase/anon", () => ({
+  anonClient: {
+    from: jest.fn(() => ({
+      select: jest.fn().mockReturnValue({
+        eq: jest.fn().mockResolvedValue({ data: [], error: null }),
+      }),
+    })),
+  },
+}));
+
 // Mock supabase client
 jest.mock("@/lib/supabase/client", () => ({
   createClient: () => ({

@@ -94,7 +94,7 @@ describe("MyTripsPage", () => {
     });
 
     render(<MyTripsPage />);
-    expect(mockUseTrips).toHaveBeenCalledWith({ myTripsOnly: true });
+    expect(mockUseTrips).toHaveBeenCalledWith({ myTripsOnly: true, userId: "user-1" });
   });
 
   it("renders page header", () => {

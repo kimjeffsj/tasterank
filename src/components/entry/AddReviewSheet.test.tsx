@@ -54,6 +54,12 @@ jest.mock("@/hooks/useAuth", () => ({
   useAuth: () => ({ user: mockUser }),
 }));
 
+// Mock next/navigation
+jest.mock("next/navigation", () => ({
+  useRouter: () => ({ refresh: jest.fn(), push: jest.fn() }),
+  usePathname: () => "/",
+}));
+
 describe("AddReviewSheet", () => {
   const baseProps = {
     entryId: "entry-123",

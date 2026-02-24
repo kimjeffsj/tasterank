@@ -1,6 +1,8 @@
 /** @type {import('jest').Config} */
 const config = {
   testEnvironment: "jsdom",
+  maxWorkers: 2,
+  workerIdleMemoryLimit: "512MB",
   transform: {
     "^.+\\.tsx?$": [
       "ts-jest",

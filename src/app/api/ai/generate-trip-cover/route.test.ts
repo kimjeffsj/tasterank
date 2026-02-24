@@ -68,6 +68,13 @@ describe("POST /api/ai/generate-trip-cover", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     capturedAfterCallback = null;
+
+    // Default chain: from().select().eq().eq().single() → membership found
+    mockSelect.mockReturnValue({ eq: mockEq });
+    mockEq.mockReturnValue({ eq: mockEq, single: mockSingle });
+    mockSingle.mockResolvedValue({ data: { id: "member-1" }, error: null });
+    mockUpdate.mockReturnValue({ eq: mockUpdateEq });
+    mockUpdateEq.mockResolvedValue({ error: null });
   });
 
   it("returns 401 when no user session", async () => {

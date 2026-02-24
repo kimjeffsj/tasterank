@@ -46,7 +46,7 @@ function createEmptyTableMock() {
       in: jest.fn().mockResolvedValue({ data: [], error: null }),
       order: jest.fn().mockReturnValue({
         limit: jest.fn().mockReturnValue({
-          single: jest.fn().mockResolvedValue({ data: null, error: { code: "PGRST116" } }),
+          maybeSingle: jest.fn().mockResolvedValue({ data: null, error: null }),
         }),
       }),
     }),
@@ -61,7 +61,7 @@ function createEmptyTableMock() {
     eq: jest.fn().mockReturnValue({
       order: jest.fn().mockReturnValue({
         limit: jest.fn().mockReturnValue({
-          single: jest.fn().mockResolvedValue({ data: null, error: { code: "PGRST116" } }),
+          maybeSingle: jest.fn().mockResolvedValue({ data: null, error: null }),
         }),
       }),
     }),
@@ -76,6 +76,12 @@ jest.mock("@/lib/supabase/client", () => ({
     from: (table: string) => mockFromFn(table),
     auth: { getUser: () => mockGetUser() },
   }),
+}));
+
+jest.mock("@/lib/supabase/anon", () => ({
+  anonClient: {
+    from: (table: string) => mockFromFn(table),
+  },
 }));
 
 const TRIP_ID = "trip-123";
@@ -120,7 +126,7 @@ describe("useTournament", () => {
           eq: jest.fn().mockReturnValue({
             order: jest.fn().mockReturnValue({
               limit: jest.fn().mockReturnValue({
-                single: jest.fn().mockResolvedValue({ data: tournament, error: null }),
+                maybeSingle: jest.fn().mockResolvedValue({ data: tournament, error: null }),
               }),
             }),
           }),
@@ -203,7 +209,7 @@ describe("useTournament", () => {
           eq: jest.fn().mockReturnValue({
             order: jest.fn().mockReturnValue({
               limit: jest.fn().mockReturnValue({
-                single: jest.fn().mockResolvedValue({ data: tournament, error: null }),
+                maybeSingle: jest.fn().mockResolvedValue({ data: tournament, error: null }),
               }),
             }),
           }),

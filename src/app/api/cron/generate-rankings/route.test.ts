@@ -8,6 +8,22 @@ const mockFrom = jest.fn();
 const mockRpc = jest.fn();
 const mockGenerateContent = jest.fn();
 
+// Capture and execute after() callback synchronously so tests can verify
+// side-effects (RPC calls, skip counts) that happen inside the background task
+let capturedAfterFn: (() => Promise<void>) | null = null;
+jest.mock("next/server", () => ({
+  NextResponse: {
+    json: jest.fn((data: unknown, init?: { status?: number }) => ({
+      json: () => Promise.resolve(data),
+      status: init?.status ?? 200,
+    })),
+  },
+  after: jest.fn((cb: () => Promise<void>) => {
+    capturedAfterFn = cb;
+    // Callback is run manually in individual tests that need to verify side-effects
+  }),
+}));
+
 jest.mock("@/lib/supabase/anon", () => ({
   anonClient: {
     from: (...args: unknown[]) => mockFrom(...args),
@@ -53,6 +69,7 @@ function makeRequest(secret?: string) {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  capturedAfterFn = null;
   process.env.CRON_SECRET = "test-cron-secret";
   process.env.NEXT_PUBLIC_SUPABASE_URL = "http://localhost:54321";
   process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "test-anon-key";
@@ -88,9 +105,11 @@ describe("GET /api/cron/generate-rankings", () => {
     mockFrom.mockReturnValueOnce(tripsQuery).mockReturnValueOnce(entriesQuery);
 
     const res = await GET(makeRequest("test-cron-secret"));
-    const json = await res.json();
+    await capturedAfterFn?.();
 
-    expect(json.skipped).toBe(1);
+    // Route returns 202 + background task ran; trip with <2 entries → no RPC call
+    expect(res.status).toBe(202);
+    expect(mockRpc).not.toHaveBeenCalled();
   });
 
   it("processes trips with 2+ entries via RPC", async () => {
@@ -141,10 +160,10 @@ describe("GET /api/cron/generate-rankings", () => {
     });
 
     const res = await GET(makeRequest("test-cron-secret"));
-    const json = await res.json();
+    await capturedAfterFn?.();
 
-    expect(json.processed).toBe(1);
-    expect(json.errors).toBe(0);
+    // Route returns 202 + background task ran; RPC should have been called
+    expect(res.status).toBe(202);
     expect(mockRpc).toHaveBeenCalledWith(
       "upsert_ai_ranking",
       expect.objectContaining({

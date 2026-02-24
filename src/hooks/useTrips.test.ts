@@ -164,11 +164,14 @@ describe("useTrips", () => {
         { trip_id: "t1", trips: { id: "t1", name: "Tokyo" } },
         { trip_id: "t2", trips: { id: "t2", name: "Seoul" } },
       ];
-      // myTripsOnly uses: from("trip_members").select(...).order(...)
-      mockSelect.mockReturnValue({ order: mockOrder });
+      // myTripsOnly uses: from("trip_members").select(...).eq("user_id", userId).order(...)
+      mockSelect.mockReturnValue({ eq: mockEq });
+      mockEq.mockReturnValue({ order: mockOrder });
       mockOrder.mockResolvedValue({ data: memberRows, error: null });
 
-      const { result } = renderHook(() => useTrips({ myTripsOnly: true }));
+      const { result } = renderHook(() =>
+        useTrips({ myTripsOnly: true, userId: "user-1" }),
+      );
 
       await waitFor(() => {
         expect(result.current.loading).toBe(false);
@@ -188,10 +191,13 @@ describe("useTrips", () => {
         { trip_id: "t1", trips: { id: "t1", name: "Tokyo" } }, // duplicate
         { trip_id: "t2", trips: { id: "t2", name: "Seoul" } },
       ];
-      mockSelect.mockReturnValue({ order: mockOrder });
+      mockSelect.mockReturnValue({ eq: mockEq });
+      mockEq.mockReturnValue({ order: mockOrder });
       mockOrder.mockResolvedValue({ data: memberRows, error: null });
 
-      const { result } = renderHook(() => useTrips({ myTripsOnly: true }));
+      const { result } = renderHook(() =>
+        useTrips({ myTripsOnly: true, userId: "user-1" }),
+      );
 
       await waitFor(() => {
         expect(result.current.loading).toBe(false);

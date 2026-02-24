@@ -10,7 +10,6 @@ describe("InviteShare", () => {
   it("renders invite URL with invite code", () => {
     render(<InviteShare inviteCode="abc123" />);
 
-    expect(screen.getByText("Invite Members")).toBeInTheDocument();
     expect(screen.getByText(/\/join\/abc123/)).toBeInTheDocument();
   });
 

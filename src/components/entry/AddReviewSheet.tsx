@@ -16,12 +16,14 @@ interface AddReviewSheetProps {
   entryId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onReviewAdded?: () => void;
 }
 
 export function AddReviewSheet({
   entryId,
   open,
   onOpenChange,
+  onReviewAdded,
 }: AddReviewSheetProps) {
   const router = useRouter();
   const [score, setScore] = useState(7);
@@ -43,6 +45,7 @@ export function AddReviewSheet({
       });
       router.refresh();
       onOpenChange(false);
+      onReviewAdded?.();
       setScore(7);
       setComment("");
     } catch (err) {
