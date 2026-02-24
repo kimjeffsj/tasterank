@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { LoginPrompt } from "@/components/auth/LoginPrompt";
-import { useTripMembership } from "@/contexts/TripMembershipContext";
+import { createClient } from "@/lib/supabase/client";
 
 /** Extract tripId from paths like /trips/[tripId] or /trips/[tripId]/ranking */
 function getTripIdFromPath(pathname: string): string | null {
@@ -26,10 +26,26 @@ export function BottomNav() {
   const pathname = usePathname();
   const router = useRouter();
   const { user } = useAuth();
-  const { isMember } = useTripMembership();
+  const [isMember, setIsMember] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [showMemberPopover, setShowMemberPopover] = useState(false);
   const centerButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Fetch membership status client-side when on a trip page
+  useEffect(() => {
+    const tripId = getTripIdFromPath(pathname);
+    if (!tripId || !user) {
+      setIsMember(false);
+      return;
+    }
+    const supabase = createClient();
+    supabase
+      .from("trip_members")
+      .select("role", { count: "exact", head: true })
+      .eq("trip_id", tripId)
+      .eq("user_id", user.id)
+      .then(({ count }) => setIsMember((count ?? 0) > 0));
+  }, [pathname, user?.id]);
 
   // Close popover when clicking outside
   useEffect(() => {

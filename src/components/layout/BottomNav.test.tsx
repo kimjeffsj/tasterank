@@ -1,6 +1,5 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { BottomNav } from "./BottomNav";
-import { TripMembershipProvider } from "@/contexts/TripMembershipContext";
 import React from "react";
 
 // Mock next/navigation
@@ -24,11 +23,28 @@ jest.mock("@/components/auth/LoginPrompt", () => ({
     open ? <div data-testid="login-prompt" /> : null,
 }));
 
+// Mock Supabase client — controls isMember via mockMemberCount
+let mockMemberCount = 0;
+const mockThen = jest.fn((cb: (result: { count: number }) => void) =>
+  cb({ count: mockMemberCount }),
+);
+const mockEq = jest.fn().mockReturnThis();
+const mockSelect = jest.fn(() => ({ eq: mockEq, then: mockThen }));
+const mockFrom = jest.fn(() => ({ select: mockSelect }));
+
+jest.mock("@/lib/supabase/client", () => ({
+  createClient: () => ({ from: mockFrom }),
+}));
+
 describe("BottomNav", () => {
   beforeEach(() => {
     mockPathname.mockReturnValue("/");
     mockUser.mockReturnValue(null);
     mockRouterPush.mockClear();
+    mockMemberCount = 0;
+    // Wire eq → then chain
+    mockEq.mockReturnValue({ eq: mockEq, then: mockThen });
+    mockThen.mockImplementation((cb) => cb({ count: mockMemberCount }));
   });
 
   // -------------------------
@@ -82,38 +98,37 @@ describe("BottomNav", () => {
   // Center button: trip page, member user
   // -------------------------
   describe("center button - trip page, member user", () => {
-    it("navigates to entries/new when member clicks center button on trip page", () => {
+    it("navigates to entries/new when member clicks center button on trip page", async () => {
       mockPathname.mockReturnValue("/trips/abc123");
       mockUser.mockReturnValue({ id: "user1" });
+      mockMemberCount = 1;
+      mockThen.mockImplementation((cb) => cb({ count: 1 }));
 
-      render(
-        <TripMembershipProvider isMember={true} role="owner">
-          <BottomNav />
-        </TripMembershipProvider>,
-      );
+      render(<BottomNav />);
 
-      const centerBtn = screen.getByLabelText("Add Photos");
-      fireEvent.click(centerBtn);
-
-      expect(mockRouterPush).toHaveBeenCalledWith("/trips/abc123/entries/new");
+      await waitFor(() => {
+        const centerBtn = screen.getByLabelText("Add Photos");
+        fireEvent.click(centerBtn);
+        expect(mockRouterPush).toHaveBeenCalledWith(
+          "/trips/abc123/entries/new",
+        );
+      });
     });
 
-    it("does NOT show popover when member clicks center button", () => {
+    it("does NOT show popover when member clicks center button", async () => {
       mockPathname.mockReturnValue("/trips/abc123");
       mockUser.mockReturnValue({ id: "user1" });
+      mockThen.mockImplementation((cb) => cb({ count: 1 }));
 
-      render(
-        <TripMembershipProvider isMember={true} role="owner">
-          <BottomNav />
-        </TripMembershipProvider>,
-      );
+      render(<BottomNav />);
 
-      const centerBtn = screen.getByLabelText("Add Photos");
-      fireEvent.click(centerBtn);
-
-      expect(
-        screen.queryByText("You must be a member to add photos."),
-      ).not.toBeInTheDocument();
+      await waitFor(() => {
+        const centerBtn = screen.getByLabelText("Add Photos");
+        fireEvent.click(centerBtn);
+        expect(
+          screen.queryByText("You must be a member to add photos."),
+        ).not.toBeInTheDocument();
+      });
     });
   });
 
@@ -121,17 +136,14 @@ describe("BottomNav", () => {
   // Center button: trip page, non-member logged-in user
   // -------------------------
   describe("center button - trip page, non-member logged-in user", () => {
-    it("shows member-only popover when non-member logged-in user clicks center button", () => {
+    it("shows member-only popover when non-member logged-in user clicks center button", async () => {
       mockPathname.mockReturnValue("/trips/abc123");
       mockUser.mockReturnValue({ id: "user1" });
+      mockThen.mockImplementation((cb) => cb({ count: 0 }));
 
-      render(
-        <TripMembershipProvider isMember={false} role={null}>
-          <BottomNav />
-        </TripMembershipProvider>,
-      );
+      render(<BottomNav />);
 
-      const centerBtn = screen.getByLabelText("Add Photos");
+      const centerBtn = await screen.findByLabelText("Add Photos");
       fireEvent.click(centerBtn);
 
       expect(
@@ -139,33 +151,27 @@ describe("BottomNav", () => {
       ).toBeInTheDocument();
     });
 
-    it("does NOT navigate when non-member logged-in user clicks center button", () => {
+    it("does NOT navigate when non-member logged-in user clicks center button", async () => {
       mockPathname.mockReturnValue("/trips/abc123");
       mockUser.mockReturnValue({ id: "user1" });
+      mockThen.mockImplementation((cb) => cb({ count: 0 }));
 
-      render(
-        <TripMembershipProvider isMember={false} role={null}>
-          <BottomNav />
-        </TripMembershipProvider>,
-      );
+      render(<BottomNav />);
 
-      const centerBtn = screen.getByLabelText("Add Photos");
+      const centerBtn = await screen.findByLabelText("Add Photos");
       fireEvent.click(centerBtn);
 
       expect(mockRouterPush).not.toHaveBeenCalled();
     });
 
-    it("does NOT show LoginPrompt when non-member logged-in user clicks center button", () => {
+    it("does NOT show LoginPrompt when non-member logged-in user clicks center button", async () => {
       mockPathname.mockReturnValue("/trips/abc123");
       mockUser.mockReturnValue({ id: "user1" });
+      mockThen.mockImplementation((cb) => cb({ count: 0 }));
 
-      render(
-        <TripMembershipProvider isMember={false} role={null}>
-          <BottomNav />
-        </TripMembershipProvider>,
-      );
+      render(<BottomNav />);
 
-      const centerBtn = screen.getByLabelText("Add Photos");
+      const centerBtn = await screen.findByLabelText("Add Photos");
       fireEvent.click(centerBtn);
 
       expect(screen.queryByTestId("login-prompt")).not.toBeInTheDocument();
@@ -180,11 +186,7 @@ describe("BottomNav", () => {
       mockPathname.mockReturnValue("/trips/abc123");
       mockUser.mockReturnValue(null);
 
-      render(
-        <TripMembershipProvider isMember={false} role={null}>
-          <BottomNav />
-        </TripMembershipProvider>,
-      );
+      render(<BottomNav />);
 
       const centerBtn = screen.getByLabelText("Add Photos");
       fireEvent.click(centerBtn);
@@ -196,11 +198,7 @@ describe("BottomNav", () => {
       mockPathname.mockReturnValue("/trips/abc123");
       mockUser.mockReturnValue(null);
 
-      render(
-        <TripMembershipProvider isMember={false} role={null}>
-          <BottomNav />
-        </TripMembershipProvider>,
-      );
+      render(<BottomNav />);
 
       const centerBtn = screen.getByLabelText("Add Photos");
       fireEvent.click(centerBtn);
