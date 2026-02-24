@@ -13,8 +13,9 @@ jest.mock("next/navigation", () => ({
 
 // Mock useAuth
 const mockUser = jest.fn();
+const mockAuthLoading = jest.fn();
 jest.mock("@/hooks/useAuth", () => ({
-  useAuth: () => ({ user: mockUser() }),
+  useAuth: () => ({ user: mockUser(), loading: mockAuthLoading() }),
 }));
 
 // Mock LoginPrompt
@@ -43,6 +44,7 @@ describe("BottomNav", () => {
   beforeEach(() => {
     mockPathname.mockReturnValue("/");
     mockUser.mockReturnValue(null);
+    mockAuthLoading.mockReturnValue(false);
     mockRouterPush.mockClear();
     mockSingle.mockResolvedValue({ data: null, error: null });
   });

@@ -25,10 +25,11 @@ function shouldHideNav(pathname: string): boolean {
 export function BottomNav() {
   const pathname = usePathname();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
   const [showMemberPopover, setShowMemberPopover] = useState(false);
   const [isMember, setIsMember] = useState(false);
+  const [membershipLoading, setMembershipLoading] = useState(false);
   const centerButtonRef = useRef<HTMLButtonElement>(null);
 
   // Compute tripId here so it's available in useEffect below
@@ -38,9 +39,11 @@ export function BottomNav() {
   useEffect(() => {
     if (!tripId || !user) {
       setIsMember(false);
+      setMembershipLoading(false);
       return;
     }
 
+    setMembershipLoading(true);
     const supabase = createClient();
     supabase
       .from("trip_members")
@@ -50,6 +53,7 @@ export function BottomNav() {
       .single()
       .then(({ data }) => {
         setIsMember(!!data);
+        setMembershipLoading(false);
       });
   }, [tripId, user?.id]);
 
@@ -122,8 +126,11 @@ export function BottomNav() {
           {navItems.map((item) => {
             // Center button — contextual auth-gated action
             if ("type" in item && item.type === "center") {
-              // Determine if the button should be disabled
-              const isDisabled = !!tripId && !!user && !isMember;
+              // On trip pages: disabled until membership is confirmed
+              // (loading, not logged in, or logged in but not a member)
+              const isDisabled =
+                !!tripId &&
+                (authLoading || membershipLoading || !user || !isMember);
 
               return (
                 <button
