@@ -26,6 +26,8 @@ interface TripListContainerProps {
   emptyDescription?: string;
   /** Custom action for empty state */
   emptyAction?: React.ReactNode;
+  /** Default view mode (default: list) */
+  defaultView?: ViewMode;
 }
 
 function sortTrips(trips: Trip[], sort: TripSort): Trip[] {
@@ -78,11 +80,12 @@ export function TripListContainer({
   emptyTitle = "No trips yet",
   emptyDescription = "Create your first trip to get started",
   emptyAction,
+  defaultView = "list",
 }: TripListContainerProps) {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<TripFilter>("all");
   const [sort, setSort] = useState<TripSort>("latest");
-  const [view, setView] = useState<ViewMode>("list");
+  const [view, setView] = useState<ViewMode>(defaultView);
 
   const filtered = useMemo(() => {
     let result = trips;
