@@ -2,6 +2,7 @@ import { anonClient } from "@/lib/supabase/anon";
 import { CreateTripButton } from "@/components/trip/CreateTripButton";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { EmptyState } from "@/components/layout/EmptyState";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +15,7 @@ export default async function HomePage() {
     .limit(10);
 
   return (
-    <div className="mx-auto w-full max-w-md min-h-screen pb-24">
+    <div className="mx-auto w-full max-w-md min-h-screen pb-24 overflow-hidden">
       {/* Header */}
       <header className="sticky top-0 z-10 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md px-6 pt-12 pb-4">
         <div className="flex items-center justify-between">
@@ -44,9 +45,16 @@ export default async function HomePage() {
       </section>
 
       {/* Collections */}
-      <section className="px-6">
+      <section className="px-6 relative">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-bold dark:text-white">Highlights</h3>
+          <Link
+            href="/explore"
+            className="text-sm font-medium text-primary hover:text-primary/80 transition-colors flex items-center gap-1"
+          >
+            Explore
+            <span className="material-icons-round text-[16px]">chevron_right</span>
+          </Link>
         </div>
 
         {!trips || trips.length === 0 ? (
@@ -56,12 +64,12 @@ export default async function HomePage() {
             description="Create your first trip to get started"
           />
         ) : (
-          <div className="flex flex-col gap-6">
+          <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 -mx-6 px-6 no-scrollbar">
             {trips.map((trip) => (
-              <a
+              <Link
                 key={trip.id}
                 href={`/trips/${trip.id}`}
-                className="group relative w-full aspect-[4/5] rounded-3xl overflow-hidden shadow-lg"
+                className="group relative snap-center min-w-[280px] shrink-0 aspect-[4/5] rounded-3xl overflow-hidden shadow-lg"
               >
                 {trip.cover_image_url ? (
                   <img
@@ -81,7 +89,7 @@ export default async function HomePage() {
                     </p>
                   )}
                 </div>
-              </a>
+              </Link>
             ))}
           </div>
         )}
